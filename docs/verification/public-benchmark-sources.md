@@ -2,7 +2,7 @@
 
 G0 does not vendor public benchmark instances.
 
-Future public benchmark ingestion must record:
+G7 public benchmark ingestion must record:
 
 - upstream source URL;
 - license or redistribution terms;

@@ -24,8 +24,9 @@ consolidation unless a task explicitly allows task-file maintenance.
 
 ## Current status
 
-G0 scaffold is present. No non-human-gated implementation task is assumed ready
-beyond scaffold cleanup.
+G0 scaffold, acceptance, roadmap, documentation inventory, documentation
+cleanup, Javadoc baseline, and literature notes are complete. Product behavior
+work starts with the G1 canonical model tasks.
 
 The current placeholder and stale-language inventory is tracked in
 [documentation-placeholder-inventory.md](documentation-placeholder-inventory.md).

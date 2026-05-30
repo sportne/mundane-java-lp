@@ -1,6 +1,6 @@
 # Generated instance families
 
-Planned problem-shape families:
+Roadmap problem-shape families:
 
 - tiny known-answer LPs;
 - random feasible bounded LPs;

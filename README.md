@@ -18,9 +18,10 @@ Contributor-facing documentation is part of the product, not an afterthought.
 
 ## Current repository phase
 
-This scaffold is in **G0: design-control scaffold and harness foundation**.
+G0 design-control scaffold work is complete. The next product work starts with
+G1 canonical LP model and tiny fixture tasks.
 
-Implemented in this scaffold:
+Implemented in the G0 scaffold:
 
 - Gradle Groovy DSL multi-module structure under `modules/` and `examples/`.
 - Local `build-logic/` convention plugins.

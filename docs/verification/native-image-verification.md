@@ -1,9 +1,9 @@
 # Native Image verification
 
-G0 native verification is a placeholder lane that checks whether `native-image`
-is present and records that real native builds are deferred.
+G0 native verification is a scaffold lane that checks whether `native-image` is
+present and records the native checks that G8 must make meaningful.
 
-Future native verification should cover:
+G8 native verification should cover:
 
 - CLI native executable starts.
 - CLI native executable validates a tiny MPS.
