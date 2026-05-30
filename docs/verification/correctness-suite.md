@@ -30,6 +30,10 @@ Tier 1 validation maps to every 0.1.0 implemented validation dimension:
 - shape mismatch tests use deliberately invalid local fixtures and are not part
   of the canonical fixture catalog.
 
+`lp-testkit` exposes the canonical fixture evidence as validation expected
+results and solver-like validation evidence. Validation tests consume that
+adapter instead of duplicating fixture math.
+
 The MPS round-trip subset covers Tier 1 minimization fixtures that do not use
 canonical ranged rows. Maximization and ranged-row fixtures remain canonical
 model fixtures, but they are outside the 0.1.0 MPS subset until objective-sense

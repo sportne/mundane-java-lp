@@ -6,4 +6,8 @@ Shared test fixture and assertion helper module.
 tests. It should wrap stable fixture access and assertion helpers rather than
 create new mathematical examples independently.
 
+The module also exposes adapters from canonical fixture evidence to
+`lp-validation` expected/evidence records so validation and harness tests use the
+same hand-checked Tier 1 data.
+
 See the repository root `README.md` and `docs/architecture/module-boundaries.md`.

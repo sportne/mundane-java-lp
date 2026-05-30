@@ -103,7 +103,10 @@ Finding codes are stable API strings. 0.1.0 codes are:
 - `OBJECTIVE_PRIMAL_MISMATCH`
 - `OBJECTIVE_ABSOLUTE_GAP`
 - `OBJECTIVE_RELATIVE_GAP`
+- `STATUS_MISSING`
 - `STATUS_MISMATCH`
+- `NON_FINITE_PRIMAL`
+- `NON_FINITE_OBJECTIVE`
 
 Messages are diagnostic text and may change. Code, magnitude, and acceptance
 semantics are the contract.

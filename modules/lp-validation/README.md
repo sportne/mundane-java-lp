@@ -13,4 +13,10 @@ value, normalized status, and expected-objective gap checks. Dual residuals,
 complementarity, and certificate checks are reserved until corresponding
 evidence is available.
 
+Primary API types:
+
+- `ValidationEvidence`: optional solver status, objective, and primal values.
+- `ExpectedValidationResult`: independent fixture expectation.
+- `LpSolutionValidator`: checks available evidence and emits stable findings.
+
 See the repository root `README.md` and `docs/architecture/module-boundaries.md`.
