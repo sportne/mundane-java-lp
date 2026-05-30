@@ -1,18 +1,30 @@
 # First-order methods
 
-G0 placeholder.
+## Design notes
 
-## Purpose
+- First-order LP methods are relevant for massive sparse instances because they
+  can trade high-accuracy basis information for matrix-vector throughput and
+  lower per-iteration memory pressure.
+- PDLP is the main practical reference for this project: it applies PDHG to LP
+  and adds engineering features such as presolve, scaling/preconditioning,
+  adaptive restart, and adaptive step choices.
+- A first-order solver would require the validation layer to treat approximate
+  certificates and residual tolerances as first-class outputs. It should not be
+  mixed with the simple correctness-first solver.
+- For Java/GraalVM, the implementation question is whether sparse
+  matrix-vector kernels and allocation discipline can be made predictable enough
+  before adding algorithmic complexity.
 
-Record literature-backed design notes for first-order methods as they become
-implementation drivers.
+## Roadmap references
 
-## Required structure for future notes
+- `g3-001-validation-design-completion`
+- `g7-004-performance-benchmark-suite-baseline`
+- `g9-005-performance-solver-design-decision`
+- `g9-016-performance-iteration-3-robustness-and-scaling`
 
-- Problem addressed.
-- Key algorithmic idea.
-- Relevance to massive sparse LPs.
-- Relevance to Java/GraalVM implementation.
-- Risks and numerical concerns.
-- Benchmark implications.
-- References.
+## References
+
+- Applegate et al., "Practical Large-Scale Linear Programming using
+  Primal-Dual Hybrid Gradient," NeurIPS 2021,
+  <https://research.google/pubs/practical-large-scale-linear-programming-using-primal-dual-hybrid-gradient/>.
+- Applegate et al., arXiv version, <https://arxiv.org/abs/2106.04756>.
