@@ -1,5 +1,5 @@
 # lp-testkit
 
-G0 scaffold module for `mundane-java-lp`.
+Shared test fixture and assertion helper module.
 
 See the repository root `README.md` and `docs/architecture/module-boundaries.md`.

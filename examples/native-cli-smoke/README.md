@@ -1,3 +1,3 @@
 # native-cli-smoke
 
-G0 example project for `mundane-java-lp`.
+Example project for native executable smoke checks.

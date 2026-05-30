@@ -1,5 +1,5 @@
 # lp-adapter-clp-cli
 
-G0 scaffold module for `mundane-java-lp`.
+CLI adapter module for COIN-OR CLP.
 
 See the repository root `README.md` and `docs/architecture/module-boundaries.md`.

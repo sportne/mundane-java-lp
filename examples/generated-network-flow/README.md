@@ -1,3 +1,3 @@
 # generated-network-flow
 
-G0 example project for `mundane-java-lp`.
+Example project for deterministic generated network-flow LP families.

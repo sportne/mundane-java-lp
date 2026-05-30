@@ -1,5 +1,5 @@
 # lp-harness-api
 
-G0 scaffold module for `mundane-java-lp`.
+Benchmark and solver-run orchestration API module.
 
 See the repository root `README.md` and `docs/architecture/module-boundaries.md`.

@@ -1,5 +1,5 @@
 # lp-io-mps
 
-G0 scaffold module for `mundane-java-lp`.
+MPS format read/write module.
 
 See the repository root `README.md` and `docs/architecture/module-boundaries.md`.

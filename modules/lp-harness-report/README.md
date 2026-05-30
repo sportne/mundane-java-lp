@@ -1,5 +1,5 @@
 # lp-harness-report
 
-G0 scaffold module for `mundane-java-lp`.
+Report output module for harness JSON, CSV, and Markdown artifacts.
 
 See the repository root `README.md` and `docs/architecture/module-boundaries.md`.

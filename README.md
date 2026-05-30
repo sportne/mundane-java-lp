@@ -3,9 +3,9 @@
 `mundane-java-lp` is a design-first Java 21 / GraalVM Native Image project for
 studying massive sparse linear programming behavior.
 
-The initial product is a reproducible LP correctness and benchmark harness. A
-Java-native LP solver implementation may be added later and evaluated through
-the same harness as established open-source solvers.
+The initial product is a reproducible LP correctness and benchmark harness.
+Java-native LP solver implementations are roadmap work and will be evaluated
+through the same harness as established open-source solvers.
 
 ## Development model
 
@@ -25,7 +25,7 @@ Implemented in this scaffold:
 - Gradle Groovy DSL multi-module structure under `modules/` and `examples/`.
 - Local `build-logic/` convention plugins.
 - Core module boundaries for model, sparse matrix, validation, I/O, harness,
-  solver adapters, native API placeholders, and architecture tests.
+  solver adapters, native API boundaries, and architecture tests.
 - Lightweight Java source skeletons that compile once dependencies are
   resolved by Gradle.
 - Documentation baseline for scope, architecture, verification, literature,
@@ -63,12 +63,13 @@ Initial comparison targets:
 - HiGHS CLI adapter.
 - COIN-OR CLP CLI adapter.
 - GLPK CLI adapter.
-- OR-Tools Java adapter placeholder.
-- ojAlgo adapter placeholder.
+- OR-Tools Java adapter.
+- ojAlgo adapter.
 
 Adapters are intentionally isolated in separate modules. External solvers are
 optional and must be reported as unavailable rather than failing unrelated
-quality gates.
+quality gates. Current adapter status is tracked in
+`docs/verification/solver-comparison.md`.
 
 ## Common project checks
 

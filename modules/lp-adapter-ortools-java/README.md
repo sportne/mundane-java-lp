@@ -1,5 +1,5 @@
 # lp-adapter-ortools-java
 
-G0 scaffold module for `mundane-java-lp`.
+Java library adapter module for OR-Tools.
 
 See the repository root `README.md` and `docs/architecture/module-boundaries.md`.

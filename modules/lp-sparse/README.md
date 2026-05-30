@@ -1,5 +1,5 @@
 # lp-sparse
 
-G0 scaffold module for `mundane-java-lp`.
+Primitive sparse matrix storage and kernel module.
 
 See the repository root `README.md` and `docs/architecture/module-boundaries.md`.

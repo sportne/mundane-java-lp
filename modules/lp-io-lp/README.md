@@ -1,5 +1,5 @@
 # lp-io-lp
 
-G0 scaffold module for `mundane-java-lp`.
+LP text-format I/O module.
 
 See the repository root `README.md` and `docs/architecture/module-boundaries.md`.

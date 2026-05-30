@@ -1,5 +1,5 @@
 # lp-solver-spi
 
-G0 scaffold module for `mundane-java-lp`.
+Solver service-provider interface module.
 
 See the repository root `README.md` and `docs/architecture/module-boundaries.md`.

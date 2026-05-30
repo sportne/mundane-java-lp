@@ -1,3 +1,3 @@
 # solver-comparison-smoke
 
-G0 example project for `mundane-java-lp`.
+Example project for solver comparison smoke checks.

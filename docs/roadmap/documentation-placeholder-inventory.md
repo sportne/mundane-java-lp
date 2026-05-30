@@ -21,9 +21,9 @@ or removal decisions unless a task explicitly allows task-file maintenance.
 | --- | --- | --- | --- |
 | `docs/literature/*.md` | Topic files contain `G0 placeholder` and future-note structure. | Fill | `g0-007-literature-notes-completion` replaces placeholders with concise cited notes. |
 | `docs/literature/literature-index.md` | Describes topic placeholders and later citation work. | Fill | `g0-007-literature-notes-completion` updates the index after topic notes exist. |
-| `modules/*/README.md` | Module READMEs say `G0 scaffold module`. | Fill | `g0-005-doc-consolidation-pass` owns initial consolidation. Later owners are `g1-001`, `g2-001`, `g2-003`, `g3-001`, `g4-001`, `g5-001`, `g6-001`, `g8-001`, and G9 solver tasks by module area. |
-| `README.md` | Current phase says G0 and duplicates OR-Tools/ojAlgo placeholder wording. | Merge | `g0-005-doc-consolidation-pass` removes duplicate placeholder wording; `g6-004-java-adapter-comparison-smoke` and release cleanup tasks update phase and adapter status later. |
-| `docs/verification/solver-comparison.md` | OR-Tools and ojAlgo are listed as placeholders. | Merge | `g0-005-doc-consolidation-pass` keeps the adapter-status wording in one place; `g6-004-java-adapter-comparison-smoke` updates Java adapter behavior later. |
+| `modules/*/README.md` | Module READMEs formerly said `G0 scaffold module`. | Fill | `g0-005-doc-consolidation-pass` replaced generic scaffold text with module-purpose summaries. Later owners are `g1-001`, `g2-001`, `g2-003`, `g3-001`, `g4-001`, `g5-001`, `g6-001`, `g8-001`, and G9 solver tasks by module area. |
+| `README.md` | Current phase says G0; Java-native solvers are described as roadmap work; OR-Tools/ojAlgo status was formerly duplicated here. | Merge | `g0-005-doc-consolidation-pass` removed duplicate adapter placeholder wording; G9 tasks own Java-native solver progress; `g6-004-java-adapter-comparison-smoke` and release cleanup tasks update phase and adapter status later. |
+| `docs/verification/solver-comparison.md` | OR-Tools and ojAlgo are listed as placeholders. | Merge | `g0-005-doc-consolidation-pass` keeps adapter-status wording here; `g6-004-java-adapter-comparison-smoke` updates Java adapter behavior later. |
 | `docs/verification/native-image-verification.md` | Native lane says real native builds are deferred and lists future checks. | Fill | `g8-001-native-image-smoke` makes the native smoke meaningful; `g8-002-allocation-and-native-friendliness-pass` updates friendliness checks. |
 | `docs/verification/public-benchmark-sources.md` | Public benchmark ingestion is described as future work. | Fill | `g7-002-public-benchmark-curation` owns benchmark source criteria and provenance. |
 | `docs/verification/generated-instance-families.md` | Generated families are planned but not implemented. | Fill | `g7-001-generated-fixture-baseline` owns deterministic generated families. |
@@ -39,12 +39,10 @@ or removal decisions unless a task explicitly allows task-file maintenance.
 
 ## Consolidation candidates
 
-- Merge duplicate adapter placeholder wording between `README.md` and
-  `docs/verification/solver-comparison.md` once Java adapter behavior exists.
-- Consolidate repeated module README scaffold text when each gate starts
-  replacing module-level placeholders.
 - Reconcile verification lane lists across `docs/verification/*.md` during
   release hardening after the commands exist.
+- Revisit module README purpose lines during gate-specific design tasks when a
+  module's public behavior becomes more precise than its G0 purpose statement.
 
 ## Intentional remaining terms
 

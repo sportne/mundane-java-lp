@@ -1,5 +1,5 @@
 # lp-adapter-glpk-cli
 
-G0 scaffold module for `mundane-java-lp`.
+CLI adapter module for GLPK.
 
 See the repository root `README.md` and `docs/architecture/module-boundaries.md`.

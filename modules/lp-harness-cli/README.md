@@ -1,5 +1,5 @@
 # lp-harness-cli
 
-G0 scaffold module for `mundane-java-lp`.
+Command-line entrypoint module for harness execution.
 
 See the repository root `README.md` and `docs/architecture/module-boundaries.md`.

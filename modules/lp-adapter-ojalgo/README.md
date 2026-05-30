@@ -1,5 +1,5 @@
 # lp-adapter-ojalgo
 
-G0 scaffold module for `mundane-java-lp`.
+Java library adapter module for ojAlgo.
 
 See the repository root `README.md` and `docs/architecture/module-boundaries.md`.

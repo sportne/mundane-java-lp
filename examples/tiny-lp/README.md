@@ -1,3 +1,3 @@
 # tiny-lp
 
-G0 example project for `mundane-java-lp`.
+Example project for tiny, hand-checkable LP instances.

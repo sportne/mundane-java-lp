@@ -1,5 +1,5 @@
 # lp-model
 
-G0 scaffold module for `mundane-java-lp`.
+Canonical LP domain model module.
 
 See the repository root `README.md` and `docs/architecture/module-boundaries.md`.

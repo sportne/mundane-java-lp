@@ -1,5 +1,5 @@
 # lp-bom
 
-G0 scaffold module for `mundane-java-lp`.
+Bill-of-materials module for published project coordinates.
 
 See the repository root `README.md` and `docs/architecture/module-boundaries.md`.

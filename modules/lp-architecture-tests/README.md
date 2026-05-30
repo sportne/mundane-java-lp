@@ -1,5 +1,5 @@
 # lp-architecture-tests
 
-G0 scaffold module for `mundane-java-lp`.
+Architecture-rule test module for repository-wide structural checks.
 
 See the repository root `README.md` and `docs/architecture/module-boundaries.md`.

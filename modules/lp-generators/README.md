@@ -1,5 +1,5 @@
 # lp-generators
 
-G0 scaffold module for `mundane-java-lp`.
+Deterministic LP fixture and instance generator module.
 
 See the repository root `README.md` and `docs/architecture/module-boundaries.md`.
