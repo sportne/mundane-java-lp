@@ -5,4 +5,6 @@ plugins {
 
 dependencies {
     api project(':modules:lp-model')
+    api project(':modules:lp-sparse')
+    testImplementation project(':modules:lp-testkit')
 }

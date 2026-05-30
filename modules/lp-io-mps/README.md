@@ -22,4 +22,9 @@ column, and objective names for fixtures in the supported subset. Ranged
 canonical rows are excluded from 0.1.0 MPS round-trip fixtures because `RANGES`
 is intentionally outside the subset.
 
+The main API exposes `MpsLp`, an I/O envelope that carries the canonical
+`LpProblem`, CSR coefficients, row names, column names, and objective row name.
+`MpsReader.read(Path)` remains available for callers that only need problem
+metadata.
+
 See the repository root `README.md` and `docs/architecture/module-boundaries.md`.
