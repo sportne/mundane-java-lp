@@ -16,6 +16,17 @@ subject to           lhs <= A x <= rhs
 This form is chosen because it can represent equalities, ranged rows, lower and
 upper variable bounds, fixed variables, and free variables.
 
+The 0.1.0 canonical model records objective sense, objective constant, dense
+objective coefficients, variable bounds, row activity bounds, matrix shape, and
+a diagnostic problem name. Row and variable names are positional metadata
+carried by fixture or I/O envelopes when needed. Matrix coefficients are carried
+by sparse storage or I/O envelopes outside `lp-model` so the model remains
+independent of solver, I/O, and storage implementation details.
+
+Invalid mathematical data is rejected by production constructors. Invalid
+fixtures are allowed only as boundary-specific test data and must not be mixed
+into valid fixture catalogs.
+
 ## File-format baseline
 
 - MPS support is the first interchange target.
