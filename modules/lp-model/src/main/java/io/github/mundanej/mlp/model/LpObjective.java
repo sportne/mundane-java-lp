@@ -9,7 +9,13 @@ public final class LpObjective {
     private final double constant;
     private final double[] coefficients;
 
-    /** Creates an objective. */
+    /**
+     * Creates an objective.
+     *
+     * @param sense optimization direction
+     * @param constant objective constant
+     * @param coefficients dense objective coefficients
+     */
     public LpObjective(final ObjectiveSense sense, final double constant, final double[] coefficients) {
         this.sense = Objects.requireNonNull(sense, "sense");
         this.constant = constant;
@@ -36,7 +42,11 @@ public final class LpObjective {
         return coefficients.clone();
     }
 
-    /** Evaluates the objective for a primal vector. */
+    /**
+     * Evaluates the objective for a primal vector.
+     *
+     * @param primal primal vector
+     */
     public double evaluate(final double[] primal) {
         Objects.requireNonNull(primal, "primal");
         if (primal.length != coefficients.length) {
@@ -49,6 +59,7 @@ public final class LpObjective {
         return value;
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return "LpObjective[sense=" + sense + ", constant=" + constant

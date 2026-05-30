@@ -8,7 +8,13 @@ import java.util.Objects;
 
 /** Checks variable bound violations for a primal solution. */
 public final class BoundViolationChecker {
-    /** Checks bounds. */
+    /**
+     * Checks bounds.
+     *
+     * @param problem LP problem
+     * @param primal primal vector
+     * @param profile tolerance profile
+     */
     public ValidationReport check(
             final LpProblem problem,
             final double[] primal,

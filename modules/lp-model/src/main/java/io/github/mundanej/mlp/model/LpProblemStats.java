@@ -1,8 +1,20 @@
 package io.github.mundanej.mlp.model;
 
-/** Immutable shape and density summary for an LP instance. */
+/**
+ * Immutable shape and density summary for an LP instance.
+ *
+ * @param rows row count
+ * @param columns column count
+ * @param nonzeros nonzero count
+ */
 public record LpProblemStats(int rows, int columns, long nonzeros) {
-    /** Creates a stats record. */
+    /**
+     * Creates a stats record.
+     *
+     * @param rows row count
+     * @param columns column count
+     * @param nonzeros nonzero count
+     */
     public LpProblemStats {
         if (rows < 0) {
             throw new IllegalArgumentException("rows must be non-negative");

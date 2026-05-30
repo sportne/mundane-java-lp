@@ -7,6 +7,12 @@ public interface LpSolverAdapter {
     /** Returns solver identifier. */
     SolverId id();
 
-    /** Solves the supplied problem or returns an unsupported/error result. */
+    /**
+     * Solves the supplied problem or returns an unsupported/error result.
+     *
+     * @param problem LP problem
+     * @param options solver options
+     * @param workDirectory solver work directory
+     */
     SolverRunResult solve(LpProblem problem, SolverOptions options, SolverWorkDirectory workDirectory);
 }

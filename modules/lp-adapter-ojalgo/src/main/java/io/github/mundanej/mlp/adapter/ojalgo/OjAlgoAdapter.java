@@ -13,11 +13,13 @@ import java.util.OptionalDouble;
 public final class OjAlgoAdapter implements LpSolverAdapter {
     private static final SolverId ID = new SolverId("ojalgo", "placeholder");
 
+    /** {@inheritDoc} */
     @Override
     public SolverId id() {
         return ID;
     }
 
+    /** {@inheritDoc} */
     @Override
     public SolverRunResult solve(
             final LpProblem problem,

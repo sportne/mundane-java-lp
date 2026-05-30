@@ -1,6 +1,11 @@
 package io.github.mundanej.mlp.model;
 
-/** Lower and upper bounds for a row activity. */
+/**
+ * Lower and upper bounds for a row activity.
+ *
+ * @param lower lower activity bound
+ * @param upper upper activity bound
+ */
 public record LpRowBounds(double lower, double upper) {
     /** A free row. */
     public static final LpRowBounds FREE = new LpRowBounds(
@@ -10,6 +15,8 @@ public record LpRowBounds(double lower, double upper) {
     /**
      * Creates row bounds.
      *
+     * @param lower lower activity bound
+     * @param upper upper activity bound
      * @throws IllegalArgumentException if lower is greater than upper
      */
     public LpRowBounds {

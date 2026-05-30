@@ -10,7 +10,15 @@ public final class CsrMatrix {
     private final int[] columnIndices;
     private final int[] rowPointers;
 
-    /** Creates a CSR matrix. */
+    /**
+     * Creates a CSR matrix.
+     *
+     * @param rows row count
+     * @param columns column count
+     * @param values nonzero values
+     * @param columnIndices column index for each nonzero
+     * @param rowPointers start offset for each row
+     */
     public CsrMatrix(
             final int rows,
             final int columns,
@@ -38,7 +46,11 @@ public final class CsrMatrix {
         return columns;
     }
 
-    /** Computes y = A x. */
+    /**
+     * Computes y = A x.
+     *
+     * @param x dense input vector
+     */
     public double[] multiply(final double[] x) {
         Objects.requireNonNull(x, "x");
         if (x.length != columns) {

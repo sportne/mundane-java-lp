@@ -3,9 +3,21 @@ package io.github.mundanej.mlp.harness;
 import io.github.mundanej.mlp.solver.spi.SolverRunResult;
 import io.github.mundanej.mlp.validation.ValidationReport;
 
-/** Result of running one solver on one instance. */
+/**
+ * Result of running one solver on one instance.
+ *
+ * @param instanceId benchmark instance identifier
+ * @param solverResult normalized solver result
+ * @param validationReport validation report
+ */
 public record RunRecord(String instanceId, SolverRunResult solverResult, ValidationReport validationReport) {
-    /** Creates a run record. */
+    /**
+     * Creates a run record.
+     *
+     * @param instanceId benchmark instance identifier
+     * @param solverResult normalized solver result
+     * @param validationReport validation report
+     */
     public RunRecord {
         if (instanceId == null || instanceId.isBlank()) {
             throw new IllegalArgumentException("instanceId must not be blank");

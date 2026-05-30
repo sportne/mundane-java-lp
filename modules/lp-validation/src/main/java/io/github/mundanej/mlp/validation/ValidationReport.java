@@ -2,9 +2,19 @@ package io.github.mundanej.mlp.validation;
 
 import java.util.List;
 
-/** Validation result for a solver output. */
+/**
+ * Validation result for a solver output.
+ *
+ * @param toleranceProfile tolerance profile used for validation
+ * @param findings validation findings
+ */
 public record ValidationReport(ToleranceProfile toleranceProfile, List<ValidationFinding> findings) {
-    /** Creates a report. */
+    /**
+     * Creates a report.
+     *
+     * @param toleranceProfile tolerance profile used for validation
+     * @param findings validation findings
+     */
     public ValidationReport {
         if (toleranceProfile == null) {
             throw new IllegalArgumentException("toleranceProfile must not be null");

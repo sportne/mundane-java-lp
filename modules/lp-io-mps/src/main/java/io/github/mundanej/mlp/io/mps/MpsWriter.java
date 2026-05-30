@@ -8,7 +8,12 @@ import java.util.Objects;
 
 /** Minimal G0 MPS writer placeholder. */
 public final class MpsWriter {
-    /** Writes a validation-only minimal MPS shell. */
+    /**
+     * Writes a validation-only minimal MPS shell.
+     *
+     * @param problem LP problem to describe
+     * @param path output path
+     */
     public void write(final LpProblem problem, final Path path) throws IOException {
         Objects.requireNonNull(problem, "problem");
         Objects.requireNonNull(path, "path");

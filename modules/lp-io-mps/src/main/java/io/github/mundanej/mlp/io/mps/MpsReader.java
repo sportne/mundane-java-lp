@@ -12,7 +12,11 @@ import java.util.Objects;
 
 /** Minimal G0 MPS reader placeholder. */
 public final class MpsReader {
-    /** Reads enough MPS metadata for G0 smoke tests. */
+    /**
+     * Reads enough MPS metadata for G0 smoke tests.
+     *
+     * @param path MPS file path
+     */
     public LpProblem read(final Path path) throws IOException {
         Objects.requireNonNull(path, "path");
         String name = "unnamed";

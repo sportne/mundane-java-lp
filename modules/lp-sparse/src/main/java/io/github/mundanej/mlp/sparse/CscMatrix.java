@@ -10,7 +10,15 @@ public final class CscMatrix {
     private final int[] rowIndices;
     private final int[] columnPointers;
 
-    /** Creates a CSC matrix. */
+    /**
+     * Creates a CSC matrix.
+     *
+     * @param rows row count
+     * @param columns column count
+     * @param values nonzero values
+     * @param rowIndices row index for each nonzero
+     * @param columnPointers start offset for each column
+     */
     public CscMatrix(
             final int rows,
             final int columns,
@@ -43,7 +51,11 @@ public final class CscMatrix {
         return values.length;
     }
 
-    /** Computes y = A x. */
+    /**
+     * Computes y = A x.
+     *
+     * @param x dense input vector
+     */
     public double[] multiply(final double[] x) {
         Objects.requireNonNull(x, "x");
         if (x.length != columns) {

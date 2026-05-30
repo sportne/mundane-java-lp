@@ -11,7 +11,15 @@ public final class LpProblem {
     private final List<LpRowBounds> rowBounds;
     private final LpProblemStats stats;
 
-    /** Creates a problem descriptor. */
+    /**
+     * Creates a problem descriptor.
+     *
+     * @param name problem name
+     * @param objective objective function
+     * @param variableBounds variable bounds
+     * @param rowBounds row bounds
+     * @param stats problem shape statistics
+     */
     public LpProblem(
             final String name,
             final LpObjective objective,

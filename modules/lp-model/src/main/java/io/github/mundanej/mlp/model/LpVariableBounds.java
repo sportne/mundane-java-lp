@@ -1,6 +1,11 @@
 package io.github.mundanej.mlp.model;
 
-/** Lower and upper bounds for a single LP variable. */
+/**
+ * Lower and upper bounds for a single LP variable.
+ *
+ * @param lower lower variable bound
+ * @param upper upper variable bound
+ */
 public record LpVariableBounds(double lower, double upper) {
     /** A free variable bound. */
     public static final LpVariableBounds FREE = new LpVariableBounds(
@@ -10,6 +15,8 @@ public record LpVariableBounds(double lower, double upper) {
     /**
      * Creates bounds.
      *
+     * @param lower lower variable bound
+     * @param upper upper variable bound
      * @throws IllegalArgumentException if lower is greater than upper
      */
     public LpVariableBounds {
