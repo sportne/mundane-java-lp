@@ -14,6 +14,14 @@
 - Java/GraalVM implications are direct: primitive arrays, predictable ownership,
   and avoided allocation are easier to inspect and profile than generic graph or
   collection-heavy representations.
+- For 0.1.0, CSR and CSC primitive arrays are enough for fixture construction,
+  row-activity checks, MPS round trips, and initial solver experiments. The
+  project should prefer simple, inspectable kernels over broad matrix libraries
+  until a benchmarked task demonstrates a concrete bottleneck.
+- Builders may use temporary objects at ingestion boundaries, but those objects
+  must not become the steady-state representation used by validators or solvers.
+  This keeps allocation behavior visible and supports the Native Image posture
+  in ADR-0005.
 
 ## Roadmap references
 
