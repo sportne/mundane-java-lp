@@ -18,7 +18,9 @@
 Gates are capability milestones. Task file prefixes match the gate they
 advance: `g3-*` tasks belong to G3 validation work, `g9-*` tasks belong to G9
 in-project solver work, and so on. Release-hardening tasks use the `release-*`
-prefix because they happen after the G0-G9 capability gates.
+prefix because they happen after the G0-G9 capability gates. Task files are
+trace records for completed and future work; they are exempt from markdown
+consolidation unless a task explicitly allows task-file maintenance.
 
 ## Current status
 

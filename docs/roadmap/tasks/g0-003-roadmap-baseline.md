@@ -2,7 +2,7 @@
 
 ## Status
 
-proposed
+complete
 
 ## Requirement IDs
 
@@ -28,7 +28,8 @@ proposed
 
 - Production Java source.
 - Gradle build files.
-- Completed task files unless correcting a broken link.
+- Completed task files except for link correction or template-heading
+  normalization needed by this task's required checks.
 
 ## Required behavior
 
