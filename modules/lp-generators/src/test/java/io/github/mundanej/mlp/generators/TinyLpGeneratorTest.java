@@ -8,5 +8,6 @@ final class TinyLpGeneratorTest {
     @Test
     void createsSingleVariableProblem() {
         assertEquals(1, new TinyLpGenerator().singleBoundedVariable().stats().columns());
+        assertEquals("single-bounded-variable", new TinyLpGenerator().singleBoundedVariable().name());
     }
 }

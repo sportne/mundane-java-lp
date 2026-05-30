@@ -15,6 +15,11 @@ Correctness tests are layered.
 - Ranged row.
 - Degenerate optimum.
 
+Tier 1 fixtures are implemented as direct canonical model instances with sparse
+matrix coefficients and hand-checked evidence. Optimal fixtures include a
+primal vector and objective value. Infeasible and unbounded fixtures carry the
+expected outcome without primal evidence.
+
 ## Tier 2: generated LPs with known evidence
 
 Generators should eventually create primal/dual certificates so correctness can
