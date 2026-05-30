@@ -1,0 +1,12 @@
+tasks.register('printOfflineRepositoryConfiguration') {
+    group = 'help'
+    description = 'Prints the optional offline repository setting used by this build.'
+    doLast {
+        def offlineRepoPath = providers.gradleProperty('mlp.offlineRepo').orNull
+        if (offlineRepoPath == null || offlineRepoPath.isBlank()) {
+            println 'mlp.offlineRepo is not set; Gradle will use configured online repositories.'
+        } else {
+            println "mlp.offlineRepo=${offlineRepoPath}"
+        }
+    }
+}

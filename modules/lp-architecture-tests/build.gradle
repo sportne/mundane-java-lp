@@ -1,0 +1,7 @@
+plugins {
+    id 'mlp.java-library-conventions'
+}
+
+dependencies {
+    testImplementation project(':modules:lp-model')
+}

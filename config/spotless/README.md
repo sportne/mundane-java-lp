@@ -1,0 +1,1 @@
+# Spotless configuration placeholder

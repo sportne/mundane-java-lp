@@ -1,0 +1,9 @@
+plugins {
+    id 'mlp.java-library-conventions'
+    id 'mlp.publishing-conventions'
+}
+
+dependencies {
+    api project(':modules:lp-model')
+    api project(':modules:lp-sparse')
+}

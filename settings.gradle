@@ -1,0 +1,56 @@
+pluginManagement {
+    def offlineRepoPath = providers.gradleProperty('mlp.offlineRepo').orNull
+    includeBuild 'build-logic'
+    repositories {
+        if (offlineRepoPath != null && !offlineRepoPath.isBlank()) {
+            maven { url = uri(offlineRepoPath) }
+        } else {
+            gradlePluginPortal()
+            mavenCentral()
+        }
+    }
+}
+
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
+
+dependencyResolutionManagement {
+    def offlineRepoPath = providers.gradleProperty('mlp.offlineRepo').orNull
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        if (offlineRepoPath != null && !offlineRepoPath.isBlank()) {
+            maven { url = uri(offlineRepoPath) }
+        } else {
+            mavenCentral()
+        }
+    }
+}
+
+rootProject.name = 'mundane-java-lp'
+
+include ':modules:lp-bom'
+include ':modules:lp-model'
+include ':modules:lp-sparse'
+include ':modules:lp-io-mps'
+include ':modules:lp-io-lp'
+include ':modules:lp-validation'
+include ':modules:lp-generators'
+include ':modules:lp-solver-spi'
+include ':modules:lp-harness-api'
+include ':modules:lp-harness-cli'
+include ':modules:lp-harness-report'
+include ':modules:lp-adapter-highs-cli'
+include ':modules:lp-adapter-clp-cli'
+include ':modules:lp-adapter-glpk-cli'
+include ':modules:lp-adapter-ortools-java'
+include ':modules:lp-adapter-ojalgo'
+include ':modules:lp-native-api'
+include ':modules:lp-native-tests'
+include ':modules:lp-architecture-tests'
+include ':modules:lp-testkit'
+
+include ':examples:tiny-lp'
+include ':examples:generated-network-flow'
+include ':examples:solver-comparison-smoke'
+include ':examples:native-cli-smoke'

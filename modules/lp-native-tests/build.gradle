@@ -1,0 +1,8 @@
+plugins {
+    id 'mlp.java-library-conventions'
+    id 'mlp.native-conventions'
+}
+
+dependencies {
+    testImplementation project(':modules:lp-native-api')
+}

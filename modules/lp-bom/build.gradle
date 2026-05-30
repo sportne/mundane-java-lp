@@ -1,0 +1,30 @@
+plugins {
+    id 'java-platform'
+    id 'maven-publish'
+}
+
+group = 'io.github.mundanej'
+version = providers.gradleProperty('mlp.version').getOrElse('0.1.0-SNAPSHOT')
+
+javaPlatform {
+    allowDependencies()
+}
+
+dependencies {
+    constraints {
+        api project(':modules:lp-model')
+        api project(':modules:lp-sparse')
+        api project(':modules:lp-io-mps')
+        api project(':modules:lp-validation')
+        api project(':modules:lp-harness-api')
+        api project(':modules:lp-solver-spi')
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.javaPlatform
+        }
+    }
+}

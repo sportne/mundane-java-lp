@@ -1,0 +1,39 @@
+.gradle/
+build/
+**/build/
+out/
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.classpath
+.project
+.settings/
+.DS_Store
+.env
+.env.*
+!.env.example
+
+# Local benchmark artifacts
+results/
+instances/public/
+instances/generated/
+
+# Native Image outputs
+*.so
+*.dylib
+*.dll
+*.exe
+*.a
+
+# Local solver binaries / caches
+.local/
+solver-cache/
+
+# Ignore Kotlin plugin data
+.kotlin
+
+# JVM crash logs
+hs_err_pid*.log
+replay_pid*.log

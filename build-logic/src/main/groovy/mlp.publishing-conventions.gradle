@@ -1,0 +1,30 @@
+plugins {
+    id 'maven-publish'
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.findByName('java')
+            pom {
+                name = project.name
+                description = 'mundane Java LP module'
+                url = 'https://github.com/sportne/mundane-java-lp'
+                licenses {
+                    license {
+                        name = 'BSD 3-Clause License'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'sportne'
+                        name = 'Stephen Portner'
+                    }
+                }
+                scm {
+                    url = 'https://github.com/sportne/mundane-java-lp'
+                }
+            }
+        }
+    }
+}

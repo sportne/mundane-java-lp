@@ -1,0 +1,27 @@
+tasks.register('validateDesignControlPack') {
+    group = 'verification'
+    description = 'Validates required design-control files and directories for the scaffold.'
+    def requiredPaths = [
+        'README.md',
+        'AGENT.md',
+        'CONTRIBUTING.md',
+        'SECURITY.md',
+        'LICENSE',
+        'NOTICE.md',
+        'SCAFFOLD_VALIDATION.md',
+        'docs/charter.md',
+        'docs/scope.md',
+        'docs/architecture/module-boundaries.md',
+        'docs/architecture/architecture-rule-catalog.md',
+        'docs/verification/verification-strategy.md',
+        'docs/roadmap/roadmap-index.md',
+        'docs/roadmap/implementation-task-template.md'
+    ]
+    inputs.files(requiredPaths.collect { rootProject.layout.projectDirectory.file(it) })
+    doLast {
+        def missing = requiredPaths.findAll { !rootProject.layout.projectDirectory.file(it).asFile.exists() }
+        if (!missing.isEmpty()) {
+            throw new GradleException("Missing required design-control files: ${missing}")
+        }
+    }
+}

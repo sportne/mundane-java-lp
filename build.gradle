@@ -1,0 +1,99 @@
+plugins {
+    id 'base'
+    id 'mlp.docs-validation-conventions'
+    id 'mlp.offline-conventions'
+}
+
+group = 'io.github.mundanej'
+version = providers.gradleProperty('mlp.version').getOrElse('0.1.0-SNAPSHOT')
+
+def checkedProjects = [
+    ':modules:lp-model',
+    ':modules:lp-sparse',
+    ':modules:lp-io-mps',
+    ':modules:lp-io-lp',
+    ':modules:lp-validation',
+    ':modules:lp-generators',
+    ':modules:lp-solver-spi',
+    ':modules:lp-harness-api',
+    ':modules:lp-harness-cli',
+    ':modules:lp-harness-report',
+    ':modules:lp-adapter-highs-cli',
+    ':modules:lp-adapter-clp-cli',
+    ':modules:lp-adapter-glpk-cli',
+    ':modules:lp-adapter-ortools-java',
+    ':modules:lp-adapter-ojalgo',
+    ':modules:lp-native-api',
+    ':modules:lp-native-tests',
+    ':modules:lp-architecture-tests',
+    ':modules:lp-testkit',
+    ':examples:tiny-lp',
+    ':examples:generated-network-flow',
+    ':examples:solver-comparison-smoke',
+    ':examples:native-cli-smoke',
+]
+
+tasks.register('checkAll') {
+    group = 'verification'
+    description = 'Runs check tasks across all included mundane Java LP projects.'
+    dependsOn checkedProjects.collect { "${it}:check" }
+}
+
+tasks.register('qualityGate') {
+    group = 'verification'
+    description = 'Runs the default local quality gate.'
+    dependsOn 'validateDesignControlPack', 'checkAll'
+    dependsOn checkedProjects.collect { "${it}:jacocoTestCoverageVerification" }
+    dependsOn checkedProjects.collect { "${it}:javadoc" }
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('qualityGate')
+}
+
+tasks.register('nativeSmoke') {
+    group = 'verification'
+    description = 'Runs the representative GraalVM Native Image smoke lane.'
+    dependsOn ':modules:lp-native-api:nativeSmoke'
+    dependsOn ':examples:native-cli-smoke:nativeSmoke'
+}
+
+tasks.register('solverComparisonSmoke') {
+    group = 'verification'
+    description = 'Runs small solver comparison checks against locally available baseline solvers.'
+    dependsOn ':examples:solver-comparison-smoke:run'
+}
+
+tasks.register('benchmarkSmoke') {
+    group = 'verification'
+    description = 'Runs advisory LP benchmark smoke checks. It does not establish competitive claims.'
+    dependsOn ':modules:lp-harness-cli:run'
+}
+
+tasks.register('jacocoTestCoverageVerification') {
+    group = 'verification'
+    description = 'Runs coverage verification for all Java projects.'
+    dependsOn checkedProjects.collect { "${it}:jacocoTestCoverageVerification" }
+}
+
+tasks.register('printPublishedArtifacts') {
+    group = 'help'
+    description = 'Prints planned artifact coordinates.'
+    def releaseVersion = project.version
+    doLast {
+        println """
+:modules:lp-bom -> io.github.mundanej:mlp-bom:${releaseVersion}
+:modules:lp-model -> io.github.mundanej:mlp-model:${releaseVersion}
+:modules:lp-sparse -> io.github.mundanej:mlp-sparse:${releaseVersion}
+:modules:lp-io-mps -> io.github.mundanej:mlp-io-mps:${releaseVersion}
+:modules:lp-io-lp -> io.github.mundanej:mlp-io-lp:${releaseVersion}
+:modules:lp-validation -> io.github.mundanej:mlp-validation:${releaseVersion}
+:modules:lp-generators -> io.github.mundanej:mlp-generators:${releaseVersion}
+:modules:lp-solver-spi -> io.github.mundanej:mlp-solver-spi:${releaseVersion}
+:modules:lp-harness-api -> io.github.mundanej:mlp-harness-api:${releaseVersion}
+:modules:lp-harness-cli -> io.github.mundanej:mlp-harness-cli:${releaseVersion}
+:modules:lp-harness-report -> io.github.mundanej:mlp-harness-report:${releaseVersion}
+:modules:lp-native-api -> io.github.mundanej:mlp-native-api:${releaseVersion}
+""".stripIndent().trim()
+    }
+}

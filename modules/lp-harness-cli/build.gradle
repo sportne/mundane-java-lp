@@ -1,0 +1,14 @@
+plugins {
+    id 'mlp.application-conventions'
+    id 'mlp.publishing-conventions'
+}
+
+dependencies {
+    implementation project(':modules:lp-harness-api')
+    implementation project(':modules:lp-harness-report')
+    implementation project(':modules:lp-generators')
+}
+
+application {
+    mainClass = 'io.github.mundanej.mlp.harness.cli.MlpBenchMain'
+}

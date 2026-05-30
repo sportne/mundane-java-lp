@@ -1,0 +1,14 @@
+plugins {
+    id 'mlp.application-conventions'
+    id 'mlp.native-conventions'
+}
+
+dependencies {
+    implementation project(':modules:lp-generators')
+    implementation project(':modules:lp-harness-api')
+    implementation project(':modules:lp-validation')
+}
+
+application {
+    mainClass = 'io.github.mundanej.mlp.examples.nativecli.NativeCliSmokeMain'
+}

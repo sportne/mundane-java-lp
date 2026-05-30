@@ -1,0 +1,13 @@
+tasks.register('nativeSmoke') {
+    group = 'verification'
+    description = 'Runs a Native Image smoke placeholder. Real native-image builds are added after G0.'
+    doLast {
+        def nativeImage = ['native-image', '--version'].execute()
+        nativeImage.waitForOrKill(5000)
+        if (nativeImage.exitValue() == 0) {
+            println nativeImage.in.text.trim()
+        } else {
+            println 'native-image was not available; G0 native smoke is a placeholder.'
+        }
+    }
+}

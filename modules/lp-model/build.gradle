@@ -1,0 +1,4 @@
+plugins {
+    id 'mlp.java-library-conventions'
+    id 'mlp.publishing-conventions'
+}
