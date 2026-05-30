@@ -17,9 +17,12 @@ tasks.register('validateDesignControlPack') {
         'docs/roadmap/roadmap-index.md',
         'docs/roadmap/implementation-task-template.md'
     ]
-    inputs.files(requiredPaths.collect { rootProject.layout.projectDirectory.file(it) })
+    def requiredFilesByPath = requiredPaths.collectEntries {
+        [(it): layout.projectDirectory.file(it).asFile]
+    }
+    inputs.files(requiredFilesByPath.values())
     doLast {
-        def missing = requiredPaths.findAll { !rootProject.layout.projectDirectory.file(it).asFile.exists() }
+        def missing = requiredFilesByPath.findAll { path, file -> !file.exists() }.keySet()
         if (!missing.isEmpty()) {
             throw new GradleException("Missing required design-control files: ${missing}")
         }

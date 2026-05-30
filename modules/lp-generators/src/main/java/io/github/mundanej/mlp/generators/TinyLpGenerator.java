@@ -9,7 +9,7 @@ import java.util.List;
 
 /** Tiny hand-checkable LP fixtures. */
 public final class TinyLpGenerator {
-    /** Returns min x with 0 <= x <= 1, optimum x = 0. */
+    /** Returns min x with {@code 0 <= x <= 1}, optimum x = 0. */
     public LpProblem singleBoundedVariable() {
         return new LpProblem(
                 "single-bounded-variable",
