@@ -6,7 +6,7 @@ proposed
 
 ## Requirement IDs
 
-- REQ-V1-DOC-INVENTORY
+- REQ-0-1-DOC-INVENTORY
 
 ## References
 

@@ -6,12 +6,12 @@ proposed
 
 ## Requirement IDs
 
-- REQ-V1-SPARSE-TEST-COVERAGE
+- REQ-0-1-SPARSE-TEST-COVERAGE
 
 ## References
 
 - `docs/architecture/sparse-matrix-contract.md`
-- `docs/roadmap/tasks/g1-002-sparse-storage-design-completion.md`
+- `docs/roadmap/tasks/g2-001-sparse-storage-design-completion.md`
 
 ## Target module
 
@@ -32,7 +32,7 @@ proposed
 
 - Complete correctness coverage for CSR and CSC construction, validation, and
   matrix-vector multiplication.
-- Add only operations required by v1.0 fixtures, validation, or solvers.
+- Add only operations required by 0.1.0 fixtures, validation, or solvers.
 - Preserve primitive-array storage.
 
 ## Required tests

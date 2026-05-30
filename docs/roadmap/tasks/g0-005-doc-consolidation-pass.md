@@ -6,7 +6,7 @@ proposed
 
 ## Requirement IDs
 
-- REQ-V1-DOC-CONSOLIDATION
+- REQ-0-1-DOC-CONSOLIDATION
 
 ## References
 

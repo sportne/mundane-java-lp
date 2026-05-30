@@ -6,7 +6,7 @@ proposed
 
 ## Requirement IDs
 
-- REQ-V1-LP-MODEL-DESIGN
+- REQ-0-1-LP-MODEL-DESIGN
 
 ## References
 
@@ -32,7 +32,7 @@ proposed
 
 ## Required behavior
 
-- Finalize the canonical LP model contract for v1.0.
+- Finalize the canonical LP model contract for 0.1.0.
 - Define objective sense, constants, variable bounds, row bounds, matrix shape,
   names, and invalid fixture policy.
 - Keep the model small and independent of solver, harness, and I/O behavior.
