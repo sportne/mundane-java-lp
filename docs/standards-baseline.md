@@ -33,6 +33,45 @@ into valid fixture catalogs.
 - LP text format is deferred until after MPS round-trip behavior is tested.
 - Parser diagnostics must be bounded and deterministic.
 
+The 0.1.0 MPS subset supports deterministic free-field-style records for
+continuous LP fixtures:
+
+- `NAME`
+- `ROWS`
+- `COLUMNS`
+- `RHS`
+- optional `BOUNDS`
+- `ENDATA`
+
+Supported row types are `N` for the single objective row, `E` for equality rows,
+`L` for less-than-or-equal rows, and `G` for greater-than-or-equal rows. The
+0.1.0 parser does not support the MPS `RANGES` section. Canonical ranged rows
+are therefore outside the MPS round-trip fixture subset until a later task adds
+deterministic ranged-row encoding.
+
+MPS files in the 0.1.0 subset are interpreted as minimization problems. Writing
+a maximization canonical fixture to MPS is unsupported unless the fixture has
+already been transformed to equivalent minimization coefficients outside
+`lp-io-mps`.
+
+Supported bounds are continuous `LO`, `UP`, `FX`, `FR`, `MI`, and `PL` bounds
+for at most one bound set. Missing variable-bound records and missing `BOUNDS`
+sections both default variables to `0 <= x <= +infinity`, matching traditional
+MPS LP behavior at the file boundary. The canonical model must still record
+explicit bounds after parsing.
+
+Unsupported MPS features must fail with deterministic `MpsFormatException`
+messages instead of being ignored:
+
+- integer markers and integer/binary bound types;
+- multiple objective rows;
+- multiple RHS or bound sets;
+- `RANGES`, `SOS`, `QMATRIX`, `QSECTION`, `QUADOBJ`, indicator, basis, and
+  solution sections;
+- row or column references to names not declared in the required sections;
+- malformed records or missing required `NAME`, `ROWS`, `COLUMNS`, `RHS`, or
+  `ENDATA` sections.
+
 ## Solver-status baseline
 
 Solver-specific statuses are normalized to:

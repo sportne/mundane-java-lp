@@ -58,6 +58,11 @@ MPS-compatible fixtures should use names that can be written without escaping
 or format-specific remapping. Later richer input formats may carry display names
 separately from canonical positional identity.
 
+MPS round-trip fixtures for 0.1.0 exclude canonical ranged rows because the MPS
+subset intentionally excludes the `RANGES` section. A later task may add a
+deterministic ranged-row encoding, but it must define how row names and
+canonical row identity survive the file boundary.
+
 ## Invalid fixtures
 
 Normal production constructors reject shape and bound inconsistencies. Tests
