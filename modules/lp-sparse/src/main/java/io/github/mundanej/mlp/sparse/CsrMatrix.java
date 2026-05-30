@@ -46,6 +46,26 @@ public final class CsrMatrix {
         return columns;
     }
 
+    /** Returns nonzero count. */
+    public int nonzeros() {
+        return values.length;
+    }
+
+    /** Returns a defensive copy of nonzero values. */
+    public double[] values() {
+        return values.clone();
+    }
+
+    /** Returns a defensive copy of column indices. */
+    public int[] columnIndices() {
+        return columnIndices.clone();
+    }
+
+    /** Returns a defensive copy of row pointers. */
+    public int[] rowPointers() {
+        return rowPointers.clone();
+    }
+
     /**
      * Computes y = A x.
      *

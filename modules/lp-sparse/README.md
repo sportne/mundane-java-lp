@@ -11,7 +11,8 @@ coefficients:
 
 Constructors validate dimensions, pointer arrays, and index ranges. Array input
 is copied on construction, and public array accessors must return defensive
-copies. Builders may use temporary objects, but published matrix instances must
-materialize primitive arrays before validation or solver execution.
+copies for values, indices, and pointers. Builders may use temporary objects,
+but published matrix instances must materialize primitive arrays before
+validation or solver execution.
 
 See the repository root `README.md` and `docs/architecture/module-boundaries.md`.

@@ -51,6 +51,21 @@ public final class CscMatrix {
         return values.length;
     }
 
+    /** Returns a defensive copy of nonzero values. */
+    public double[] values() {
+        return values.clone();
+    }
+
+    /** Returns a defensive copy of row indices. */
+    public int[] rowIndices() {
+        return rowIndices.clone();
+    }
+
+    /** Returns a defensive copy of column pointers. */
+    public int[] columnPointers() {
+        return columnPointers.clone();
+    }
+
     /**
      * Computes y = A x.
      *
