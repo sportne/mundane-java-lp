@@ -27,6 +27,9 @@ consolidation unless a task explicitly allows task-file maintenance.
 G0 scaffold is present. No non-human-gated implementation task is assumed ready
 beyond scaffold cleanup.
 
+The current placeholder and stale-language inventory is tracked in
+[documentation-placeholder-inventory.md](documentation-placeholder-inventory.md).
+
 ## Version 0.1.0 waterfall
 
 Version 0.1.0 is complete when the project has design-complete documentation,
