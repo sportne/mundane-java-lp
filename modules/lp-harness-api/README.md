@@ -2,4 +2,9 @@
 
 Benchmark and solver-run orchestration API module.
 
+`lp-harness-api` owns benchmark suites, benchmark instances, solver run
+requests, run records, machine metadata, and the runner that coordinates adapter
+execution with validation. It records every solver-instance request, including
+unavailable solvers and adapter failures.
+
 See the repository root `README.md` and `docs/architecture/module-boundaries.md`.

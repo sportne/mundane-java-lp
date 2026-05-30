@@ -6,10 +6,11 @@ claims into explicit lanes.
 ## Default local lane
 
 ```bash
-./gradlew qualityGate --console=plain
+./gradlew validateDesignControlPack qualityGate --console=plain
 ```
 
-This lane should remain suitable for normal development.
+This lane should remain suitable for normal development and must not require
+external solver binaries.
 
 ## Native lane
 
