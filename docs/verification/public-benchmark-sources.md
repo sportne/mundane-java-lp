@@ -12,9 +12,11 @@ The initial public benchmark candidate set is a small Netlib LP subset:
 - `netlib-adlittle`
 - `netlib-scorpion`
 
-These are intentionally small enough for local smoke work once public-instance
-loading is wired into the benchmark lane. Their upstream source is the Netlib LP
-collection at `https://www.netlib.org/lp/`.
+These are intentionally small enough for local smoke work. The benchmark smoke
+lane reads the manifest, checks each local path, and reports a deterministic
+missing-input record when a candidate has not been downloaded. When a local MPS
+file is present, the lane parses it through the supported MPS reader and records
+the instance as loaded without requiring an external benchmark solver.
 
 ## Metadata Policy
 
@@ -45,4 +47,5 @@ tools/fetch-public-benchmarks.sh
 ```
 
 The script verifies manifest schema and local-path policy. It does not download
-benchmark files in 0.1.0.
+benchmark files in 0.1.0. The benchmark smoke task also consumes the committed
+manifest, but local benchmark files remain untracked under `instances/public/`.

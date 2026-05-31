@@ -40,6 +40,13 @@ format, local path, normalization notes, and curation status. Missing local file
 are reported by benchmark smoke tooling as unavailable or missing input, not as
 solver failures.
 
+`benchmarkSmoke` reads the committed public manifest. For each non-rejected MPS
+candidate it checks the local path under `instances/public/`: absent files become
+deterministic missing-input records, while present files are parsed into
+canonical LP data and reported through the public benchmark suite without
+requiring an external solver. Unsupported or malformed local files are reported
+as deterministic load failures.
+
 ## Evidence Baseline
 
 No benchmark output may be described as a performance claim unless every
