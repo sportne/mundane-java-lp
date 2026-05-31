@@ -24,12 +24,14 @@ proposed
 - `docs/verification/solver-comparison.md`
 - Java adapter module `README.md` files.
 - `docs/roadmap/tasks/`
+- `modules/lp-solver-spi/`
+- Existing adapter and harness call sites required to compile the pre-1.0
+  solver-result evidence shape.
 
 ## Forbidden files
 
-- Production Java source.
 - Build dependency changes.
-- CLI adapter behavior.
+- CLI adapter behavior beyond compile-wide result-shape migration.
 
 ## Required behavior
 
@@ -37,6 +39,8 @@ proposed
 - Define dependency isolation, native-runtime handling, unsupported-feature
   reporting, and normalized result mapping.
 - Keep Java adapters optional and isolated from foundation modules.
+- Replace the pre-1.0 `SolverRunResult` shape with objective, primal, elapsed
+  time, and diagnostic evidence needed by Java and CLI adapters.
 
 ## Required tests
 

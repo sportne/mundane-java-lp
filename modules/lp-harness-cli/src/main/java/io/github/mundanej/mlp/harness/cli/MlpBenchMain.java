@@ -100,6 +100,7 @@ public final class MlpBenchMain {
                     id(),
                     SolverStatus.OPTIMAL,
                     OptionalDouble.of(objectiveValue),
+                    new double[0],
                     0.0d,
                     "built-in tiny smoke adapter");
         }

@@ -25,7 +25,7 @@ public final class OrToolsJavaAdapter implements LpSolverAdapter {
             final SolverInput input,
             final SolverOptions options,
             final SolverWorkDirectory workDirectory) {
-        return new SolverRunResult(ID, SolverStatus.UNSUPPORTED, OptionalDouble.empty(), 0.0d,
+        return new SolverRunResult(ID, SolverStatus.UNSUPPORTED, OptionalDouble.empty(), new double[0], 0.0d,
                 "OrToolsJavaAdapter is a G0 placeholder.");
     }
 }

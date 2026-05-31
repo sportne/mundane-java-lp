@@ -104,7 +104,7 @@ final class MarkdownReportWriterTest {
         return new RunRecord(
                 "suite",
                 "instance",
-                new SolverRunResult(new SolverId("solver", "test"), status, objective, 0.25d, "message"),
+                new SolverRunResult(new SolverId("solver", "test"), status, objective, new double[0], 0.25d, "message"),
                 validationReport,
                 outcome,
                 failureMessage,

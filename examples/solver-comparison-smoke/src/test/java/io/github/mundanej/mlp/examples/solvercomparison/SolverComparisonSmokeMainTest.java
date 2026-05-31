@@ -121,7 +121,7 @@ final class SolverComparisonSmokeMainTest {
                 final SolverInput input,
                 final SolverOptions options,
                 final SolverWorkDirectory workDirectory) {
-            return new SolverRunResult(id(), status, objective, 0.0d, message);
+            return new SolverRunResult(id(), status, objective, new double[0], 0.0d, message);
         }
     }
 }

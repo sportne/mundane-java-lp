@@ -89,6 +89,15 @@ final class HarnessRunnerTest {
         assertFalse(record.validationReport().accepted());
     }
 
+    @Test
+    void validatesPrimalEvidenceFromSolverResult() {
+        RunRecord record = run(new PrimalAdapter(new double[] {2.0d})).get(0);
+
+        assertEquals(RunOutcome.VALIDATION_FAILED, record.outcome());
+        assertTrue(record.validationReport().findings().stream()
+                .anyMatch(finding -> "VARIABLE_UPPER_BOUND".equals(finding.code())));
+    }
+
     private List<RunRecord> run(final LpSolverAdapter adapter) {
         return new HarnessRunner().run(
                 new BenchmarkSuite("suite", List.of(instance())),
@@ -124,7 +133,28 @@ final class HarnessRunnerTest {
             OptionalDouble objectiveValue = Double.isNaN(objective)
                     ? OptionalDouble.of(Double.NaN)
                     : OptionalDouble.of(objective);
-            return new SolverRunResult(id(), status, objectiveValue, 0.0d, "");
+            return new SolverRunResult(id(), status, objectiveValue, new double[0], 0.0d, "");
+        }
+    }
+
+    private record PrimalAdapter(double[] primal) implements LpSolverAdapter {
+        @Override
+        public SolverId id() {
+            return new SolverId("test", "primal");
+        }
+
+        @Override
+        public SolverRunResult solve(
+                final SolverInput input,
+                final SolverOptions options,
+                final SolverWorkDirectory workDirectory) {
+            return new SolverRunResult(
+                    id(),
+                    SolverStatus.OPTIMAL,
+                    OptionalDouble.of(0.0d),
+                    primal,
+                    0.0d,
+                    "");
         }
     }
 
@@ -173,6 +203,7 @@ final class HarnessRunnerTest {
                     id(),
                     SolverStatus.ERROR,
                     OptionalDouble.empty(),
+                    new double[0],
                     0.0d,
                     "solver failed");
         }

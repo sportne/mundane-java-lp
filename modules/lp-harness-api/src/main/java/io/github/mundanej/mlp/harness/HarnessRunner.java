@@ -96,6 +96,7 @@ public final class HarnessRunner {
                     solverId,
                     SolverStatus.ERROR,
                     OptionalDouble.empty(),
+                    new double[0],
                     0.0d,
                     exception.getMessage() == null ? exception.getClass().getSimpleName() : exception.getMessage());
             ValidationReport report = new ValidationReport(
@@ -122,7 +123,7 @@ public final class HarnessRunner {
         return new ValidationEvidence(
                 Optional.of(status(result.status())),
                 result.objectiveValue(),
-                new double[0]);
+                result.primalValues());
     }
 
     private static ValidationStatus status(final SolverStatus status) {

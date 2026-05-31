@@ -28,10 +28,17 @@ adapter. Each adapter exports the model to its own work directory, captures a
 bounded diagnostic, normalizes status, and reports unavailable binaries as
 records instead of skipped runs.
 
-The comparison smoke runs one tiny Tier 1 instance through HiGHS, CLP, and GLPK.
-It writes Markdown, JSON, and CSV reports under
+G6-004 extends the comparison lane with Java library adapters for OR-Tools and
+ojAlgo. These adapters use the same solver input envelope as the CLI adapters,
+but they solve in process and keep third-party dependencies isolated to their
+own modules. OR-Tools native-runtime load failures and unavailable optional
+solver capabilities are reported as unavailable solver records.
+
+The G5 comparison smoke runs one tiny Tier 1 instance through HiGHS, CLP, and
+GLPK. G6-004 adds OR-Tools and ojAlgo to that explicit solver list. The smoke
+writes Markdown, JSON, and CSV reports under
 `examples/solver-comparison-smoke/build/reports/solver-comparison-smoke` for
 both direct example-project runs and the root `solverComparisonSmoke` lane. It
-passes when all optional external binaries are unavailable, provided each
-unavailable solver is reported explicitly. If any available solver returns an
-adapter error or fails validation, the lane fails after writing reports.
+passes when all optional solvers are unavailable, provided each unavailable
+solver is reported explicitly. If any available solver returns an adapter error
+or fails validation, the lane fails after writing reports.

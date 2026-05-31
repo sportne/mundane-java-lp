@@ -8,6 +8,7 @@ import java.util.OptionalDouble;
  * @param solverId solver identifier
  * @param status normalized solver status
  * @param objectiveValue optional objective value
+ * @param primalValues primal variable values when available
  * @param elapsedSeconds elapsed solve time in seconds
  * @param message adapter diagnostic message
  */
@@ -15,6 +16,7 @@ public record SolverRunResult(
         SolverId solverId,
         SolverStatus status,
         OptionalDouble objectiveValue,
+        double[] primalValues,
         double elapsedSeconds,
         String message) {
     /**
@@ -23,6 +25,7 @@ public record SolverRunResult(
      * @param solverId solver identifier
      * @param status normalized solver status
      * @param objectiveValue optional objective value
+     * @param primalValues primal variable values when available
      * @param elapsedSeconds elapsed solve time in seconds
      * @param message adapter diagnostic message
      */
@@ -36,11 +39,26 @@ public record SolverRunResult(
         if (objectiveValue == null) {
             throw new IllegalArgumentException("objectiveValue must not be null");
         }
+        if (primalValues == null) {
+            throw new IllegalArgumentException("primalValues must not be null");
+        }
+        primalValues = primalValues.clone();
+        for (double value : primalValues) {
+            if (!Double.isFinite(value)) {
+                throw new IllegalArgumentException("primalValues must be finite");
+            }
+        }
         if (elapsedSeconds < 0.0d) {
             throw new IllegalArgumentException("elapsedSeconds must be non-negative");
         }
         if (message == null) {
             message = "";
         }
+    }
+
+    /** Returns defensive-copy primal evidence. */
+    @Override
+    public double[] primalValues() {
+        return primalValues.clone();
     }
 }

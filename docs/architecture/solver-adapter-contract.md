@@ -28,11 +28,48 @@ solver-owned file in their per-run work directory.
 - Return objective and primal values when available.
 - Report unsupported features and unavailable binaries explicitly.
 
+## Result Evidence
+
+The 0.1.0 `SolverRunResult` is solver evidence, not a validation verdict. It
+contains:
+
+- solver ID;
+- normalized status;
+- optional objective value;
+- primal variable values in solver-input column order when available;
+- elapsed solve time in seconds;
+- bounded diagnostic message.
+
+Adapters must use an empty primal vector when no complete primal assignment is
+available. They must not fill missing values with zeros. Non-finite primal
+values are invalid result evidence. Adapter parser and library-integration code
+should convert non-finite raw objective outputs to `ERROR`; if malformed
+objective evidence reaches validation, validation reports `NON_FINITE_OBJECTIVE`.
+
 ## CLI Adapter Rule
 
 Only CLI adapter modules may execute external processes. CLI adapters must write
 only below the supplied work directory. They must not use process-wide temporary
 files for model export or solver outputs.
+
+## Java Library Adapter Rule
+
+Java library adapters call in-process Java APIs and must not execute external
+solver binaries. Third-party dependencies remain isolated to the owning adapter
+module; foundation modules, the harness, and other adapters must not depend on
+OR-Tools or ojAlgo.
+
+Java adapters translate the solver input envelope directly into continuous
+variables, linear constraints, objective sense, objective constant, objective
+coefficients, and row bounds. They return normalized status, objective evidence,
+and a complete primal vector for accepted optimal or feasible results when the
+library exposes one.
+
+OR-Tools native runtime loading is adapter-owned. If the OR-Tools Java artifact
+is present but the native runtime cannot be loaded on the current machine, the
+adapter returns `UNSUPPORTED` with a deterministic diagnostic instead of failing
+class loading or the harness process. ojAlgo is pure Java for the 0.1.0 adapter
+scope and reports unsupported model features through the same result path.
 
 ## MPS Export
 

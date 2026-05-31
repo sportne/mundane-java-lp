@@ -205,7 +205,7 @@ public final class ClpCliAdapter implements LpSolverAdapter {
             final long startNanos,
             final String message) {
         double elapsedSeconds = (System.nanoTime() - startNanos) / 1_000_000_000.0d;
-        return new SolverRunResult(ID, status, objective, elapsedSeconds, bound(message));
+        return new SolverRunResult(ID, status, objective, new double[0], elapsedSeconds, bound(message));
     }
 
     private static String bound(final String message) {

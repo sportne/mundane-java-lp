@@ -23,6 +23,8 @@ proposed
 - `modules/lp-adapter-ortools-java/`
 - `gradle/libs.versions.toml`
 - Adapter docs and README.
+- Compile-only updates to solver SPI consumers if the G6-001 result-evidence
+  migration exposes additional call sites during implementation.
 
 ## Forbidden files
 
