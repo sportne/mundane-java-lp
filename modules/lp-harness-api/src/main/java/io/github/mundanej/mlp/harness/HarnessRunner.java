@@ -2,6 +2,7 @@ package io.github.mundanej.mlp.harness;
 
 import io.github.mundanej.mlp.solver.spi.LpSolverAdapter;
 import io.github.mundanej.mlp.solver.spi.SolverId;
+import io.github.mundanej.mlp.solver.spi.SolverInput;
 import io.github.mundanej.mlp.solver.spi.SolverRunResult;
 import io.github.mundanej.mlp.solver.spi.SolverStatus;
 import io.github.mundanej.mlp.solver.spi.SolverWorkDirectory;
@@ -66,7 +67,7 @@ public final class HarnessRunner {
             workDirectory = config.workRoot().resolve(directoryName(suite, instance, solverId, sequence));
             Files.createDirectories(workDirectory);
             SolverRunResult result = adapter.solve(
-                    instance.problem(),
+                    SolverInput.withGeneratedNames(instance.problem(), instance.matrix()),
                     config.solverOptions(),
                     new SolverWorkDirectory(workDirectory));
             ValidationReport report = validator.validate(

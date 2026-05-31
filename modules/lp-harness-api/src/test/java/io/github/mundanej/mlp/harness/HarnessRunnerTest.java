@@ -11,6 +11,7 @@ import io.github.mundanej.mlp.model.LpVariableBounds;
 import io.github.mundanej.mlp.model.ObjectiveSense;
 import io.github.mundanej.mlp.solver.spi.LpSolverAdapter;
 import io.github.mundanej.mlp.solver.spi.SolverId;
+import io.github.mundanej.mlp.solver.spi.SolverInput;
 import io.github.mundanej.mlp.solver.spi.SolverOptions;
 import io.github.mundanej.mlp.solver.spi.SolverRunResult;
 import io.github.mundanej.mlp.solver.spi.SolverStatus;
@@ -117,7 +118,7 @@ final class HarnessRunnerTest {
 
         @Override
         public SolverRunResult solve(
-                final LpProblem problem,
+                final SolverInput input,
                 final SolverOptions options,
                 final SolverWorkDirectory workDirectory) {
             OptionalDouble objectiveValue = Double.isNaN(objective)
@@ -135,7 +136,7 @@ final class HarnessRunnerTest {
 
         @Override
         public SolverRunResult solve(
-                final LpProblem problem,
+                final SolverInput input,
                 final SolverOptions options,
                 final SolverWorkDirectory workDirectory) {
             throw new IllegalStateException("adapter failed");
@@ -150,7 +151,7 @@ final class HarnessRunnerTest {
 
         @Override
         public SolverRunResult solve(
-                final LpProblem problem,
+                final SolverInput input,
                 final SolverOptions options,
                 final SolverWorkDirectory workDirectory) {
             throw new AssertionError("solve should not run");
@@ -165,7 +166,7 @@ final class HarnessRunnerTest {
 
         @Override
         public SolverRunResult solve(
-                final LpProblem problem,
+                final SolverInput input,
                 final SolverOptions options,
                 final SolverWorkDirectory workDirectory) {
             return new SolverRunResult(

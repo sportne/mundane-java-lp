@@ -30,3 +30,6 @@ records instead of skipped runs.
 
 The comparison smoke passes when all optional external binaries are unavailable,
 provided each unavailable solver is reported explicitly.
+
+HiGHS is the first CLI adapter wired to the 0.1.0 solver input envelope. Its
+integration smoke is guarded and skips when `highs` is not installed.
