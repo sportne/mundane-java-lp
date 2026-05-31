@@ -34,6 +34,11 @@ Tier 1 validation maps to every 0.1.0 implemented validation dimension:
 results and solver-like validation evidence. Validation tests consume that
 adapter instead of duplicating fixture math.
 
+`lp-solver-simple` solves the Tier 1 fixture shapes that have zero, one, or two
+variables. Its correctness tests send solver output back through
+`lp-validation`; unsupported larger shapes are checked separately and are not
+part of the Tier 1 fixture catalog.
+
 The MPS round-trip subset covers Tier 1 minimization fixtures that do not use
 canonical ranged rows. Maximization and ranged-row fixtures remain canonical
 model fixtures, but they are outside the 0.1.0 MPS subset until objective-sense
