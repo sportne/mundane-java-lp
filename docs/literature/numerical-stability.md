@@ -13,12 +13,17 @@
   boring and reproducible.
 - Java/GraalVM code should avoid hidden global numeric state and should make
   precision, tolerances, and scaling choices explicit in APIs and reports.
+- ADR-0007 intentionally accepts a narrow revised-simplex-style implementation
+  with documented numerical risk. Degeneracy, scaling, tight bounds, and
+  ill-conditioning must become deterministic validation, unsupported, or
+  limitation records before the project treats timing evidence as meaningful.
 
 ## Roadmap references
 
 - `g3-001-validation-design-completion`
 - `g3-002-validation-engine-fixtures`
 - `g7-003-benchmark-evidence-baseline`
+- `g9-005-performance-solver-design-decision`
 - `g9-015-numerical-robustness-stress-suite`
 
 ## References

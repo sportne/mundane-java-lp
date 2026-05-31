@@ -22,6 +22,10 @@
   must not become the steady-state representation used by validators or solvers.
   This keeps allocation behavior visible and supports the Native Image posture
   in ADR-0005.
+- ADR-0007 chooses a restricted revised-simplex-style performance solver for
+  G9. That path may materialize small dense work arrays for the approved subset,
+  but sparse matrix ingestion and reusable hot-path buffers remain the
+  benchmarked boundary.
 
 ## Roadmap references
 
@@ -29,6 +33,7 @@
 - `g2-002-sparse-matrix-test-coverage`
 - `g9-010-performance-measurement-instrumentation`
 - `g9-012-performance-iteration-1-sparse-hot-path`
+- `ADR-0007-performance-solver-approach`
 
 ## References
 

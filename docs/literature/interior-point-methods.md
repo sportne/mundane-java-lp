@@ -15,6 +15,9 @@
   explicit design evidence before any performance claim.
 - Native-image friendliness depends on keeping factorization dependencies and
   workspace ownership explicit.
+- ADR-0007 does not choose an interior-point implementation for 0.1.0. The
+  factorization, scaling, and refinement work needed for that path remains a
+  future design task after the revised-simplex-style experiment has evidence.
 
 ## Roadmap references
 

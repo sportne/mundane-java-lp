@@ -12,6 +12,8 @@
 
 - `lp-solver-spi`: adapter contract.
 - `lp-solver-simple`: in-project correctness-first simple solver adapter.
+- `lp-solver-performance`: planned in-project performance-oriented solver
+  adapter following ADR-0007.
 - `lp-harness-api`: benchmark orchestration model.
 - `lp-harness-cli`: command-line entrypoint.
 - `lp-harness-report`: JSON/CSV/Markdown report output.
@@ -23,6 +25,8 @@
   adapter module only.
 - In-project solver modules must not execute external processes or depend on
   third-party solver libraries.
+- The performance solver must keep solver state in primitive arrays and expose
+  results only through the solver SPI.
 - Adapters must normalize status, objective, timing, and logs.
 
 ## Native modules

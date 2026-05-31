@@ -2,7 +2,7 @@
 
 ## Status
 
-proposed
+complete
 
 ## Requirement IDs
 
@@ -48,6 +48,8 @@ proposed
 
 - Add or update an ADR for the performance solver choice.
 - Update relevant literature notes.
+- Confirm G9-006 and later performance-solver tasks reference the accepted
+  decision.
 
 ## Acceptance command
 

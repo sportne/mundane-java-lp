@@ -17,6 +17,10 @@
 - For Java/GraalVM, the implementation question is whether sparse
   matrix-vector kernels and allocation discipline can be made predictable enough
   before adding algorithmic complexity.
+- ADR-0007 does not choose a first-order implementation for 0.1.0. PDLP-style
+  residual and scaling machinery remains future work; G9 uses a restricted
+  revised-simplex-style solver to keep the first performance experiment
+  inspectable.
 
 ## Roadmap references
 

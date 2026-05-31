@@ -11,6 +11,7 @@ proposed
 ## References
 
 - `docs/roadmap/tasks/g9-005-performance-solver-design-decision.md`
+- `docs/adr/ADR-0007-performance-solver-approach.md`
 - `docs/literature/sparse-linear-algebra.md`
 - `docs/literature/numerical-stability.md`
 

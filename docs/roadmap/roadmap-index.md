@@ -114,7 +114,7 @@ correctness, and simplification passes. Work proceeds in gate order.
 - [G9-002 simple solver SPI](tasks/g9-002-simple-solver-spi.md) - **Complete**
 - [G9-003 simple solver correctness](tasks/g9-003-simple-solver-correctness.md) - **Complete**
 - [G9-004 simple solver MPS path](tasks/g9-004-simple-solver-mps-path.md) - **Complete**
-- [G9-005 performance solver design decision](tasks/g9-005-performance-solver-design-decision.md) - **Proposed**
+- [G9-005 performance solver design decision](tasks/g9-005-performance-solver-design-decision.md) - **Complete**
 - [G9-006 performance solver SPI](tasks/g9-006-performance-solver-spi.md) - **Proposed**
 - [G9-007 performance solver core](tasks/g9-007-performance-solver-core.md) - **Proposed**
 - [G9-008 performance solver correctness](tasks/g9-008-performance-solver-correctness.md) - **Proposed**
