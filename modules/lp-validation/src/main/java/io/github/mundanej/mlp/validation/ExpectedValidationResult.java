@@ -11,36 +11,34 @@ import java.util.OptionalDouble;
  * @param objectiveValue expected objective value when known
  */
 public record ExpectedValidationResult(
-        Optional<ValidationStatus> status,
-        OptionalDouble objectiveValue) {
-    /**
-     * Creates expected validation evidence.
-     *
-     * @param status expected terminal status when known
-     * @param objectiveValue expected objective value when known
-     */
-    public ExpectedValidationResult {
-        status = Objects.requireNonNull(status, "status");
-        objectiveValue = Objects.requireNonNull(objectiveValue, "objectiveValue");
-    }
+    Optional<ValidationStatus> status, OptionalDouble objectiveValue) {
+  /**
+   * Creates expected validation evidence.
+   *
+   * @param status expected terminal status when known
+   * @param objectiveValue expected objective value when known
+   */
+  public ExpectedValidationResult {
+    status = Objects.requireNonNull(status, "status");
+    objectiveValue = Objects.requireNonNull(objectiveValue, "objectiveValue");
+  }
 
-    /**
-     * Returns expected evidence for an optimal result.
-     *
-     * @param objectiveValue expected objective value
-     */
-    public static ExpectedValidationResult optimal(final double objectiveValue) {
-        return new ExpectedValidationResult(
-                Optional.of(ValidationStatus.OPTIMAL),
-                OptionalDouble.of(objectiveValue));
-    }
+  /**
+   * Returns expected evidence for an optimal result.
+   *
+   * @param objectiveValue expected objective value
+   */
+  public static ExpectedValidationResult optimal(final double objectiveValue) {
+    return new ExpectedValidationResult(
+        Optional.of(ValidationStatus.OPTIMAL), OptionalDouble.of(objectiveValue));
+  }
 
-    /**
-     * Returns expected evidence for a terminal status without objective evidence.
-     *
-     * @param status expected terminal status
-     */
-    public static ExpectedValidationResult statusOnly(final ValidationStatus status) {
-        return new ExpectedValidationResult(Optional.of(status), OptionalDouble.empty());
-    }
+  /**
+   * Returns expected evidence for a terminal status without objective evidence.
+   *
+   * @param status expected terminal status
+   */
+  public static ExpectedValidationResult statusOnly(final ValidationStatus status) {
+    return new ExpectedValidationResult(Optional.of(status), OptionalDouble.empty());
+  }
 }

@@ -1,8 +1,11 @@
 plugins {
     id 'groovy-gradle-plugin'
+    id 'com.diffplug.spotless' version '8.5.1'
 }
 
 dependencies {
+    implementation 'com.diffplug.spotless:spotless-plugin-gradle:8.5.1'
+    implementation 'com.github.spotbugs.snom:spotbugs-gradle-plugin:6.5.5'
     testImplementation gradleTestKit()
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.3'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -10,4 +13,13 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+spotless {
+    groovyGradle {
+        target '*.gradle', 'src/main/groovy/*.gradle'
+        trimTrailingWhitespace()
+        leadingTabsToSpaces(4)
+        endWithNewline()
+    }
 }

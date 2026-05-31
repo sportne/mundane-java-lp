@@ -21,132 +21,137 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 final class SolverComparisonSmokeMainTest {
-    @TempDir
-    private Path tempDir;
+  @TempDir private Path tempDir;
 
-    @Test
-    void allUnavailableSolversStillProduceReports() throws IOException {
-        SolverComparisonSmokeMain.SmokeResult result = SolverComparisonSmokeMain.run(
-                tempDir,
-                List.of(
-                        unavailable("highs"),
-                        unavailable("clp"),
-                        unavailable("glpk"),
-                        unavailable("ortools"),
-                        unavailable("ojalgo")));
+  @Test
+  void allUnavailableSolversStillProduceReports() throws IOException {
+    SolverComparisonSmokeMain.SmokeResult result =
+        SolverComparisonSmokeMain.run(
+            tempDir,
+            List.of(
+                unavailable("highs"),
+                unavailable("clp"),
+                unavailable("glpk"),
+                unavailable("ortools"),
+                unavailable("ojalgo")));
 
-        assertEquals(5, result.records().size());
-        assertEquals(0, result.successfulSolvers());
-        assertEquals(0, result.failedSolvers());
-        assertEquals(5, result.unavailableSolvers());
-        assertTrue(Files.readString(result.markdownPath()).contains("SOLVER_UNAVAILABLE"));
-        assertTrue(Files.readString(result.jsonPath()).contains("\"outcome\":\"SOLVER_UNAVAILABLE\""));
-        assertTrue(Files.readString(result.csvPath()).contains("SOLVER_UNAVAILABLE"));
+    assertEquals(5, result.records().size());
+    assertEquals(0, result.successfulSolvers());
+    assertEquals(0, result.failedSolvers());
+    assertEquals(5, result.unavailableSolvers());
+    assertTrue(Files.readString(result.markdownPath()).contains("SOLVER_UNAVAILABLE"));
+    assertTrue(Files.readString(result.jsonPath()).contains("\"outcome\":\"SOLVER_UNAVAILABLE\""));
+    assertTrue(Files.readString(result.csvPath()).contains("SOLVER_UNAVAILABLE"));
+  }
+
+  @Test
+  void atLeastOneAvailableSolverIsReported() throws IOException {
+    SolverComparisonSmokeMain.SmokeResult result =
+        SolverComparisonSmokeMain.run(
+            tempDir,
+            List.of(
+                optimal("highs"),
+                unavailable("clp"),
+                unavailable("glpk"),
+                unavailable("ortools"),
+                unavailable("ojalgo")));
+
+    assertEquals(5, result.records().size());
+    assertEquals(1, result.successfulSolvers());
+    assertEquals(0, result.failedSolvers());
+    assertEquals(4, result.unavailableSolvers());
+    assertTrue(Files.readString(result.markdownPath()).contains("SUCCESS"));
+    assertTrue(Files.readString(result.jsonPath()).contains("\"solver\":\"highs\""));
+    assertTrue(Files.readString(result.csvPath()).contains("highs"));
+    SolverComparisonSmokeMain.printSummary(result);
+    result.throwIfFailed();
+  }
+
+  @Test
+  void adapterErrorsAreReportedAsFailures() throws IOException {
+    SolverComparisonSmokeMain.SmokeResult result =
+        SolverComparisonSmokeMain.run(
+            tempDir,
+            List.of(
+                error("highs"),
+                unavailable("clp"),
+                unavailable("glpk"),
+                unavailable("ortools"),
+                unavailable("ojalgo")));
+
+    assertEquals(0, result.successfulSolvers());
+    assertEquals(1, result.failedSolvers());
+    assertEquals(4, result.unavailableSolvers());
+    assertThrows(IllegalStateException.class, result::throwIfFailed);
+  }
+
+  @Test
+  void validationFailuresAreReportedAsFailures() throws IOException {
+    SolverComparisonSmokeMain.SmokeResult result =
+        SolverComparisonSmokeMain.run(
+            tempDir,
+            List.of(
+                wrongObjective("highs"),
+                unavailable("clp"),
+                unavailable("glpk"),
+                unavailable("ortools"),
+                unavailable("ojalgo")));
+
+    assertEquals(0, result.successfulSolvers());
+    assertEquals(1, result.failedSolvers());
+    assertEquals(4, result.unavailableSolvers());
+    assertThrows(IllegalStateException.class, result::throwIfFailed);
+  }
+
+  @Test
+  void defaultAdaptersListCliThenJavaSolvers() {
+    List<SolverId> ids =
+        SolverComparisonSmokeMain.defaultAdapters().stream()
+            .map(Supplier::get)
+            .map(LpSolverAdapter::id)
+            .toList();
+
+    assertEquals(
+        List.of(
+            new SolverId("highs", "cli"),
+            new SolverId("clp", "cli"),
+            new SolverId("glpk", "cli"),
+            new SolverId("ortools", "java"),
+            new SolverId("ojalgo", "java")),
+        ids);
+  }
+
+  private static Supplier<LpSolverAdapter> unavailable(final String name) {
+    return () ->
+        new StubAdapter(name, SolverStatus.UNSUPPORTED, OptionalDouble.empty(), "unavailable");
+  }
+
+  private static Supplier<LpSolverAdapter> optimal(final String name) {
+    return () -> new StubAdapter(name, SolverStatus.OPTIMAL, OptionalDouble.of(0.0d), "");
+  }
+
+  private static Supplier<LpSolverAdapter> wrongObjective(final String name) {
+    return () -> new StubAdapter(name, SolverStatus.OPTIMAL, OptionalDouble.of(1.0d), "");
+  }
+
+  private static Supplier<LpSolverAdapter> error(final String name) {
+    return () -> new StubAdapter(name, SolverStatus.ERROR, OptionalDouble.empty(), "failed");
+  }
+
+  private record StubAdapter(
+      String name, SolverStatus status, OptionalDouble objective, String message)
+      implements LpSolverAdapter {
+    @Override
+    public SolverId id() {
+      return new SolverId(name, "cli");
     }
 
-    @Test
-    void atLeastOneAvailableSolverIsReported() throws IOException {
-        SolverComparisonSmokeMain.SmokeResult result = SolverComparisonSmokeMain.run(
-                tempDir,
-                List.of(
-                        optimal("highs"),
-                        unavailable("clp"),
-                        unavailable("glpk"),
-                        unavailable("ortools"),
-                        unavailable("ojalgo")));
-
-        assertEquals(5, result.records().size());
-        assertEquals(1, result.successfulSolvers());
-        assertEquals(0, result.failedSolvers());
-        assertEquals(4, result.unavailableSolvers());
-        assertTrue(Files.readString(result.markdownPath()).contains("SUCCESS"));
-        assertTrue(Files.readString(result.jsonPath()).contains("\"solver\":\"highs\""));
-        assertTrue(Files.readString(result.csvPath()).contains("highs"));
-        SolverComparisonSmokeMain.printSummary(result);
-        result.throwIfFailed();
+    @Override
+    public SolverRunResult solve(
+        final SolverInput input,
+        final SolverOptions options,
+        final SolverWorkDirectory workDirectory) {
+      return new SolverRunResult(id(), status, objective, new double[0], 0.0d, message);
     }
-
-    @Test
-    void adapterErrorsAreReportedAsFailures() throws IOException {
-        SolverComparisonSmokeMain.SmokeResult result = SolverComparisonSmokeMain.run(
-                tempDir,
-                List.of(
-                        error("highs"),
-                        unavailable("clp"),
-                        unavailable("glpk"),
-                        unavailable("ortools"),
-                        unavailable("ojalgo")));
-
-        assertEquals(0, result.successfulSolvers());
-        assertEquals(1, result.failedSolvers());
-        assertEquals(4, result.unavailableSolvers());
-        assertThrows(IllegalStateException.class, result::throwIfFailed);
-    }
-
-    @Test
-    void validationFailuresAreReportedAsFailures() throws IOException {
-        SolverComparisonSmokeMain.SmokeResult result = SolverComparisonSmokeMain.run(
-                tempDir,
-                List.of(
-                        wrongObjective("highs"),
-                        unavailable("clp"),
-                        unavailable("glpk"),
-                        unavailable("ortools"),
-                        unavailable("ojalgo")));
-
-        assertEquals(0, result.successfulSolvers());
-        assertEquals(1, result.failedSolvers());
-        assertEquals(4, result.unavailableSolvers());
-        assertThrows(IllegalStateException.class, result::throwIfFailed);
-    }
-
-    @Test
-    void defaultAdaptersListCliThenJavaSolvers() {
-        List<SolverId> ids = SolverComparisonSmokeMain.defaultAdapters().stream()
-                .map(Supplier::get)
-                .map(LpSolverAdapter::id)
-                .toList();
-
-        assertEquals(List.of(
-                new SolverId("highs", "cli"),
-                new SolverId("clp", "cli"),
-                new SolverId("glpk", "cli"),
-                new SolverId("ortools", "java"),
-                new SolverId("ojalgo", "java")), ids);
-    }
-
-    private static Supplier<LpSolverAdapter> unavailable(final String name) {
-        return () -> new StubAdapter(name, SolverStatus.UNSUPPORTED, OptionalDouble.empty(), "unavailable");
-    }
-
-    private static Supplier<LpSolverAdapter> optimal(final String name) {
-        return () -> new StubAdapter(name, SolverStatus.OPTIMAL, OptionalDouble.of(0.0d), "");
-    }
-
-    private static Supplier<LpSolverAdapter> wrongObjective(final String name) {
-        return () -> new StubAdapter(name, SolverStatus.OPTIMAL, OptionalDouble.of(1.0d), "");
-    }
-
-    private static Supplier<LpSolverAdapter> error(final String name) {
-        return () -> new StubAdapter(name, SolverStatus.ERROR, OptionalDouble.empty(), "failed");
-    }
-
-    private record StubAdapter(
-            String name,
-            SolverStatus status,
-            OptionalDouble objective,
-            String message) implements LpSolverAdapter {
-        @Override
-        public SolverId id() {
-            return new SolverId(name, "cli");
-        }
-
-        @Override
-        public SolverRunResult solve(
-                final SolverInput input,
-                final SolverOptions options,
-                final SolverWorkDirectory workDirectory) {
-            return new SolverRunResult(id(), status, objective, new double[0], 0.0d, message);
-        }
-    }
+  }
 }

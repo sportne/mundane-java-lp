@@ -5,8 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 final class NativeApiStatusTest {
-    @Test
-    void statusMentionsNativeSmokeReadiness() {
-        assertTrue(NativeApiStatus.status().contains("native API smoke ready"));
-    }
+  @Test
+  void statusMentionsNativeSmokeReadiness() {
+    assertTrue(NativeApiStatus.status().contains("native API smoke ready"));
+  }
 }

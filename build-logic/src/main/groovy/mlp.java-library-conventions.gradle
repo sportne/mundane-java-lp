@@ -2,6 +2,8 @@ plugins {
     id 'java-library'
     id 'jacoco'
     id 'checkstyle'
+    id 'com.diffplug.spotless'
+    id 'com.github.spotbugs'
 }
 
 group = 'io.github.mundanej'
@@ -41,6 +43,46 @@ checkstyle {
     toolVersion = '10.21.0'
     configDirectory = rootProject.layout.projectDirectory.dir('config/checkstyle')
     maxWarnings = 0
+}
+
+spotless {
+    java {
+        googleJavaFormat()
+        removeUnusedImports()
+        importOrder()
+        trimTrailingWhitespace()
+        leadingTabsToSpaces(4)
+        endWithNewline()
+    }
+    groovyGradle {
+        target '*.gradle'
+        trimTrailingWhitespace()
+        leadingTabsToSpaces(4)
+        endWithNewline()
+    }
+    format 'markdown', {
+        target '*.md', 'src/**/*.md'
+        trimTrailingWhitespace()
+        leadingTabsToSpaces(4)
+        endWithNewline()
+    }
+}
+
+spotbugs {
+    effort.set(com.github.spotbugs.snom.Effort.valueOf('MAX'))
+    reportLevel.set(com.github.spotbugs.snom.Confidence.valueOf('MEDIUM'))
+    excludeFilter.set(rootProject.layout.projectDirectory.file('config/spotbugs/exclude.xml'))
+}
+
+tasks.withType(com.github.spotbugs.snom.SpotBugsTask).configureEach {
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+tasks.matching { it.name == 'spotbugsTest' }.configureEach {
+    ignoreFailures = true
 }
 
 jacoco {

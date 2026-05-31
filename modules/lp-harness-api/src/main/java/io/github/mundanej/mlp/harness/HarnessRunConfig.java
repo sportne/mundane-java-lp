@@ -12,25 +12,23 @@ import java.nio.file.Path;
  * @param toleranceProfile validation tolerance profile
  */
 public record HarnessRunConfig(
-        Path workRoot,
-        SolverOptions solverOptions,
-        ToleranceProfile toleranceProfile) {
-    /**
-     * Creates run configuration.
-     *
-     * @param workRoot root directory for per-run solver work directories
-     * @param solverOptions solver options passed to every adapter
-     * @param toleranceProfile validation tolerance profile
-     */
-    public HarnessRunConfig {
-        if (workRoot == null) {
-            throw new IllegalArgumentException("workRoot must not be null");
-        }
-        if (solverOptions == null) {
-            throw new IllegalArgumentException("solverOptions must not be null");
-        }
-        if (toleranceProfile == null) {
-            throw new IllegalArgumentException("toleranceProfile must not be null");
-        }
+    Path workRoot, SolverOptions solverOptions, ToleranceProfile toleranceProfile) {
+  /**
+   * Creates run configuration.
+   *
+   * @param workRoot root directory for per-run solver work directories
+   * @param solverOptions solver options passed to every adapter
+   * @param toleranceProfile validation tolerance profile
+   */
+  public HarnessRunConfig {
+    if (workRoot == null) {
+      throw new IllegalArgumentException("workRoot must not be null");
     }
+    if (solverOptions == null) {
+      throw new IllegalArgumentException("solverOptions must not be null");
+    }
+    if (toleranceProfile == null) {
+      throw new IllegalArgumentException("toleranceProfile must not be null");
+    }
+  }
 }

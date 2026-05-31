@@ -6,8 +6,8 @@ import io.github.mundanej.mlp.nativeapi.NativeApiStatus;
 import org.junit.jupiter.api.Test;
 
 final class NativeSmokeTest {
-    @Test
-    void nativeApiStatusIsPresent() {
-        assertTrue(NativeApiStatus.status().contains("native"));
-    }
+  @Test
+  void nativeApiStatusIsPresent() {
+    assertTrue(NativeApiStatus.status().contains("native"));
+  }
 }

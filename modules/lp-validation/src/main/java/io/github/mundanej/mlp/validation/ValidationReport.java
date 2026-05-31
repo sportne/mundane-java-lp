@@ -8,22 +8,23 @@ import java.util.List;
  * @param toleranceProfile tolerance profile used for validation
  * @param findings validation findings
  */
-public record ValidationReport(ToleranceProfile toleranceProfile, List<ValidationFinding> findings) {
-    /**
-     * Creates a report.
-     *
-     * @param toleranceProfile tolerance profile used for validation
-     * @param findings validation findings
-     */
-    public ValidationReport {
-        if (toleranceProfile == null) {
-            throw new IllegalArgumentException("toleranceProfile must not be null");
-        }
-        findings = List.copyOf(findings);
+public record ValidationReport(
+    ToleranceProfile toleranceProfile, List<ValidationFinding> findings) {
+  /**
+   * Creates a report.
+   *
+   * @param toleranceProfile tolerance profile used for validation
+   * @param findings validation findings
+   */
+  public ValidationReport {
+    if (toleranceProfile == null) {
+      throw new IllegalArgumentException("toleranceProfile must not be null");
     }
+    findings = List.copyOf(findings);
+  }
 
-    /** Returns true when no findings were recorded. */
-    public boolean accepted() {
-        return findings.isEmpty();
-    }
+  /** Returns true when no findings were recorded. */
+  public boolean accepted() {
+    return findings.isEmpty();
+  }
 }
