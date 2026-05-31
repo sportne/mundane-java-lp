@@ -103,3 +103,36 @@ One post-change sample report recorded:
 
 These numbers are a smoke-run snapshot only. The evidence supports the narrower
 allocation change and preserves the no-public-performance-claim policy.
+
+## Iteration 2 Result
+
+G9-014 removed the solve-path `LinearConstraint` list as an intermediate
+tableau input. The solver now counts supported constraints once, allocates the
+tableau directly, and writes variable-bound and CSR-row constraints into tableau
+storage through a small builder. The test-only `LinearConstraint` path remains
+for focused tableau unit tests.
+
+This targets the next setup bottleneck left by G9-012: coefficient arrays no
+longer flow through both constraint records and tableau rows during normal
+solver execution. The implementation pays one additional lightweight counting
+pass so the tableau can be allocated once with the correct slack/surplus and
+artificial-variable shape.
+
+Focused validation after the change used:
+
+```bash
+./gradlew spotlessApply :modules:lp-solver-performance:test benchmarkSmoke --console=plain
+```
+
+One post-change sample report recorded:
+
+- performance solver status: `OPTIMAL`
+- objective: `6.0`
+- solve seconds: `0.023765261`
+- validation seconds: `0.008422554`
+- total seconds: `0.078364817`
+- parse/export: `not-measured`
+
+These timings are still smoke-run evidence only. They justify keeping the
+direct-tableau construction because it removes a measured allocation and copy
+path without changing accepted fixture outcomes.

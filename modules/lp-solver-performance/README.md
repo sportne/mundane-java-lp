@@ -49,6 +49,10 @@ G9-013 reran the performance solver correctness suite after the sparse hot-path
 change and removed stale stub-era comments and repeated test setup. No
 correctness fixtures changed status.
 
+G9-014 removed the solve-path constraint-record staging step. Supported
+constraints are counted first and then written directly into tableau storage,
+which reduces setup copying while preserving the same phase and pivot behavior.
+
 See the repository root `README.md`,
 `docs/architecture/module-boundaries.md`, and
 `docs/architecture/solver-adapter-contract.md`.

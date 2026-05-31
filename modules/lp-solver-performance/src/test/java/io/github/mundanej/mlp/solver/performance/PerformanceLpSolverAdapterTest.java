@@ -62,6 +62,15 @@ final class PerformanceLpSolverAdapterTest {
   }
 
   @Test
+  void solvesNegativeRhsRowAfterRelationNormalization() {
+    SolverRunResult result = solve(negativeRhsInput());
+
+    assertEquals(SolverStatus.OPTIMAL, result.status());
+    assertEquals(2.0d, result.objectiveValue().orElseThrow());
+    assertEquals(2.0d, result.primalValues()[0]);
+  }
+
+  @Test
   void reportsInfeasibleForContradictoryRows() {
     SolverRunResult result = solve(infeasibleInput());
 
@@ -93,6 +102,14 @@ final class PerformanceLpSolverAdapterTest {
 
     assertEquals(SolverStatus.INFEASIBLE, result.status());
     assertTrue(result.objectiveValue().isEmpty());
+  }
+
+  @Test
+  void reportsUnsupportedForZeroColumnRangedRows() {
+    SolverRunResult result = solve(zeroColumnRangedInput());
+
+    assertEquals(SolverStatus.UNSUPPORTED, result.status());
+    assertTrue(result.message().contains("ranged rows"));
   }
 
   @Test
@@ -167,6 +184,18 @@ final class PerformanceLpSolverAdapterTest {
         problem, new CsrMatrix(1, 0, new double[0], new int[0], new int[] {0, 0}));
   }
 
+  private static SolverInput zeroColumnRangedInput() {
+    LpProblem problem =
+        new LpProblem(
+            "zero-column-ranged",
+            new LpObjective(ObjectiveSense.MINIMIZE, 0.0d, new double[0]),
+            List.of(),
+            List.of(new LpRowBounds(0.0d, 1.0d)),
+            new LpProblemStats(1, 0, 0));
+    return SolverInput.withGeneratedNames(
+        problem, new CsrMatrix(1, 0, new double[0], new int[0], new int[] {0, 0}));
+  }
+
   private static SolverInput twoVariableMaximizationInput() {
     LpProblem problem =
         new LpProblem(
@@ -198,6 +227,18 @@ final class PerformanceLpSolverAdapterTest {
     return SolverInput.withGeneratedNames(
         problem,
         new CsrMatrix(2, 1, new double[] {1.0d, 1.0d}, new int[] {0, 0}, new int[] {0, 1, 2}));
+  }
+
+  private static SolverInput negativeRhsInput() {
+    LpProblem problem =
+        new LpProblem(
+            "negative-rhs",
+            new LpObjective(ObjectiveSense.MINIMIZE, 0.0d, new double[] {1.0d}),
+            List.of(new LpVariableBounds(0.0d, 3.0d)),
+            List.of(new LpRowBounds(Double.NEGATIVE_INFINITY, -2.0d)),
+            new LpProblemStats(1, 1, 1));
+    return SolverInput.withGeneratedNames(
+        problem, new CsrMatrix(1, 1, new double[] {-1.0d}, new int[] {0}, new int[] {0, 1}));
   }
 
   private static SolverInput unboundedInput() {

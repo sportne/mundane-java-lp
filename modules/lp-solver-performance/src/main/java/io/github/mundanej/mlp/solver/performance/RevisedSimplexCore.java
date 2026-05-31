@@ -7,7 +7,6 @@ import io.github.mundanej.mlp.model.ObjectiveSense;
 import io.github.mundanej.mlp.solver.spi.SolverInput;
 import io.github.mundanej.mlp.solver.spi.SolverStatus;
 import io.github.mundanej.mlp.sparse.CsrMatrix;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.OptionalDouble;
 
@@ -21,22 +20,17 @@ final class RevisedSimplexCore {
     if (unsupported != null) {
       return SolveResult.statusOnly(SolverStatus.UNSUPPORTED, unsupported);
     }
-    List<LinearConstraint> constraints = new ArrayList<>();
-    unsupported = addVariableConstraints(problem, constraints);
-    if (unsupported != null) {
-      return SolveResult.statusOnly(SolverStatus.UNSUPPORTED, unsupported);
-    }
-    unsupported = addRowConstraints(input, constraints);
-    if (unsupported != null) {
-      return SolveResult.statusOnly(SolverStatus.UNSUPPORTED, unsupported);
+    ConstraintCounts counts = countConstraints(input);
+    if (counts.unsupported() != null) {
+      return SolveResult.statusOnly(SolverStatus.UNSUPPORTED, counts.unsupported());
     }
     if (columns == 0) {
       return solveZeroDimensional(problem);
     }
-    if (constraints.isEmpty()) {
+    if (counts.constraintCount() == 0) {
       return unconstrainedNonnegative(problem);
     }
-    Tableau tableau = Tableau.from(columns, constraints);
+    Tableau tableau = buildTableau(input, counts);
     if (tableau.hasArtificialVariables()) {
       SimplexStatus phaseOne = tableau.optimize(tableau.phaseOneObjective());
       if (phaseOne == SimplexStatus.UNBOUNDED || tableau.objectiveValue() < -EPSILON) {
@@ -83,26 +77,21 @@ final class RevisedSimplexCore {
     return SolveResult.optimal(problem.objective().constant(), new double[0]);
   }
 
-  private static String addVariableConstraints(
-      final LpProblem problem, final List<LinearConstraint> constraints) {
+  private static ConstraintCounts countConstraints(final SolverInput input) {
+    LpProblem problem = input.problem();
     int columns = problem.stats().columns();
+    int constraintCount = 0;
+    int extraColumns = 0;
     for (int column = 0; column < columns; column++) {
       LpVariableBounds bounds = problem.variableBounds().get(column);
       if (Math.abs(bounds.lower()) > EPSILON) {
-        return "performance solver supports only zero lower bounds";
+        return ConstraintCounts.unsupported("performance solver supports only zero lower bounds");
       }
       if (Double.isFinite(bounds.upper())) {
-        constraints.add(LinearConstraint.unitLe(columns, column, bounds.upper()));
+        constraintCount++;
+        extraColumns += extraColumnsFor(Relation.LE, bounds.upper());
       }
     }
-    return null;
-  }
-
-  private static String addRowConstraints(
-      final SolverInput input, final List<LinearConstraint> constraints) {
-    LpProblem problem = input.problem();
-    CsrMatrix matrix = input.matrix();
-    double[] rowCoefficients = new double[matrix.columns()];
     for (int row = 0; row < problem.rowBounds().size(); row++) {
       LpRowBounds bounds = problem.rowBounds().get(row);
       if (!Double.isFinite(bounds.lower()) && !Double.isFinite(bounds.upper())) {
@@ -111,18 +100,58 @@ final class RevisedSimplexCore {
       if (!bounds.isEquality()
           && Double.isFinite(bounds.lower())
           && Double.isFinite(bounds.upper())) {
-        return "performance solver does not support ranged rows";
+        return ConstraintCounts.unsupported("performance solver does not support ranged rows");
+      }
+      if (bounds.isEquality()) {
+        constraintCount++;
+        extraColumns += extraColumnsFor(Relation.EQ, bounds.upper());
+      } else if (!Double.isFinite(bounds.lower()) && Double.isFinite(bounds.upper())) {
+        constraintCount++;
+        extraColumns += extraColumnsFor(Relation.LE, bounds.upper());
+      } else if (Double.isFinite(bounds.lower()) && !Double.isFinite(bounds.upper())) {
+        constraintCount++;
+        extraColumns += extraColumnsFor(Relation.GE, bounds.lower());
+      }
+    }
+    return new ConstraintCounts(constraintCount, extraColumns, null);
+  }
+
+  private static int extraColumnsFor(final Relation relation, final double rhs) {
+    Relation normalizedRelation = normalizedRelation(relation, rhs);
+    return switch (normalizedRelation) {
+      case LE, EQ -> 1;
+      case GE -> 2;
+    };
+  }
+
+  private static Tableau buildTableau(final SolverInput input, final ConstraintCounts counts) {
+    LpProblem problem = input.problem();
+    int columns = problem.stats().columns();
+    TableauBuilder builder =
+        new TableauBuilder(columns, counts.constraintCount(), counts.extraColumns());
+    for (int column = 0; column < columns; column++) {
+      LpVariableBounds bounds = problem.variableBounds().get(column);
+      if (Double.isFinite(bounds.upper())) {
+        builder.addUnitLe(column, bounds.upper());
+      }
+    }
+    CsrMatrix matrix = input.matrix();
+    double[] rowCoefficients = new double[matrix.columns()];
+    for (int row = 0; row < problem.rowBounds().size(); row++) {
+      LpRowBounds bounds = problem.rowBounds().get(row);
+      if (!Double.isFinite(bounds.lower()) && !Double.isFinite(bounds.upper())) {
+        continue;
       }
       matrix.copyRowInto(row, rowCoefficients);
       if (bounds.isEquality()) {
-        constraints.add(LinearConstraint.eq(rowCoefficients, bounds.upper()));
+        builder.add(Relation.EQ, rowCoefficients, bounds.upper());
       } else if (!Double.isFinite(bounds.lower()) && Double.isFinite(bounds.upper())) {
-        constraints.add(LinearConstraint.le(rowCoefficients, bounds.upper()));
+        builder.add(Relation.LE, rowCoefficients, bounds.upper());
       } else if (Double.isFinite(bounds.lower()) && !Double.isFinite(bounds.upper())) {
-        constraints.add(LinearConstraint.ge(rowCoefficients, bounds.lower()));
+        builder.add(Relation.GE, rowCoefficients, bounds.lower());
       }
     }
-    return null;
+    return builder.build();
   }
 
   private static SolveResult unconstrainedNonnegative(final LpProblem problem) {
@@ -171,6 +200,12 @@ final class RevisedSimplexCore {
     EQ
   }
 
+  private record ConstraintCounts(int constraintCount, int extraColumns, String unsupported) {
+    static ConstraintCounts unsupported(final String message) {
+      return new ConstraintCounts(0, 0, message);
+    }
+  }
+
   record LinearConstraint(double[] coefficients, Relation relation, double rhs) {
     static LinearConstraint unitLe(final int columns, final int column, final double rhs) {
       double[] coefficients = new double[columns];
@@ -205,11 +240,7 @@ final class RevisedSimplexCore {
           coefficients[index] = -coefficients[index];
         }
         normalizedRhs = -normalizedRhs;
-        if (normalizedRelation == Relation.LE) {
-          normalizedRelation = Relation.GE;
-        } else if (normalizedRelation == Relation.GE) {
-          normalizedRelation = Relation.LE;
-        }
+        normalizedRelation = flipInequality(normalizedRelation);
       }
       return new LinearConstraint(coefficients, normalizedRelation, normalizedRhs);
     }
@@ -247,34 +278,12 @@ final class RevisedSimplexCore {
               case EQ -> 1;
             };
       }
-      int variableCount = originalColumns + extraColumns;
-      double[][] rows = new double[constraints.size() + 1][variableCount + 1];
-      int[] basis = new int[constraints.size()];
-      boolean[] artificial = new boolean[variableCount];
-      int nextColumn = originalColumns;
-      for (int row = 0; row < constraints.size(); row++) {
-        LinearConstraint constraint = constraints.get(row);
-        System.arraycopy(constraint.coefficients(), 0, rows[row], 0, originalColumns);
-        rows[row][variableCount] = constraint.rhs();
-        if (constraint.relation() == Relation.LE) {
-          rows[row][nextColumn] = 1.0d;
-          basis[row] = nextColumn;
-          nextColumn++;
-        } else if (constraint.relation() == Relation.GE) {
-          rows[row][nextColumn] = -1.0d;
-          nextColumn++;
-          rows[row][nextColumn] = 1.0d;
-          artificial[nextColumn] = true;
-          basis[row] = nextColumn;
-          nextColumn++;
-        } else {
-          rows[row][nextColumn] = 1.0d;
-          artificial[nextColumn] = true;
-          basis[row] = nextColumn;
-          nextColumn++;
-        }
+      TableauBuilder builder =
+          new TableauBuilder(originalColumns, constraints.size(), extraColumns);
+      for (LinearConstraint constraint : constraints) {
+        builder.add(constraint.relation(), constraint.coefficients(), constraint.rhs());
       }
-      return new Tableau(rows, basis, artificial, variableCount);
+      return builder.build();
     }
 
     boolean hasArtificialVariables() {
@@ -393,5 +402,88 @@ final class RevisedSimplexCore {
         }
       }
     }
+  }
+
+  private static final class TableauBuilder {
+    private final int originalColumns;
+    private final int variableCount;
+    private final double[][] rows;
+    private final int[] basis;
+    private final boolean[] artificial;
+    private int nextColumn;
+    private int nextRow;
+
+    private TableauBuilder(
+        final int originalColumns, final int constraintCount, final int extraColumns) {
+      this.originalColumns = originalColumns;
+      this.variableCount = originalColumns + extraColumns;
+      this.rows = new double[constraintCount + 1][variableCount + 1];
+      this.basis = new int[constraintCount];
+      this.artificial = new boolean[variableCount];
+      this.nextColumn = originalColumns;
+    }
+
+    private void addUnitLe(final int column, final double rhs) {
+      rows[nextRow][column] = 1.0d;
+      rows[nextRow][variableCount] = rhs;
+      addSlackBasis();
+      nextRow++;
+    }
+
+    private void add(final Relation relation, final double[] coefficients, final double rhs) {
+      Relation normalizedRelation = relation;
+      double normalizedRhs = rhs;
+      double sign = 1.0d;
+      if (normalizedRhs < 0.0d) {
+        normalizedRhs = -normalizedRhs;
+        sign = -1.0d;
+        normalizedRelation = flipInequality(normalizedRelation);
+      }
+      for (int column = 0; column < originalColumns; column++) {
+        rows[nextRow][column] = sign * coefficients[column];
+      }
+      rows[nextRow][variableCount] = normalizedRhs;
+      if (normalizedRelation == Relation.LE) {
+        addSlackBasis();
+      } else if (normalizedRelation == Relation.GE) {
+        rows[nextRow][nextColumn] = -1.0d;
+        nextColumn++;
+        addArtificialBasis();
+      } else {
+        addArtificialBasis();
+      }
+      nextRow++;
+    }
+
+    private void addSlackBasis() {
+      rows[nextRow][nextColumn] = 1.0d;
+      basis[nextRow] = nextColumn;
+      nextColumn++;
+    }
+
+    private void addArtificialBasis() {
+      rows[nextRow][nextColumn] = 1.0d;
+      artificial[nextColumn] = true;
+      basis[nextRow] = nextColumn;
+      nextColumn++;
+    }
+
+    private Tableau build() {
+      return new Tableau(rows, basis, artificial, variableCount);
+    }
+  }
+
+  private static Relation normalizedRelation(final Relation relation, final double rhs) {
+    return rhs < 0.0d ? flipInequality(relation) : relation;
+  }
+
+  private static Relation flipInequality(final Relation relation) {
+    if (relation == Relation.LE) {
+      return Relation.GE;
+    }
+    if (relation == Relation.GE) {
+      return Relation.LE;
+    }
+    return relation;
   }
 }
