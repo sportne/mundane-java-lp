@@ -3,6 +3,8 @@ package io.github.mundanej.mlp.examples.solvercomparison;
 import io.github.mundanej.mlp.adapter.clp.ClpCliAdapter;
 import io.github.mundanej.mlp.adapter.glpk.GlpkCliAdapter;
 import io.github.mundanej.mlp.adapter.highs.HighsCliAdapter;
+import io.github.mundanej.mlp.adapter.ojalgo.OjAlgoAdapter;
+import io.github.mundanej.mlp.adapter.ortools.OrToolsJavaAdapter;
 import io.github.mundanej.mlp.generators.CanonicalLpFixture;
 import io.github.mundanej.mlp.harness.BenchmarkInstance;
 import io.github.mundanej.mlp.harness.BenchmarkSuite;
@@ -23,7 +25,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Supplier;
 
-/** Runs a tiny CLI solver comparison smoke suite. */
+/** Runs a tiny solver comparison smoke suite. */
 public final class SolverComparisonSmokeMain {
     static final String DEFAULT_OUTPUT_DIRECTORY = "build/reports/solver-comparison-smoke";
 
@@ -77,12 +79,17 @@ public final class SolverComparisonSmokeMain {
     }
 
     static List<Supplier<LpSolverAdapter>> defaultAdapters() {
-        return List.of(HighsCliAdapter::new, ClpCliAdapter::new, GlpkCliAdapter::new);
+        return List.of(
+                HighsCliAdapter::new,
+                ClpCliAdapter::new,
+                GlpkCliAdapter::new,
+                OrToolsJavaAdapter::new,
+                OjAlgoAdapter::new);
     }
 
     private static BenchmarkSuite suite() {
         CanonicalLpFixture fixture = LpTestInstances.tierOneFixture("single-bounded-variable");
-        return new BenchmarkSuite("cli-solver-comparison-smoke", List.of(new BenchmarkInstance(
+        return new BenchmarkSuite("solver-comparison-smoke", List.of(new BenchmarkInstance(
                 fixture.problem().name(),
                 fixture.problem(),
                 fixture.matrix(),

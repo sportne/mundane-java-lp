@@ -31,12 +31,14 @@ final class SolverComparisonSmokeMainTest {
                 List.of(
                         unavailable("highs"),
                         unavailable("clp"),
-                        unavailable("glpk")));
+                        unavailable("glpk"),
+                        unavailable("ortools"),
+                        unavailable("ojalgo")));
 
-        assertEquals(3, result.records().size());
+        assertEquals(5, result.records().size());
         assertEquals(0, result.successfulSolvers());
         assertEquals(0, result.failedSolvers());
-        assertEquals(3, result.unavailableSolvers());
+        assertEquals(5, result.unavailableSolvers());
         assertTrue(Files.readString(result.markdownPath()).contains("SOLVER_UNAVAILABLE"));
         assertTrue(Files.readString(result.jsonPath()).contains("\"outcome\":\"SOLVER_UNAVAILABLE\""));
         assertTrue(Files.readString(result.csvPath()).contains("SOLVER_UNAVAILABLE"));
@@ -49,12 +51,14 @@ final class SolverComparisonSmokeMainTest {
                 List.of(
                         optimal("highs"),
                         unavailable("clp"),
-                        unavailable("glpk")));
+                        unavailable("glpk"),
+                        unavailable("ortools"),
+                        unavailable("ojalgo")));
 
-        assertEquals(3, result.records().size());
+        assertEquals(5, result.records().size());
         assertEquals(1, result.successfulSolvers());
         assertEquals(0, result.failedSolvers());
-        assertEquals(2, result.unavailableSolvers());
+        assertEquals(4, result.unavailableSolvers());
         assertTrue(Files.readString(result.markdownPath()).contains("SUCCESS"));
         assertTrue(Files.readString(result.jsonPath()).contains("\"solver\":\"highs\""));
         assertTrue(Files.readString(result.csvPath()).contains("highs"));
@@ -67,11 +71,13 @@ final class SolverComparisonSmokeMainTest {
                 List.of(
                         error("highs"),
                         unavailable("clp"),
-                        unavailable("glpk")));
+                        unavailable("glpk"),
+                        unavailable("ortools"),
+                        unavailable("ojalgo")));
 
         assertEquals(0, result.successfulSolvers());
         assertEquals(1, result.failedSolvers());
-        assertEquals(2, result.unavailableSolvers());
+        assertEquals(4, result.unavailableSolvers());
         assertThrows(IllegalStateException.class, result::throwIfFailed);
     }
 
@@ -82,12 +88,29 @@ final class SolverComparisonSmokeMainTest {
                 List.of(
                         wrongObjective("highs"),
                         unavailable("clp"),
-                        unavailable("glpk")));
+                        unavailable("glpk"),
+                        unavailable("ortools"),
+                        unavailable("ojalgo")));
 
         assertEquals(0, result.successfulSolvers());
         assertEquals(1, result.failedSolvers());
-        assertEquals(2, result.unavailableSolvers());
+        assertEquals(4, result.unavailableSolvers());
         assertThrows(IllegalStateException.class, result::throwIfFailed);
+    }
+
+    @Test
+    void defaultAdaptersListCliThenJavaSolvers() {
+        List<SolverId> ids = SolverComparisonSmokeMain.defaultAdapters().stream()
+                .map(Supplier::get)
+                .map(LpSolverAdapter::id)
+                .toList();
+
+        assertEquals(List.of(
+                new SolverId("highs", "cli"),
+                new SolverId("clp", "cli"),
+                new SolverId("glpk", "cli"),
+                new SolverId("ortools", "java"),
+                new SolverId("ojalgo", "java")), ids);
     }
 
     private static Supplier<LpSolverAdapter> unavailable(final String name) {

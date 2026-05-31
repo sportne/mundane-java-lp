@@ -90,7 +90,7 @@ The CLI stays small and explicit:
   adapters so local harness CLI wiring is testable without external solver
   binaries;
 - solver comparison smoke lives in the `examples/solver-comparison-smoke`
-  application and lists HiGHS, CLP, and GLPK explicitly.
+  application and lists HiGHS, CLP, GLPK, OR-Tools, and ojAlgo explicitly.
 
 The CLI must not discover adapters from the classpath or environment implicitly.
 

@@ -7,6 +7,8 @@ dependencies {
     implementation project(':modules:lp-adapter-clp-cli')
     implementation project(':modules:lp-adapter-glpk-cli')
     implementation project(':modules:lp-adapter-highs-cli')
+    implementation project(':modules:lp-adapter-ojalgo')
+    implementation project(':modules:lp-adapter-ortools-java')
     implementation project(':modules:lp-generators')
     implementation project(':modules:lp-harness-api')
     implementation project(':modules:lp-harness-report')
