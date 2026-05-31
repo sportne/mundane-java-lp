@@ -8,8 +8,7 @@ This document records what this initial scaffold is expected to provide.
 - `AGENT.md`
 - `CONTRIBUTING.md`
 - `SECURITY.md`
-- `LICENSE`
-- `NOTICE.md`
+- `LICENSE
 - `settings.gradle`
 - `build.gradle`
 - `gradle.properties`

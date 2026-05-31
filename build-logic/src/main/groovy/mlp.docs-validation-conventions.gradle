@@ -7,7 +7,6 @@ tasks.register('validateDesignControlPack') {
         'CONTRIBUTING.md',
         'SECURITY.md',
         'LICENSE',
-        'NOTICE.md',
         'SCAFFOLD_VALIDATION.md',
         'docs/charter.md',
         'docs/scope.md',
