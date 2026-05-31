@@ -4,9 +4,17 @@ plugins {
 }
 
 dependencies {
+    implementation project(':modules:lp-adapter-clp-cli')
+    implementation project(':modules:lp-adapter-glpk-cli')
+    implementation project(':modules:lp-adapter-highs-cli')
     implementation project(':modules:lp-generators')
     implementation project(':modules:lp-harness-api')
+    implementation project(':modules:lp-harness-report')
+    implementation project(':modules:lp-solver-spi')
+    implementation project(':modules:lp-testkit')
     implementation project(':modules:lp-validation')
+
+    testImplementation project(':modules:lp-solver-spi')
 }
 
 application {
