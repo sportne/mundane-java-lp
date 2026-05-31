@@ -73,10 +73,28 @@ public final class CsrMatrix {
      */
     public double[] multiply(final double[] x) {
         Objects.requireNonNull(x, "x");
-        if (x.length != columns) {
-            throw new IllegalArgumentException("vector length must match matrix columns");
-        }
+        requireInputLength(x);
         double[] y = new double[rows];
+        multiplyInto(x, y);
+        return y;
+    }
+
+    /**
+     * Computes y = A x into a caller-owned output buffer.
+     *
+     * @param x dense input vector
+     * @param y dense output vector overwritten with row activities
+     */
+    public void multiplyInto(final double[] x, final double[] y) {
+        Objects.requireNonNull(x, "x");
+        Objects.requireNonNull(y, "y");
+        requireInputLength(x);
+        if (y.length != rows) {
+            throw new IllegalArgumentException("output length must match matrix rows");
+        }
+        if (x == y) {
+            throw new IllegalArgumentException("input and output vectors must not be the same array");
+        }
         for (int row = 0; row < rows; row++) {
             int start = rowPointers[row];
             int end = rowPointers[row + 1];
@@ -86,7 +104,12 @@ public final class CsrMatrix {
             }
             y[row] = sum;
         }
-        return y;
+    }
+
+    private void requireInputLength(final double[] x) {
+        if (x.length != columns) {
+            throw new IllegalArgumentException("vector length must match matrix columns");
+        }
     }
 
     private void validate() {

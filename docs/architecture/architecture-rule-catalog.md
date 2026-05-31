@@ -20,10 +20,10 @@ documented here or in an ADR in the same change.
 
 | Rule | Rationale | Enforced scope | Allowed exceptions | Test evidence |
 |---|---|---|---|---|
-| Native-targeted code must not use reflection, dynamic proxies, `Class.forName`, `ClassLoader`, or `URLClassLoader`. | These mechanisms commonly require reachability metadata and hide runtime discovery. | `lp-model`, `lp-sparse`, `lp-validation`, `lp-native-api` main code. | None without ADR. | `ProjectArchitectureTest`. |
-| Native-targeted code must not use Java serialization. | Serialization needs metadata and is unnecessary for the core. | Native-targeted modules. | None. | `ProjectArchitectureTest`. |
-| Native-targeted code must not use JNI/native methods, internal JDK APIs, or `Unsafe`. | These APIs are brittle across JDKs and native-image configurations. | Native-targeted modules. | None without ADR. | `ProjectArchitectureTest`. |
-| Native-targeted modules must not ship reachability-metadata workaround files in G0. | G0 should avoid metadata needs by design. | `src/main/resources/META-INF/native-image`. | None. | `ProjectArchitectureTest`. |
+| Native-targeted code must not use reflection, dynamic proxies, `Class.forName`, `ClassLoader`, `URLClassLoader`, `ServiceLoader`, or `MethodHandles.lookup`. | These mechanisms commonly require reachability metadata and hide runtime discovery. | `lp-model`, `lp-sparse`, `lp-validation`, `lp-native-api` main code. | None without ADR. | `ProjectArchitectureTest`. |
+| Native-targeted code must not use Java serialization. | Serialization needs metadata and is unnecessary for the core. | `lp-model`, `lp-sparse`, `lp-validation`, `lp-native-api` main code. | None. | `ProjectArchitectureTest`. |
+| Native-targeted code must not use JNI/native methods, internal JDK APIs, `System.load`, `System.loadLibrary`, or `Unsafe`. | These APIs are brittle across JDKs and native-image configurations. | `lp-model`, `lp-sparse`, `lp-validation`, `lp-native-api` main code. | None without ADR. | `ProjectArchitectureTest`. |
+| Native-targeted modules must not ship reachability-metadata workaround files in 0.1.0. | The core should avoid metadata needs by design. | `modules/*/src/main/resources/META-INF/native-image`. | None without ADR. | `ProjectArchitectureTest`. |
 
 ## General Java baseline rules
 

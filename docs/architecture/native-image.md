@@ -25,6 +25,11 @@ Native-targeted code should avoid:
 - `Unsafe`;
 - hidden resource discovery.
 
+Architecture tests enforce these constraints for native-targeted main code:
+`lp-model`, `lp-sparse`, `lp-validation`, and `lp-native-api`. Those modules
+also must not ship `META-INF/native-image` reachability metadata workaround
+files without a documented architecture decision.
+
 ## Planned targets
 
 - JVM jars.

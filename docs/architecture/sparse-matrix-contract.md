@@ -40,12 +40,22 @@ Builders may use temporary collections while constructing tiny fixtures or
 parsing files, but the materialized matrix used by validation, solver adapters,
 and solver kernels must be CSR or CSC primitive storage.
 
+CSR row-activity kernels expose a caller-owned output path,
+`multiplyInto(double[] x, double[] y)`, for repeated validation and solver loops.
+The allocation-returning `multiply(double[] x)` convenience method delegates to
+that hot path after allocating its result vector. `multiplyInto` overwrites every
+output row and rejects input/output vectors whose lengths do not match the
+matrix shape. The input and output arrays must be distinct; aliasing is rejected
+because CSR row writes can otherwise overwrite values that later rows still need
+to read.
+
 ## Operations
 
 The required 0.1.0 kernel is dense matrix-vector multiplication:
 
 - CSR computes `y = A x`.
 - CSC computes `y = A x`.
+- CSR also supports `multiplyInto(x, y)` to reuse caller-owned output buffers.
 
 Both operations reject input vectors whose length does not equal the matrix
 column count. Additional operations should be added only when required by

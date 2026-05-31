@@ -48,12 +48,59 @@ final class ProjectArchitectureTest {
 
     @Test
     void nativeTargetedCodeAvoidsReflectionTokens() throws IOException {
-        List<String> forbidden = List.of("Class.forName", "java.lang.reflect", "Proxy.newProxyInstance", "Unsafe");
-        List<Path> offenders = javaFiles()
-                .filter(path -> isNativeTargeted(path))
+        List<String> forbidden = List.of(
+                "Class.forName",
+                "ClassLoader",
+                "URLClassLoader",
+                "java.lang.reflect",
+                "Proxy.newProxyInstance",
+                "ServiceLoader",
+                "MethodHandles.lookup");
+        List<Path> offenders = nativeTargetedMainJavaFiles()
                 .filter(path -> forbidden.stream().anyMatch(token -> contains(path, token)))
                 .toList();
         assertTrue(offenders.isEmpty(), () -> "Native-targeted forbidden token use: " + offenders);
+    }
+
+    @Test
+    void nativeTargetedCodeAvoidsSerializationTokens() throws IOException {
+        List<String> forbidden = List.of(
+                "java.io.Serializable",
+                "Externalizable",
+                "ObjectInputStream",
+                "ObjectOutputStream",
+                "readObject(",
+                "writeObject(");
+        List<Path> offenders = nativeTargetedMainJavaFiles()
+                .filter(path -> forbidden.stream().anyMatch(token -> contains(path, token)))
+                .toList();
+        assertTrue(offenders.isEmpty(), () -> "Native-targeted serialization token use: " + offenders);
+    }
+
+    @Test
+    void nativeTargetedCodeAvoidsUnsafeNativeAndInternalJdkApis() throws IOException {
+        List<String> forbidden = List.of(
+                "sun.misc.Unsafe",
+                "jdk.internal.",
+                "System.loadLibrary",
+                "System.load(",
+                "JNIEnv");
+        List<Path> tokenOffenders = nativeTargetedMainJavaFiles()
+                .filter(path -> forbidden.stream().anyMatch(token -> contains(path, token)))
+                .toList();
+        List<String> nativeMethodOffenders = nativeMethodOffenders();
+        assertTrue(tokenOffenders.isEmpty() && nativeMethodOffenders.isEmpty(),
+                () -> "Native-targeted unsafe/native/internal API use: "
+                        + tokenOffenders + " " + nativeMethodOffenders);
+    }
+
+    @Test
+    void nativeTargetedModulesDoNotShipNativeImageMetadataWorkarounds() throws IOException {
+        List<Path> offenders = Files.walk(ROOT.resolve("modules"))
+                .filter(ProjectArchitectureTest::isNativeTargeted)
+                .filter(path -> path.toString().contains("/src/main/resources/META-INF/native-image"))
+                .toList();
+        assertTrue(offenders.isEmpty(), () -> "Native Image metadata workarounds require documentation: " + offenders);
     }
 
     @Test
@@ -100,6 +147,13 @@ final class ProjectArchitectureTest {
                 .filter(path -> path.toString().endsWith(".java"));
     }
 
+    private static Stream<Path> nativeTargetedMainJavaFiles() throws IOException {
+        return Files.walk(ROOT.resolve("modules"))
+                .filter(path -> path.toString().contains("/src/main/java/"))
+                .filter(path -> path.toString().endsWith(".java"))
+                .filter(ProjectArchitectureTest::isNativeTargeted);
+    }
+
     private static boolean contains(final Path path, final String token) {
         try {
             return Files.readString(path).contains(token);
@@ -108,10 +162,48 @@ final class ProjectArchitectureTest {
         }
     }
 
+    private static List<String> nativeMethodOffenders() throws IOException {
+        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+        assertTrue(compiler != null, "JDK compiler must be available for architecture tests");
+        List<String> offenders = new ArrayList<>();
+        List<Path> sources = nativeTargetedMainJavaFiles().toList();
+        try (StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null)) {
+            JavacTask task = (JavacTask) compiler.getTask(
+                    null,
+                    fileManager,
+                    null,
+                    List.of("-proc:none"),
+                    null,
+                    fileManager.getJavaFileObjectsFromPaths(sources));
+            NativeMethodScanner scanner = new NativeMethodScanner(offenders);
+            for (CompilationUnitTree unit : task.parse()) {
+                scanner.scan(unit, null);
+            }
+        }
+        return offenders;
+    }
+
+    private static final class NativeMethodScanner extends TreePathScanner<Void, Void> {
+        private final List<String> offenders;
+
+        NativeMethodScanner(final List<String> offenders) {
+            this.offenders = offenders;
+        }
+
+        @Override
+        public Void visitMethod(final MethodTree tree, final Void unused) {
+            if (tree.getModifiers().getFlags().contains(Modifier.NATIVE)) {
+                offenders.add("native method " + tree.getName());
+            }
+            return super.visitMethod(tree, unused);
+        }
+    }
+
     private static final class ApiJavadocScanner extends TreePathScanner<Void, Void> {
         private final DocTrees docTrees;
         private final List<String> offenders;
         private final Deque<ClassTree> classStack = new ArrayDeque<>();
+        private final Deque<Boolean> publicApiClassStack = new ArrayDeque<>();
 
         ApiJavadocScanner(final DocTrees docTrees, final List<String> offenders) {
             this.docTrees = docTrees;
@@ -120,21 +212,32 @@ final class ProjectArchitectureTest {
 
         @Override
         public Void visitClass(final ClassTree tree, final Void unused) {
-            if (tree.getModifiers().getFlags().contains(Modifier.PUBLIC)) {
+            boolean publicApiType = isPublicApiType(tree);
+            if (publicApiType) {
                 DocCommentTree javadoc = requireJavadoc(tree, "public type " + tree.getSimpleName());
                 requireRecordComponentTags(tree, javadoc);
             }
             classStack.push(tree);
+            publicApiClassStack.push(publicApiType);
             try {
                 return super.visitClass(tree, unused);
             } finally {
+                publicApiClassStack.pop();
                 classStack.pop();
             }
         }
 
+        private boolean isPublicApiType(final ClassTree tree) {
+            if (classStack.isEmpty()) {
+                return tree.getModifiers().getFlags().contains(Modifier.PUBLIC);
+            }
+            return isInPublicApiType()
+                    && tree.getModifiers().getFlags().contains(Modifier.PUBLIC);
+        }
+
         @Override
         public Void visitMethod(final MethodTree tree, final Void unused) {
-            if (isPublicApiMethod(tree)) {
+            if (isInPublicApiType() && isPublicApiMethod(tree)) {
                 DocCommentTree javadoc = requireJavadoc(tree, "public method " + tree.getName());
                 requireParameterTags(tree, javadoc);
             }
@@ -143,7 +246,7 @@ final class ProjectArchitectureTest {
 
         @Override
         public Void visitVariable(final VariableTree tree, final Void unused) {
-            if (isClassMember() && isPublicApiField(tree)) {
+            if (isInPublicApiType() && isClassMember() && isPublicApiField(tree)) {
                 requireJavadoc(tree, "public field " + tree.getName());
             }
             return super.visitVariable(tree, unused);
@@ -223,6 +326,10 @@ final class ProjectArchitectureTest {
 
         private boolean isInInterface() {
             return !classStack.isEmpty() && classStack.peek().getKind() == Tree.Kind.INTERFACE;
+        }
+
+        private boolean isInPublicApiType() {
+            return !publicApiClassStack.isEmpty() && publicApiClassStack.peek();
         }
 
         private boolean isEnumConstant(final VariableTree tree) {

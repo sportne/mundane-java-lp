@@ -121,7 +121,18 @@ public final class SolverComparisonSmokeMain {
                 .count();
     }
 
-    /** Solver comparison smoke result paths and counters. */
+    /**
+     * Solver comparison smoke result paths and counters.
+     *
+     * @param suiteId suite identifier
+     * @param records run records in report order
+     * @param markdownPath Markdown report path
+     * @param jsonPath JSON report path
+     * @param csvPath CSV report path
+     * @param successfulSolvers count of solvers with accepted evidence
+     * @param failedSolvers count of available solvers with errors or validation failures
+     * @param unavailableSolvers count of unavailable solvers
+     */
     public record SmokeResult(
             String suiteId,
             List<RunRecord> records,
@@ -131,7 +142,18 @@ public final class SolverComparisonSmokeMain {
             long successfulSolvers,
             long failedSolvers,
             long unavailableSolvers) {
-        /** Creates a smoke result. */
+        /**
+         * Creates a smoke result.
+         *
+         * @param suiteId suite identifier
+         * @param records run records in report order
+         * @param markdownPath Markdown report path
+         * @param jsonPath JSON report path
+         * @param csvPath CSV report path
+         * @param successfulSolvers count of solvers with accepted evidence
+         * @param failedSolvers count of available solvers with errors or validation failures
+         * @param unavailableSolvers count of unavailable solvers
+         */
         public SmokeResult {
             records = List.copyOf(records);
         }

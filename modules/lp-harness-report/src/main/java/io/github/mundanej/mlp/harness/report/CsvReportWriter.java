@@ -5,7 +5,11 @@ import java.util.List;
 
 /** Writes deterministic CSV reports for run records. */
 public final class CsvReportWriter {
-    /** Renders run records as CSV. */
+    /**
+     * Renders run records as CSV.
+     *
+     * @param records run records in report order
+     */
     public String render(final List<RunRecord> records) {
         StringBuilder out = new StringBuilder();
         out.append("suite,instance,solver,version,status,objective,outcome,accepted,tolerance,threads,")

@@ -28,12 +28,21 @@ public record ValidationEvidence(
         primal = Objects.requireNonNull(primal, "primal").clone();
     }
 
-    /** Returns evidence with only a status claim. */
+    /**
+     * Returns evidence with only a status claim.
+     *
+     * @param status normalized solver status claim
+     */
     public static ValidationEvidence statusOnly(final ValidationStatus status) {
         return new ValidationEvidence(Optional.of(status), OptionalDouble.empty(), new double[0]);
     }
 
-    /** Returns optimal evidence with status, objective, and primal values. */
+    /**
+     * Returns optimal evidence with status, objective, and primal values.
+     *
+     * @param objectiveValue reported objective value
+     * @param primal primal vector in column order
+     */
     public static ValidationEvidence optimal(final double objectiveValue, final double... primal) {
         return new ValidationEvidence(
                 Optional.of(ValidationStatus.OPTIMAL),

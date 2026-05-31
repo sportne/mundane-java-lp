@@ -283,13 +283,27 @@ public final class MlpBenchMain {
                 0.0d);
     }
 
-    /** Benchmark smoke result paths and records. */
+    /**
+     * Benchmark smoke result paths and records.
+     *
+     * @param records run records in report order
+     * @param markdownPath Markdown report path
+     * @param jsonPath JSON report path
+     * @param csvPath CSV report path
+     */
     public record BenchmarkSmokeResult(
             List<RunRecord> records,
             Path markdownPath,
             Path jsonPath,
             Path csvPath) {
-        /** Creates a benchmark smoke result. */
+        /**
+         * Creates a benchmark smoke result.
+         *
+         * @param records run records in report order
+         * @param markdownPath Markdown report path
+         * @param jsonPath JSON report path
+         * @param csvPath CSV report path
+         */
         public BenchmarkSmokeResult {
             records = List.copyOf(records);
         }

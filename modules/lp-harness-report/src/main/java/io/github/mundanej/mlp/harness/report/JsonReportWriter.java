@@ -5,7 +5,11 @@ import java.util.List;
 
 /** Writes deterministic JSON reports for run records. */
 public final class JsonReportWriter {
-    /** Renders run records as a JSON array. */
+    /**
+     * Renders run records as a JSON array.
+     *
+     * @param records run records in report order
+     */
     public String render(final List<RunRecord> records) {
         StringBuilder out = new StringBuilder();
         out.append("[\n");

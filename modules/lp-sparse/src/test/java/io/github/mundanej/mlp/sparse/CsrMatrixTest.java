@@ -34,6 +34,21 @@ final class CsrMatrixTest {
     }
 
     @Test
+    void multipliesIntoCallerOwnedOutput() {
+        CsrMatrix matrix = new CsrMatrix(
+                3,
+                3,
+                new double[] {1.0d, 2.0d, 3.0d},
+                new int[] {0, 2, 1},
+                new int[] {0, 2, 3, 3});
+        double[] output = {99.0d, 99.0d, 99.0d};
+
+        matrix.multiplyInto(new double[] {1.0d, 2.0d, 3.0d}, output);
+
+        assertArrayEquals(new double[] {7.0d, 6.0d, 0.0d}, output);
+    }
+
+    @Test
     void accessorsReturnDefensiveCopies() {
         double[] values = {1.0d};
         int[] indices = {0};
@@ -103,5 +118,27 @@ final class CsrMatrixTest {
     void rejectsVectorLengthMismatch() {
         CsrMatrix matrix = new CsrMatrix(1, 2, new double[0], new int[0], new int[] {0, 0});
         assertThrows(IllegalArgumentException.class, () -> matrix.multiply(new double[] {1.0d}));
+        assertThrows(IllegalArgumentException.class,
+                () -> matrix.multiplyInto(new double[] {1.0d}, new double[] {0.0d}));
+    }
+
+    @Test
+    void rejectsOutputLengthMismatch() {
+        CsrMatrix matrix = new CsrMatrix(2, 1, new double[0], new int[0], new int[] {0, 0, 0});
+        assertThrows(IllegalArgumentException.class,
+                () -> matrix.multiplyInto(new double[] {1.0d}, new double[] {0.0d}));
+    }
+
+    @Test
+    void rejectsMultiplyIntoAliasedInputAndOutput() {
+        CsrMatrix matrix = new CsrMatrix(
+                2,
+                2,
+                new double[] {1.0d, 1.0d},
+                new int[] {1, 0},
+                new int[] {0, 1, 2});
+        double[] vector = {1.0d, 2.0d};
+
+        assertThrows(IllegalArgumentException.class, () -> matrix.multiplyInto(vector, vector));
     }
 }
