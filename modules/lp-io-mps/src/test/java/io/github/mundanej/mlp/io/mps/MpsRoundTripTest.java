@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.github.mundanej.mlp.generators.CanonicalLpFixture;
-import io.github.mundanej.mlp.generators.CanonicalLpFixtures;
 import io.github.mundanej.mlp.model.LpObjective;
 import io.github.mundanej.mlp.model.LpProblem;
 import io.github.mundanej.mlp.model.LpProblemStats;
@@ -13,6 +12,7 @@ import io.github.mundanej.mlp.model.LpRowBounds;
 import io.github.mundanej.mlp.model.LpVariableBounds;
 import io.github.mundanej.mlp.model.ObjectiveSense;
 import io.github.mundanej.mlp.sparse.CsrMatrix;
+import io.github.mundanej.mlp.testkit.LpTestInstances;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -25,7 +25,7 @@ final class MpsRoundTripTest {
 
     @Test
     void roundTripsSupportedTierOneFixtures() throws Exception {
-        List<CanonicalLpFixture> supported = CanonicalLpFixtures.tierOne().stream()
+        List<CanonicalLpFixture> supported = LpTestInstances.tierOneFixtures().stream()
                 .filter(MpsRoundTripTest::isSupportedMpsFixture)
                 .toList();
         assertEquals(6, supported.size());
@@ -155,10 +155,10 @@ final class MpsRoundTripTest {
     @Test
     void writerRejectsUnsupportedCanonicalFixtures() {
         assertThrows(MpsFormatException.class, () -> new MpsWriter().write(
-                fromFixture(CanonicalLpFixtures.twoVariableFeasibleOptimum()),
+                fromFixture(LpTestInstances.tierOneFixture("two-variable-feasible-optimum")),
                 tempDir.resolve("max.mps")));
         assertThrows(MpsFormatException.class, () -> new MpsWriter().write(
-                fromFixture(CanonicalLpFixtures.freeVariable()),
+                fromFixture(LpTestInstances.tierOneFixture("free-variable-row-bounded")),
                 tempDir.resolve("ranged.mps")));
         assertThrows(MpsFormatException.class, () -> new MpsWriter().write(
                 problemWithObjectiveConstant(),

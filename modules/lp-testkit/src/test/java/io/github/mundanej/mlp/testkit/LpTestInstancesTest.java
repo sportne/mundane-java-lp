@@ -1,6 +1,7 @@
 package io.github.mundanej.mlp.testkit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.github.mundanej.mlp.generators.CanonicalLpFixture;
@@ -14,6 +15,13 @@ final class LpTestInstancesTest {
     @Test
     void exposesTierOneFixtures() {
         assertEquals(10, LpTestInstances.tierOneFixtures().size());
+    }
+
+    @Test
+    void exposesTierOneFixtureByName() {
+        assertEquals("free-variable-row-bounded",
+                LpTestInstances.tierOneFixture("free-variable-row-bounded").problem().name());
+        assertThrows(IllegalArgumentException.class, () -> LpTestInstances.tierOneFixture("missing"));
     }
 
     @Test

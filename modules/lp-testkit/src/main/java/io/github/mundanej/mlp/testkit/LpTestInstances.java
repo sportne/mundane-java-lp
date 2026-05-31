@@ -26,6 +26,21 @@ public final class LpTestInstances {
     }
 
     /**
+     * Returns a Tier 1 fixture by canonical problem name.
+     *
+     * @param name canonical problem name
+     */
+    public static CanonicalLpFixture tierOneFixture(final String name) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("name must not be blank");
+        }
+        return tierOneFixtures().stream()
+                .filter(fixture -> name.equals(fixture.problem().name()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("unknown Tier 1 fixture " + name));
+    }
+
+    /**
      * Returns expected validation evidence for a canonical fixture.
      *
      * @param fixture canonical fixture
