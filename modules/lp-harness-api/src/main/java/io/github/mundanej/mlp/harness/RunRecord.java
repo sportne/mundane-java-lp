@@ -20,6 +20,7 @@ import io.github.mundanej.mlp.validation.ValidationReport;
  * @param exportSeconds export/canonicalization time in seconds
  * @param validationSeconds validation time in seconds
  * @param totalSeconds total wall time in seconds
+ * @param peakMemoryBytes peak memory in bytes or not-measured
  */
 public record RunRecord(
     String suiteId,
@@ -34,7 +35,8 @@ public record RunRecord(
     double parseSeconds,
     double exportSeconds,
     double validationSeconds,
-    double totalSeconds) {
+    double totalSeconds,
+    String peakMemoryBytes) {
   /**
    * Creates a run record.
    *
@@ -51,6 +53,7 @@ public record RunRecord(
    * @param exportSeconds export/canonicalization time in seconds
    * @param validationSeconds validation time in seconds
    * @param totalSeconds total wall time in seconds
+   * @param peakMemoryBytes peak memory in bytes or not-measured
    */
   public RunRecord {
     if (suiteId == null || suiteId.isBlank()) {
@@ -80,12 +83,33 @@ public record RunRecord(
     if (machineFingerprint == null) {
       throw new IllegalArgumentException("machineFingerprint must not be null");
     }
-    if (parseSeconds < 0.0d
-        || exportSeconds < 0.0d
-        || validationSeconds < 0.0d
-        || totalSeconds < 0.0d) {
-      throw new IllegalArgumentException("timings must be non-negative");
+    requireTiming(parseSeconds, "parseSeconds");
+    requireTiming(exportSeconds, "exportSeconds");
+    requireTiming(validationSeconds, "validationSeconds");
+    requireTiming(totalSeconds, "totalSeconds");
+    if (peakMemoryBytes == null || peakMemoryBytes.isBlank()) {
+      peakMemoryBytes = "not-measured";
     }
+  }
+
+  /** Returns parse seconds for reports, or {@code not-measured}. */
+  public String parseSecondsReportValue() {
+    return timingReportValue(parseSeconds);
+  }
+
+  /** Returns export/canonicalization seconds for reports, or {@code not-measured}. */
+  public String exportSecondsReportValue() {
+    return timingReportValue(exportSeconds);
+  }
+
+  /** Returns validation seconds for reports, or {@code not-measured}. */
+  public String validationSecondsReportValue() {
+    return timingReportValue(validationSeconds);
+  }
+
+  /** Returns total wall seconds for reports, or {@code not-measured}. */
+  public String totalSecondsReportValue() {
+    return timingReportValue(totalSeconds);
   }
 
   /**
@@ -115,10 +139,11 @@ public record RunRecord(
         "not-measured",
         SolverOptions.defaults(),
         MachineFingerprint.capture(),
-        0.0d,
-        0.0d,
-        0.0d,
-        solverResult.elapsedSeconds());
+        Double.NaN,
+        Double.NaN,
+        Double.NaN,
+        solverResult.elapsedSeconds(),
+        "not-measured");
   }
 
   /**
@@ -139,5 +164,18 @@ public record RunRecord(
         validationReport,
         validationReport.accepted() ? RunOutcome.SUCCESS : RunOutcome.VALIDATION_FAILED,
         "");
+  }
+
+  private static void requireTiming(final double value, final String label) {
+    if (Double.isNaN(value)) {
+      return;
+    }
+    if (!Double.isFinite(value) || value < 0.0d) {
+      throw new IllegalArgumentException(label + " must be non-negative or not-measured");
+    }
+  }
+
+  private static String timingReportValue(final double value) {
+    return Double.isNaN(value) ? "not-measured" : Double.toString(value);
   }
 }

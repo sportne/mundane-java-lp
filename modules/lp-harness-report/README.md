@@ -8,6 +8,7 @@ state beyond metadata already captured in the records.
 
 Supported 0.1.0 renderers are Markdown, CSV, and JSON. Each renderer includes
 solver identity/status/objective, validation result, solver options, timing
-fields, failure diagnostics, and machine metadata.
+fields, peak-memory measurement state, failure diagnostics, and machine
+metadata.
 
 See the repository root `README.md` and `docs/architecture/module-boundaries.md`.

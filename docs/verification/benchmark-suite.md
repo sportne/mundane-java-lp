@@ -71,6 +71,8 @@ reason that the evidence is unavailable:
   evidence availability;
 - timing buckets: parse/load, canonicalization or export, solve, validation, and
   total wall time, using `not-measured` where a bucket is not implemented yet;
+- memory evidence: peak memory bytes when measured, or `not-measured` while
+  lightweight smoke lanes avoid heap profiling;
 - machine metadata: operating system, architecture, Java version, and available
   processor count;
 - failure records: adapter errors, validation failures, missing input,
@@ -89,6 +91,7 @@ Every solver-instance pair yields a run record:
   validation status, timings, options, and diagnostics;
 - solver version, tolerance profile, residual summary fields, parse timing, and
   export timing are report fields even when the value is `not-measured`;
+- peak memory is a report field even when the value is `not-measured`;
 - unavailable solvers are recorded with an unavailable outcome and are not
   silently skipped;
 - adapter exceptions and harness errors are recorded deterministically;

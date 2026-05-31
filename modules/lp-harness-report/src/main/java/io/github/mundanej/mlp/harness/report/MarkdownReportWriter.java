@@ -16,10 +16,10 @@ public final class MarkdownReportWriter {
     builder.append(
         "| Suite | Instance | Solver | Version | Status | Objective | Outcome | Accepted | "
             + "Tolerance | Residuals | Threads | Time Limit | Parse Seconds | Export Seconds | "
-            + "Solve Seconds | Validation Seconds | Total Seconds | OS | Arch | Java | Processors | "
-            + "Termination |\n");
+            + "Solve Seconds | Validation Seconds | Total Seconds | Peak Memory Bytes | OS | Arch | "
+            + "Java | Processors | Termination |\n");
     builder.append(
-        "|---|---|---|---|---:|---:|---|---:|---|---|---:|---:|---:|---:|---:|---:|---:|---|---|---|---:|---|\n");
+        "|---|---|---|---|---:|---:|---|---:|---|---|---:|---:|---:|---:|---:|---:|---:|---|---|---|---|---:|---|\n");
     for (RunRecord record : records) {
       builder
           .append('|')
@@ -47,15 +47,17 @@ public final class MarkdownReportWriter {
           .append('|')
           .append(record.solverOptions().timeLimit().toSeconds())
           .append('|')
-          .append(record.parseSeconds())
+          .append(escape(record.parseSecondsReportValue()))
           .append('|')
-          .append(record.exportSeconds())
+          .append(escape(record.exportSecondsReportValue()))
           .append('|')
           .append(record.solverResult().elapsedSeconds())
           .append('|')
-          .append(record.validationSeconds())
+          .append(escape(record.validationSecondsReportValue()))
           .append('|')
-          .append(record.totalSeconds())
+          .append(escape(record.totalSecondsReportValue()))
+          .append('|')
+          .append(escape(record.peakMemoryBytes()))
           .append('|')
           .append(escape(record.machineFingerprint().osName()))
           .append('|')

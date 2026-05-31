@@ -258,10 +258,11 @@ public final class MlpBenchMain {
         "not-measured",
         options,
         MachineFingerprint.capture(),
-        0.0d,
-        0.0d,
-        0.0d,
-        0.0d);
+        Double.NaN,
+        Double.NaN,
+        Double.NaN,
+        Double.NaN,
+        "not-measured");
   }
 
   private static RunRecord publicLoadFailureRecord(
@@ -295,10 +296,11 @@ public final class MlpBenchMain {
         "not-measured",
         options,
         MachineFingerprint.capture(),
-        0.0d,
-        0.0d,
-        0.0d,
-        0.0d);
+        Double.NaN,
+        Double.NaN,
+        Double.NaN,
+        Double.NaN,
+        "not-measured");
   }
 
   /**

@@ -34,8 +34,13 @@ final class HarnessRunnerTest {
     List<RunRecord> records = run(new FixedAdapter(SolverStatus.OPTIMAL, 0.0d));
 
     assertEquals(1, records.size());
-    assertEquals(RunOutcome.SUCCESS, records.get(0).outcome());
-    assertTrue(records.get(0).validationReport().accepted());
+    RunRecord record = records.get(0);
+    assertEquals(RunOutcome.SUCCESS, record.outcome());
+    assertTrue(record.validationReport().accepted());
+    assertEquals("not-measured", record.parseSecondsReportValue());
+    assertEquals("not-measured", record.exportSecondsReportValue());
+    assertTrue(record.validationSeconds() >= 0.0d);
+    assertTrue(record.totalSeconds() >= record.solverResult().elapsedSeconds());
     assertTrue(Files.isDirectory(tempDir.resolve("0000-suite-one-variable-test")));
   }
 

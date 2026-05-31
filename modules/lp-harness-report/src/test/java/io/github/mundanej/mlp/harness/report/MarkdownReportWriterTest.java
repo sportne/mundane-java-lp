@@ -38,7 +38,9 @@ final class MarkdownReportWriterTest {
                         "")));
 
     assertTrue(report.contains("|suite|instance|solver|1.0|OPTIMAL|1.0|SUCCESS|true|"));
-    assertTrue(report.contains("|STANDARD|none|2|30|0.0|0.0|0.25|0.5|0.75|Linux|amd64|21|8|"));
+    assertTrue(
+        report.contains(
+            "|STANDARD|none|2|30|0.0|0.0|0.25|0.5|0.75|not-measured|Linux|amd64|21|8|"));
   }
 
   @Test
@@ -58,6 +60,7 @@ final class MarkdownReportWriterTest {
 
     assertTrue(report.startsWith("suite,instance,solver,version,status,objective,outcome"));
     assertTrue(report.contains("ERROR,,ADAPTER_ERROR,false,STRICT"));
+    assertTrue(report.contains(",not-measured,"));
     assertTrue(report.contains("\"failed, badly\""));
   }
 
@@ -67,7 +70,7 @@ final class MarkdownReportWriterTest {
         new JsonReportWriter()
             .render(
                 List.of(
-                    record(
+                    unmeasuredRecord(
                         SolverStatus.UNSUPPORTED,
                         OptionalDouble.empty(),
                         RunOutcome.SOLVER_UNAVAILABLE,
@@ -78,7 +81,8 @@ final class MarkdownReportWriterTest {
     assertTrue(report.contains("\"status\":\"UNSUPPORTED\""));
     assertTrue(report.contains("\"objective\":null"));
     assertTrue(report.contains("\"outcome\":\"SOLVER_UNAVAILABLE\""));
-    assertTrue(report.contains("\"parseSeconds\":0.0"));
+    assertTrue(report.contains("\"parseSeconds\":\"not-measured\""));
+    assertTrue(report.contains("\"peakMemoryBytes\":\"not-measured\""));
     assertTrue(report.contains("\"processors\":8"));
   }
 
@@ -87,7 +91,7 @@ final class MarkdownReportWriterTest {
     assertEquals(
         "suite,instance,solver,version,status,objective,outcome,accepted,tolerance,threads,"
             + "time_limit_seconds,parse_seconds,export_seconds,solve_seconds,validation_seconds,"
-            + "total_seconds,residuals,os,arch,java,processors,termination\n",
+            + "total_seconds,peak_memory_bytes,residuals,os,arch,java,processors,termination\n",
         new CsvReportWriter().render(List.of()));
     assertEquals("[\n]\n", new JsonReportWriter().render(List.of()));
   }
@@ -107,6 +111,23 @@ final class MarkdownReportWriterTest {
 
     assertTrue(markdown.contains("line1\\nline2"));
     assertTrue(json.contains("line1\\nline2\\tTabbed"));
+  }
+
+  @Test
+  void rendersMeasuredTimingValuesAsJsonNumbers() {
+    String report =
+        new JsonReportWriter()
+            .render(
+                List.of(
+                    record(
+                        SolverStatus.OPTIMAL,
+                        OptionalDouble.of(1.0d),
+                        RunOutcome.SUCCESS,
+                        new ValidationReport(ToleranceProfile.STANDARD, List.of()),
+                        "")));
+
+    assertTrue(report.contains("\"parseSeconds\":0.0"));
+    assertTrue(report.contains("\"totalSeconds\":0.75"));
   }
 
   private static RunRecord record(
@@ -129,6 +150,31 @@ final class MarkdownReportWriterTest {
         0.0d,
         0.0d,
         0.5d,
-        0.75d);
+        0.75d,
+        "not-measured");
+  }
+
+  private static RunRecord unmeasuredRecord(
+      final SolverStatus status,
+      final OptionalDouble objective,
+      final RunOutcome outcome,
+      final ValidationReport validationReport,
+      final String failureMessage) {
+    return new RunRecord(
+        "suite",
+        "instance",
+        new SolverRunResult(
+            new SolverId("solver", "test"), status, objective, new double[0], 0.25d, "message"),
+        validationReport,
+        outcome,
+        failureMessage,
+        "1.0",
+        new SolverOptions(Duration.ofSeconds(30), 2),
+        new MachineFingerprint("Linux", "amd64", "21", 8),
+        Double.NaN,
+        Double.NaN,
+        Double.NaN,
+        Double.NaN,
+        "not-measured");
   }
 }

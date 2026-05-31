@@ -14,7 +14,7 @@ public final class CsvReportWriter {
     StringBuilder out = new StringBuilder();
     out.append("suite,instance,solver,version,status,objective,outcome,accepted,tolerance,threads,")
         .append("time_limit_seconds,parse_seconds,export_seconds,solve_seconds,validation_seconds,")
-        .append("total_seconds,residuals,os,arch,java,processors,termination\n");
+        .append("total_seconds,peak_memory_bytes,residuals,os,arch,java,processors,termination\n");
     for (RunRecord record : records) {
       append(out, record.suiteId());
       append(out, record.instanceId());
@@ -27,11 +27,12 @@ public final class CsvReportWriter {
       append(out, record.validationReport().toleranceProfile().name());
       append(out, Integer.toString(record.solverOptions().threads()));
       append(out, Long.toString(record.solverOptions().timeLimit().toSeconds()));
-      append(out, Double.toString(record.parseSeconds()));
-      append(out, Double.toString(record.exportSeconds()));
+      append(out, record.parseSecondsReportValue());
+      append(out, record.exportSecondsReportValue());
       append(out, Double.toString(record.solverResult().elapsedSeconds()));
-      append(out, Double.toString(record.validationSeconds()));
-      append(out, Double.toString(record.totalSeconds()));
+      append(out, record.validationSecondsReportValue());
+      append(out, record.totalSecondsReportValue());
+      append(out, record.peakMemoryBytes());
       append(out, ReportFields.residualSummary(record));
       append(out, record.machineFingerprint().osName());
       append(out, record.machineFingerprint().osArch());

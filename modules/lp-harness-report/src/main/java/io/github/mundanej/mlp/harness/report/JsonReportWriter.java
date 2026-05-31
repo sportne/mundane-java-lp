@@ -30,11 +30,12 @@ public final class JsonReportWriter {
       out.append("\"timeLimitSeconds\":")
           .append(record.solverOptions().timeLimit().toSeconds())
           .append(',');
-      out.append("\"parseSeconds\":").append(record.parseSeconds()).append(',');
-      out.append("\"exportSeconds\":").append(record.exportSeconds()).append(',');
+      measurementField(out, "parseSeconds", record.parseSecondsReportValue()).append(',');
+      measurementField(out, "exportSeconds", record.exportSecondsReportValue()).append(',');
       out.append("\"solveSeconds\":").append(record.solverResult().elapsedSeconds()).append(',');
-      out.append("\"validationSeconds\":").append(record.validationSeconds()).append(',');
-      out.append("\"totalSeconds\":").append(record.totalSeconds()).append(',');
+      measurementField(out, "validationSeconds", record.validationSecondsReportValue()).append(',');
+      measurementField(out, "totalSeconds", record.totalSecondsReportValue()).append(',');
+      field(out, "peakMemoryBytes", record.peakMemoryBytes()).append(',');
       field(out, "os", record.machineFingerprint().osName()).append(',');
       field(out, "arch", record.machineFingerprint().osArch()).append(',');
       field(out, "java", record.machineFingerprint().javaVersion()).append(',');
@@ -61,6 +62,14 @@ public final class JsonReportWriter {
       final StringBuilder out, final String name, final String value) {
     out.append('"').append(name).append("\":");
     return value.isBlank() ? out.append("null") : out.append(value);
+  }
+
+  private static StringBuilder measurementField(
+      final StringBuilder out, final String name, final String value) {
+    if ("not-measured".equals(value)) {
+      return field(out, name, value);
+    }
+    return numericField(out, name, value);
   }
 
   private static String escape(final String value) {

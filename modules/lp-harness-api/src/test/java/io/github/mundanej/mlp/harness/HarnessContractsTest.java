@@ -111,11 +111,39 @@ final class HarnessContractsTest {
             0.1d,
             0.2d,
             0.3d,
-            0.4d);
+            0.4d,
+            " ");
 
     assertEquals("", record.failureMessage());
     assertEquals("not-measured", record.solverVersion());
+    assertEquals("not-measured", record.peakMemoryBytes());
     assertEquals(0.4d, record.totalSeconds());
+  }
+
+  @Test
+  void runRecordReportsUnmeasuredTimingBuckets() {
+    RunRecord record =
+        new RunRecord(
+            "suite",
+            "instance",
+            result(SolverStatus.OPTIMAL, 0.25d),
+            acceptedReport(),
+            RunOutcome.SUCCESS,
+            "",
+            "version",
+            SolverOptions.defaults(),
+            MachineFingerprint.capture(),
+            Double.NaN,
+            Double.NaN,
+            0.3d,
+            0.4d,
+            "not-measured");
+
+    assertTrue(Double.isNaN(record.parseSeconds()));
+    assertEquals("not-measured", record.parseSecondsReportValue());
+    assertEquals("not-measured", record.exportSecondsReportValue());
+    assertEquals("0.3", record.validationSecondsReportValue());
+    assertEquals("0.4", record.totalSecondsReportValue());
   }
 
   @Test
@@ -159,7 +187,8 @@ final class HarnessContractsTest {
                 0.0d,
                 0.0d,
                 0.0d,
-                0.0d));
+                0.0d,
+                "not-measured"));
     assertThrows(
         IllegalArgumentException.class,
         () ->
@@ -176,7 +205,8 @@ final class HarnessContractsTest {
                 0.0d,
                 0.0d,
                 0.0d,
-                0.0d));
+                0.0d,
+                "not-measured"));
     assertThrows(
         IllegalArgumentException.class,
         () ->
@@ -193,7 +223,26 @@ final class HarnessContractsTest {
                 -0.1d,
                 0.0d,
                 0.0d,
-                0.0d));
+                0.0d,
+                "not-measured"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            new RunRecord(
+                "suite",
+                "instance",
+                result,
+                report,
+                RunOutcome.SUCCESS,
+                "",
+                "version",
+                SolverOptions.defaults(),
+                MachineFingerprint.capture(),
+                Double.POSITIVE_INFINITY,
+                0.0d,
+                0.0d,
+                0.0d,
+                "not-measured"));
   }
 
   @Test
@@ -238,7 +287,8 @@ final class HarnessContractsTest {
         0.0d,
         0.0d,
         0.0d,
-        0.0d);
+        0.0d,
+        "not-measured");
   }
 
   private static SolverRunResult result(final SolverStatus status, final double objective) {

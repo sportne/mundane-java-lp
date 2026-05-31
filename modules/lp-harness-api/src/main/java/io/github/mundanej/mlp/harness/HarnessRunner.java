@@ -60,6 +60,7 @@ public final class HarnessRunner {
       final LpSolverAdapter adapter,
       final HarnessRunConfig config,
       final int sequence) {
+    long runStartNanos = System.nanoTime();
     SolverId solverId = new SolverId("unknown", "adapter-id-failed");
     Path workDirectory =
         config.workRoot().resolve(directoryName(suite, instance, solverId, sequence));
@@ -72,6 +73,7 @@ public final class HarnessRunner {
               SolverInput.withGeneratedNames(instance.problem(), instance.matrix()),
               config.solverOptions(),
               new SolverWorkDirectory(workDirectory));
+      long validationStartNanos = System.nanoTime();
       ValidationReport report =
           validator.validate(
               instance.problem(),
@@ -79,6 +81,7 @@ public final class HarnessRunner {
               instance.expectedResult(),
               evidence(result),
               config.toleranceProfile());
+      double validationSeconds = secondsSince(validationStartNanos);
       RunOutcome outcome = outcome(result, report);
       return new RunRecord(
           suite.id(),
@@ -90,10 +93,11 @@ public final class HarnessRunner {
           "not-measured",
           config.solverOptions(),
           MachineFingerprint.capture(),
-          0.0d,
-          0.0d,
-          0.0d,
-          result.elapsedSeconds());
+          Double.NaN,
+          Double.NaN,
+          validationSeconds,
+          secondsSince(runStartNanos),
+          "not-measured");
     } catch (RuntimeException | IOException exception) {
       SolverRunResult result =
           new SolverRunResult(
@@ -119,11 +123,16 @@ public final class HarnessRunner {
           "not-measured",
           config.solverOptions(),
           MachineFingerprint.capture(),
-          0.0d,
-          0.0d,
-          0.0d,
-          result.elapsedSeconds());
+          Double.NaN,
+          Double.NaN,
+          Double.NaN,
+          secondsSince(runStartNanos),
+          "not-measured");
     }
+  }
+
+  private static double secondsSince(final long startNanos) {
+    return (System.nanoTime() - startNanos) / 1_000_000_000.0d;
   }
 
   private static ValidationEvidence evidence(final SolverRunResult result) {
