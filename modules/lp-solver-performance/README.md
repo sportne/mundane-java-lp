@@ -16,6 +16,22 @@ Current limitations are intentional: free variables, shifted lower variable
 bounds, ranged rows, presolve, scaling, warm starts, and numerical robustness
 claims are out of scope.
 
+## Correctness coverage
+
+The correctness suite validates solver output through `lp-validation`, not by
+asserting only adapter statuses. The current supported Tier 1 fixtures are:
+
+- `single-bounded-variable`
+- `two-variable-feasible-optimum`
+- `unbounded-nonnegative-ray`
+- `redundant-row`
+- `equality-row`
+- `degenerate-optimum`
+
+The Tier 1 fixtures that require free variables, shifted variable lower bounds,
+or ranged-row normalization are recorded as deterministic `UNSUPPORTED`
+outcomes until those transformations are in scope.
+
 See the repository root `README.md`,
 `docs/architecture/module-boundaries.md`, and
 `docs/architecture/solver-adapter-contract.md`.

@@ -48,6 +48,14 @@ and ranged-row encoding are designed.
 and harness path. It is a smoke path for integration wiring, not a replacement
 for the full Tier 1 simple-solver validation tests.
 
+`lp-solver-performance` validates its currently supported Tier 1 subset through
+`lp-validation`: `single-bounded-variable`,
+`two-variable-feasible-optimum`, `unbounded-nonnegative-ray`, `redundant-row`,
+`equality-row`, and `degenerate-optimum`. Tier 1 cases that require free
+variables, shifted variable lower bounds, or ranged-row normalization are
+recorded as deterministic `UNSUPPORTED` outcomes until the performance solver
+adds those normalizations.
+
 ## Tier 2: generated LPs with known evidence
 
 Generators should eventually create primal/dual certificates so correctness can

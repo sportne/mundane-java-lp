@@ -7,6 +7,7 @@ dependencies {
     api project(':modules:lp-solver-spi')
     testImplementation project(':modules:lp-model')
     testImplementation project(':modules:lp-sparse')
+    testImplementation project(':modules:lp-testkit')
 }
 
 publishing {
