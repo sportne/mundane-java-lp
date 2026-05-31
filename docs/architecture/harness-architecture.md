@@ -91,6 +91,9 @@ The CLI stays small and explicit:
   binaries;
 - solver comparison smoke lives in the `examples/solver-comparison-smoke`
   application and lists HiGHS, CLP, GLPK, OR-Tools, and ojAlgo explicitly.
+- simple solver MPS smoke lives in `examples/tiny-lp`; it writes a supported
+  Tier 1 fixture to MPS, reads it back, and runs `lp-solver-simple` through the
+  same harness API.
 
 The CLI must not discover adapters from the classpath or environment implicitly.
 

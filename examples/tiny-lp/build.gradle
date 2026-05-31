@@ -6,6 +6,8 @@ plugins {
 dependencies {
     implementation project(':modules:lp-generators')
     implementation project(':modules:lp-harness-api')
+    implementation project(':modules:lp-io-mps')
+    implementation project(':modules:lp-solver-simple')
     implementation project(':modules:lp-validation')
 }
 

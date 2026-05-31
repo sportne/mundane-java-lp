@@ -20,6 +20,10 @@ The solver returns `UNSUPPORTED` for models with more than two variables. It
 does not claim numerical robustness, broad LP coverage, or performance. Tests
 validate the supported Tier 1 fixture outputs through `lp-validation`.
 
+`examples/tiny-lp` demonstrates the explicit MPS path: write a supported Tier 1
+fixture with `lp-io-mps`, read it back, and run this adapter through
+`lp-harness-api`.
+
 See the repository root `README.md`,
 `docs/architecture/module-boundaries.md`, and
 `docs/architecture/solver-adapter-contract.md`.

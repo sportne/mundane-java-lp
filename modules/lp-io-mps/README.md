@@ -27,4 +27,8 @@ The main API exposes `MpsLp`, an I/O envelope that carries the canonical
 `MpsReader.read(Path)` remains available for callers that only need problem
 metadata.
 
+`examples/tiny-lp` uses this envelope as an end-to-end smoke path for the
+in-project simple solver: write a Tier 1 minimization fixture to MPS, read it
+back, run the simple solver through the harness, and validate the run record.
+
 See the repository root `README.md` and `docs/architecture/module-boundaries.md`.
