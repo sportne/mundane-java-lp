@@ -1,6 +1,7 @@
 package io.github.mundanej.mlp.adapter.clp;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.github.mundanej.mlp.model.LpObjective;
@@ -17,6 +18,7 @@ import io.github.mundanej.mlp.sparse.CsrMatrix;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIf;
@@ -30,6 +32,8 @@ final class ClpCliAdapterTest {
     void hasExpectedId() {
         assertEquals("clp", new ClpCliAdapter().id().name());
         assertEquals("cli", new ClpCliAdapter().id().mode());
+        assertThrows(IllegalArgumentException.class, () -> new ClpCliAdapter(null));
+        assertThrows(IllegalArgumentException.class, () -> new ClpCliAdapter(" "));
     }
 
     @Test
@@ -61,7 +65,11 @@ final class ClpCliAdapterTest {
         assertEquals(SolverStatus.INFEASIBLE, adapter.parseStatus("Primal infeasible", 0));
         assertEquals(SolverStatus.UNBOUNDED, adapter.parseStatus("Dual infeasible", 0));
         assertEquals(SolverStatus.UNBOUNDED, adapter.parseStatus("Dual unbounded", 0));
+        assertEquals(SolverStatus.INFEASIBLE, adapter.parseStatus("problem is infeasible", 0));
+        assertEquals(SolverStatus.UNBOUNDED, adapter.parseStatus("problem is unbounded", 0));
         assertEquals(SolverStatus.TIME_LIMIT, adapter.parseStatus("Stopped on time", 0));
+        assertEquals(SolverStatus.TIME_LIMIT, adapter.parseStatus("seconds limit reached", 0));
+        assertEquals(SolverStatus.NUMERICAL_FAILURE, adapter.parseStatus("numerical issue", 0));
         assertEquals(SolverStatus.ERROR, adapter.parseStatus("solver failed", 1));
         assertEquals(SolverStatus.UNKNOWN, adapter.parseStatus("not optimal", 0));
     }
@@ -128,6 +136,79 @@ final class ClpCliAdapterTest {
 
         assertEquals(SolverStatus.ERROR, result.status());
         assertTrue(result.message().contains("malformed objective"));
+    }
+
+    @Test
+    void reportsOptimalProcessOutput() throws IOException {
+        Path fakeBinary = tempDir.resolve("fake-clp-optimal.sh");
+        Files.writeString(fakeBinary, """
+                #!/usr/bin/env sh
+                echo 'Optimal objective 7.0'
+                exit 0
+                """);
+        assertTrue(fakeBinary.toFile().setExecutable(true));
+
+        SolverRunResult result = new ClpCliAdapter(fakeBinary.toString()).solve(
+                input(),
+                SolverOptions.defaults(),
+                new SolverWorkDirectory(tempDir.resolve("optimal-work")));
+
+        assertEquals(SolverStatus.OPTIMAL, result.status());
+        assertEquals(7.0d, result.objectiveValue().orElseThrow());
+    }
+
+    @Test
+    void reportsOptimalWithoutObjectiveAsError() throws IOException {
+        Path fakeBinary = tempDir.resolve("fake-clp-no-objective.sh");
+        Files.writeString(fakeBinary, """
+                #!/usr/bin/env sh
+                echo 'Optimal solution found'
+                exit 0
+                """);
+        assertTrue(fakeBinary.toFile().setExecutable(true));
+
+        SolverRunResult result = new ClpCliAdapter(fakeBinary.toString()).solve(
+                input(),
+                SolverOptions.defaults(),
+                new SolverWorkDirectory(tempDir.resolve("missing-objective-work")));
+
+        assertEquals(SolverStatus.ERROR, result.status());
+        assertTrue(result.message().contains("without parseable objective"));
+    }
+
+    @Test
+    void reportsTimedOutProcess() throws IOException {
+        Path fakeBinary = tempDir.resolve("fake-clp-timeout.sh");
+        Files.writeString(fakeBinary, """
+                #!/usr/bin/env sh
+                sleep 2
+                """);
+        assertTrue(fakeBinary.toFile().setExecutable(true));
+
+        SolverRunResult result = new ClpCliAdapter(fakeBinary.toString()).solve(
+                input(),
+                new SolverOptions(Duration.ofMillis(25), 1),
+                new SolverWorkDirectory(tempDir.resolve("timeout-work")));
+
+        assertEquals(SolverStatus.TIME_LIMIT, result.status());
+    }
+
+    @Test
+    void boundsCapturedProcessOutput() throws IOException {
+        Path fakeBinary = tempDir.resolve("fake-clp-large-output.sh");
+        Files.writeString(fakeBinary, """
+                #!/usr/bin/env sh
+                head -c 20000 /dev/zero | tr '\\0' x
+                exit 0
+                """);
+        assertTrue(fakeBinary.toFile().setExecutable(true));
+
+        SolverRunResult result = new ClpCliAdapter(fakeBinary.toString()).solve(
+                input(),
+                SolverOptions.defaults(),
+                new SolverWorkDirectory(tempDir.resolve("large-output-work")));
+
+        assertTrue(result.message().contains("[truncated]"));
     }
 
     @Test

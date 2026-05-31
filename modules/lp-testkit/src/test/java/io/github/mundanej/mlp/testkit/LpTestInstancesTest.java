@@ -15,12 +15,15 @@ final class LpTestInstancesTest {
     @Test
     void exposesTierOneFixtures() {
         assertEquals(10, LpTestInstances.tierOneFixtures().size());
+        assertEquals("single-bounded-variable", LpTestInstances.singleBoundedVariable().name());
     }
 
     @Test
     void exposesTierOneFixtureByName() {
         assertEquals("free-variable-row-bounded",
                 LpTestInstances.tierOneFixture("free-variable-row-bounded").problem().name());
+        assertThrows(IllegalArgumentException.class, () -> LpTestInstances.tierOneFixture(null));
+        assertThrows(IllegalArgumentException.class, () -> LpTestInstances.tierOneFixture(" "));
         assertThrows(IllegalArgumentException.class, () -> LpTestInstances.tierOneFixture("missing"));
     }
 

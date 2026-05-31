@@ -1,6 +1,7 @@
 package io.github.mundanej.mlp.adapter.highs;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.github.mundanej.mlp.model.LpObjective;
@@ -17,6 +18,7 @@ import io.github.mundanej.mlp.sparse.CsrMatrix;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIf;
@@ -30,6 +32,8 @@ final class HighsCliAdapterTest {
     void hasExpectedId() {
         assertEquals("highs", new HighsCliAdapter().id().name());
         assertEquals("cli", new HighsCliAdapter().id().mode());
+        assertThrows(IllegalArgumentException.class, () -> new HighsCliAdapter(null));
+        assertThrows(IllegalArgumentException.class, () -> new HighsCliAdapter(" "));
     }
 
     @Test
@@ -56,6 +60,11 @@ final class HighsCliAdapterTest {
         assertEquals(SolverStatus.INFEASIBLE, adapter.parseStatus("Model status : Infeasible", 0));
         assertEquals(SolverStatus.UNBOUNDED, adapter.parseStatus("Model status : Unbounded", 0));
         assertEquals(SolverStatus.TIME_LIMIT, adapter.parseStatus("time limit reached", 0));
+        assertEquals(SolverStatus.TIME_LIMIT, adapter.parseStatus("Model status : time_limit", 0));
+        assertEquals(SolverStatus.NUMERICAL_FAILURE, adapter.parseStatus("Model status : numerical issue", 0));
+        assertEquals(SolverStatus.INFEASIBLE, adapter.parseStatus("problem is infeasible", 0));
+        assertEquals(SolverStatus.UNBOUNDED, adapter.parseStatus("problem is unbounded", 0));
+        assertEquals(SolverStatus.OPTIMAL, adapter.parseStatus("solved to optimality", 0));
         assertEquals(SolverStatus.ERROR, adapter.parseStatus("solver failed", 1));
         assertEquals(SolverStatus.UNKNOWN, adapter.parseStatus("Model status : Not optimal", 0));
         assertEquals(SolverStatus.UNKNOWN, adapter.parseStatus("diagnostic references optimal basis", 0));
@@ -122,6 +131,80 @@ final class HighsCliAdapterTest {
 
         assertEquals(SolverStatus.ERROR, result.status());
         assertTrue(result.message().contains("malformed objective"));
+    }
+
+    @Test
+    void reportsOptimalProcessOutput() throws IOException {
+        Path fakeBinary = tempDir.resolve("fake-highs-optimal.sh");
+        Files.writeString(fakeBinary, """
+                #!/usr/bin/env sh
+                echo 'Model status : Optimal'
+                echo 'Objective value : 7.0'
+                exit 0
+                """);
+        assertTrue(fakeBinary.toFile().setExecutable(true));
+
+        SolverRunResult result = new HighsCliAdapter(fakeBinary.toString()).solve(
+                input(),
+                SolverOptions.defaults(),
+                new SolverWorkDirectory(tempDir.resolve("optimal-work")));
+
+        assertEquals(SolverStatus.OPTIMAL, result.status());
+        assertEquals(7.0d, result.objectiveValue().orElseThrow());
+    }
+
+    @Test
+    void reportsOptimalWithoutObjectiveAsError() throws IOException {
+        Path fakeBinary = tempDir.resolve("fake-highs-no-objective.sh");
+        Files.writeString(fakeBinary, """
+                #!/usr/bin/env sh
+                echo 'Model status : Optimal'
+                exit 0
+                """);
+        assertTrue(fakeBinary.toFile().setExecutable(true));
+
+        SolverRunResult result = new HighsCliAdapter(fakeBinary.toString()).solve(
+                input(),
+                SolverOptions.defaults(),
+                new SolverWorkDirectory(tempDir.resolve("missing-objective-work")));
+
+        assertEquals(SolverStatus.ERROR, result.status());
+        assertTrue(result.message().contains("without parseable objective"));
+    }
+
+    @Test
+    void reportsTimedOutProcess() throws IOException {
+        Path fakeBinary = tempDir.resolve("fake-highs-timeout.sh");
+        Files.writeString(fakeBinary, """
+                #!/usr/bin/env sh
+                sleep 2
+                """);
+        assertTrue(fakeBinary.toFile().setExecutable(true));
+
+        SolverRunResult result = new HighsCliAdapter(fakeBinary.toString()).solve(
+                input(),
+                new SolverOptions(Duration.ofMillis(25), 1),
+                new SolverWorkDirectory(tempDir.resolve("timeout-work")));
+
+        assertEquals(SolverStatus.TIME_LIMIT, result.status());
+    }
+
+    @Test
+    void boundsCapturedProcessOutput() throws IOException {
+        Path fakeBinary = tempDir.resolve("fake-highs-large-output.sh");
+        Files.writeString(fakeBinary, """
+                #!/usr/bin/env sh
+                head -c 20000 /dev/zero | tr '\\0' x
+                exit 0
+                """);
+        assertTrue(fakeBinary.toFile().setExecutable(true));
+
+        SolverRunResult result = new HighsCliAdapter(fakeBinary.toString()).solve(
+                input(),
+                SolverOptions.defaults(),
+                new SolverWorkDirectory(tempDir.resolve("large-output-work")));
+
+        assertTrue(result.message().contains("[truncated]"));
     }
 
     @Test

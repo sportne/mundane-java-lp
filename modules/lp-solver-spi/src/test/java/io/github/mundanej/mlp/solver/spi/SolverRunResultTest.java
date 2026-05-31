@@ -1,6 +1,7 @@
 package io.github.mundanej.mlp.solver.spi;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.OptionalDouble;
@@ -34,5 +35,58 @@ final class SolverRunResultTest {
                 new double[] {Double.NaN},
                 0.1d,
                 "bad"));
+    }
+
+    @Test
+    void normalizesNullMessage() {
+        SolverRunResult result = new SolverRunResult(
+                new SolverId("solver", "test"),
+                SolverStatus.UNSUPPORTED,
+                OptionalDouble.empty(),
+                new double[0],
+                0.0d,
+                null);
+
+        assertEquals("", result.message());
+    }
+
+    @Test
+    void rejectsInvalidResultFields() {
+        SolverId solverId = new SolverId("solver", "test");
+        assertThrows(IllegalArgumentException.class, () -> new SolverRunResult(
+                null,
+                SolverStatus.OPTIMAL,
+                OptionalDouble.empty(),
+                new double[0],
+                0.0d,
+                ""));
+        assertThrows(IllegalArgumentException.class, () -> new SolverRunResult(
+                solverId,
+                null,
+                OptionalDouble.empty(),
+                new double[0],
+                0.0d,
+                ""));
+        assertThrows(IllegalArgumentException.class, () -> new SolverRunResult(
+                solverId,
+                SolverStatus.OPTIMAL,
+                null,
+                new double[0],
+                0.0d,
+                ""));
+        assertThrows(IllegalArgumentException.class, () -> new SolverRunResult(
+                solverId,
+                SolverStatus.OPTIMAL,
+                OptionalDouble.empty(),
+                null,
+                0.0d,
+                ""));
+        assertThrows(IllegalArgumentException.class, () -> new SolverRunResult(
+                solverId,
+                SolverStatus.OPTIMAL,
+                OptionalDouble.empty(),
+                new double[0],
+                -0.1d,
+                ""));
     }
 }

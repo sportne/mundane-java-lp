@@ -2,6 +2,7 @@ package io.github.mundanej.mlp.harness.cli;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.github.mundanej.mlp.harness.RunOutcome;
@@ -84,5 +85,116 @@ final class MlpBenchMainTest {
         assertEquals(RunOutcome.SUCCESS, result.records().getFirst().outcome());
         assertEquals(RunOutcome.SOLVER_UNAVAILABLE, result.records().get(1).outcome());
         assertTrue(Files.readString(result.csvPath()).contains("public benchmark loaded"));
+    }
+
+    @Test
+    void benchmarkSmokeSkipsRejectedAndNonMpsPublicCandidates() throws IOException {
+        Path manifest = tempDir.resolve("manifest.json");
+        Files.writeString(manifest, """
+                {
+                  "instances": [
+                    {
+                      "id": "rejected",
+                      "format": "MPS",
+                      "localPath": "ignored.mps",
+                      "status": "rejected"
+                    },
+                    {
+                      "id": "not-mps",
+                      "format": "LP",
+                      "localPath": "ignored.lp",
+                      "status": "approved-local"
+                    }
+                  ]
+                }
+                """);
+
+        MlpBenchMain.BenchmarkSmokeResult result = MlpBenchMain.runBenchmarkSmoke(
+                tempDir.resolve("skip-reports"),
+                manifest);
+
+        assertEquals(1, result.records().size());
+        assertEquals(RunOutcome.SUCCESS, result.records().getFirst().outcome());
+    }
+
+    @Test
+    void benchmarkSmokeRecordsPublicLoadFailure() throws IOException {
+        Path manifest = tempDir.resolve("bad-public-manifest.json");
+        Path malformedPublicFile = tempDir.resolve("bad-public.mps");
+        Files.writeString(malformedPublicFile, """
+                NAME BAD
+                ROWS
+                 N OBJ
+                COLUMNS
+                 x OBJ nope
+                RHS
+                ENDATA
+                """);
+        Files.writeString(manifest, """
+                {
+                  "instances": [
+                    {
+                      "id": "bad-public",
+                      "format": "MPS",
+                      "localPath": "%s",
+                      "status": "approved-local"
+                    }
+                  ]
+                }
+                """.formatted(malformedPublicFile));
+
+        MlpBenchMain.BenchmarkSmokeResult result = MlpBenchMain.runBenchmarkSmoke(
+                tempDir.resolve("load-failure-reports"),
+                manifest);
+
+        assertEquals(RunOutcome.ADAPTER_ERROR, result.records().get(1).outcome());
+        assertTrue(Files.readString(result.csvPath()).contains("could not load public benchmark file"));
+    }
+
+    @Test
+    void benchmarkSmokeReportsRelativeMissingPublicInput() throws IOException {
+        Path manifest = tempDir.resolve("relative-manifest.json");
+        Files.writeString(manifest, """
+                {
+                  "instances": [
+                    {
+                      "id": "relative-missing",
+                      "format": "MPS",
+                      "localPath": "missing-local.mps",
+                      "status": "approved-local"
+                    }
+                  ]
+                }
+                """);
+
+        MlpBenchMain.BenchmarkSmokeResult result = MlpBenchMain.runBenchmarkSmoke(
+                tempDir.resolve("relative-reports"),
+                manifest);
+
+        assertEquals(RunOutcome.SOLVER_UNAVAILABLE, result.records().get(1).outcome());
+        assertTrue(result.records().get(1).failureMessage().contains("missing-local.mps"));
+    }
+
+    @Test
+    void benchmarkSmokeRejectsMalformedManifest() throws IOException {
+        Path emptyManifest = tempDir.resolve("empty-manifest.json");
+        Path missingFieldManifest = tempDir.resolve("missing-field-manifest.json");
+        Files.writeString(emptyManifest, "{\"instances\": []}");
+        Files.writeString(missingFieldManifest, """
+                {
+                  "instances": [
+                    {
+                      "id": "bad",
+                      "format": "MPS",
+                      "status": "approved-local"
+                    }
+                  ]
+                }
+                """);
+
+        assertThrows(IOException.class,
+                () -> MlpBenchMain.runBenchmarkSmoke(tempDir.resolve("empty-reports"), emptyManifest));
+        assertThrows(IOException.class,
+                () -> MlpBenchMain.runBenchmarkSmoke(tempDir.resolve("missing-field-reports"), missingFieldManifest));
     }
 }

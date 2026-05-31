@@ -36,6 +36,11 @@ public final class SolverComparisonSmokeMain {
     public static void main(final String[] args) throws IOException {
         Path outputDirectory = args.length == 0 ? Path.of(DEFAULT_OUTPUT_DIRECTORY) : Path.of(args[0]);
         SmokeResult result = run(outputDirectory, defaultAdapters());
+        printSummary(result);
+        result.throwIfFailed();
+    }
+
+    static void printSummary(final SmokeResult result) {
         System.out.println("solver comparison smoke");
         System.out.println("suite=" + result.suiteId());
         System.out.println("records=" + result.records().size());
@@ -45,7 +50,6 @@ public final class SolverComparisonSmokeMain {
         System.out.println("markdown=" + result.markdownPath());
         System.out.println("json=" + result.jsonPath());
         System.out.println("csv=" + result.csvPath());
-        result.throwIfFailed();
     }
 
     static SmokeResult run(

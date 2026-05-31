@@ -18,4 +18,4 @@ jobs:
         with:
           gradle-version: '9.5.1'
       - name: Quality gate
-        run: gradle qualityGate --console=plain
+        run: gradle qualityGate solverComparisonSmoke benchmarkSmoke nativeSmoke --console=plain

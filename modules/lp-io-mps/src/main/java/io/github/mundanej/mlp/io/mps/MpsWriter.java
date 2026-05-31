@@ -163,15 +163,13 @@ public final class MpsWriter {
             } else if (Double.compare(lower, upper) == 0) {
                 out.append(" FX BND1 ").append(columnName).append(' ').append(lower).append(System.lineSeparator());
             } else {
-                if (Double.compare(lower, 0.0d) != 0) {
+                if (Double.isFinite(lower) && Double.compare(lower, 0.0d) != 0) {
                     out.append(" LO BND1 ").append(columnName).append(' ').append(lower).append(System.lineSeparator());
                 }
                 if (Double.isFinite(upper)) {
                     out.append(" UP BND1 ").append(columnName).append(' ').append(upper).append(System.lineSeparator());
                 }
-                if (Double.isInfinite(lower) && lower < 0.0d && Double.isInfinite(upper) && upper > 0.0d) {
-                    out.append(" FR BND1 ").append(columnName).append(System.lineSeparator());
-                } else if (Double.isInfinite(lower) && lower < 0.0d) {
+                if (Double.isInfinite(lower) && lower < 0.0d) {
                     out.append(" MI BND1 ").append(columnName).append(System.lineSeparator());
                 }
             }

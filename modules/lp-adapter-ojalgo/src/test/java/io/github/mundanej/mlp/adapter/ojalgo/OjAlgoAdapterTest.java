@@ -2,6 +2,7 @@ package io.github.mundanej.mlp.adapter.ojalgo;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.github.mundanej.mlp.model.LpObjective;
@@ -45,6 +46,12 @@ final class OjAlgoAdapterTest {
         assertEquals(SolverStatus.OPTIMAL, OjAlgoAdapter.normalize(Optimisation.State.DISTINCT));
         assertEquals(SolverStatus.UNKNOWN, OjAlgoAdapter.normalize(Optimisation.State.UNEXPLORED));
         assertEquals(SolverStatus.UNKNOWN, OjAlgoAdapter.normalize(Optimisation.State.VALID));
+    }
+
+    @Test
+    void formatsRuntimeDiagnosticMessages() {
+        assertEquals("IllegalStateException", OjAlgoAdapter.message(new IllegalStateException()));
+        assertEquals("boom", OjAlgoAdapter.message(new IllegalStateException("boom")));
     }
 
     @Test
@@ -92,6 +99,18 @@ final class OjAlgoAdapterTest {
     }
 
     @Test
+    void rejectsNullSolveInputs() {
+        OjAlgoAdapter adapter = new OjAlgoAdapter();
+
+        assertThrows(NullPointerException.class,
+                () -> adapter.solve(null, SolverOptions.defaults(), new SolverWorkDirectory(tempDir)));
+        assertThrows(NullPointerException.class,
+                () -> adapter.solve(tinyInput(1.0d), null, new SolverWorkDirectory(tempDir)));
+        assertThrows(NullPointerException.class,
+                () -> adapter.solve(tinyInput(1.0d), SolverOptions.defaults(), null));
+    }
+
+    @Test
     void reportsUnsupportedNonFiniteModelData() {
         SolverRunResult result = new OjAlgoAdapter().solve(
                 tinyInput(Double.NaN),
@@ -100,6 +119,27 @@ final class OjAlgoAdapterTest {
 
         assertEquals(SolverStatus.UNSUPPORTED, result.status());
         assertTrue(result.message().contains("objective coefficient must be finite"));
+    }
+
+    @Test
+    void reportsUnsupportedNonFiniteObjectiveConstant() {
+        SolverRunResult result = new OjAlgoAdapter().solve(
+                objectiveConstantInput(Double.NaN),
+                SolverOptions.defaults(),
+                new SolverWorkDirectory(tempDir));
+
+        assertEquals(SolverStatus.UNSUPPORTED, result.status());
+        assertTrue(result.message().contains("objective constant must be finite"));
+    }
+
+    @Test
+    void skipsFreeRowsWhenBuildingModel() {
+        SolverRunResult result = new OjAlgoAdapter().solve(
+                freeRowInput(),
+                SolverOptions.defaults(),
+                new SolverWorkDirectory(tempDir));
+
+        assertEquals(SolverStatus.OPTIMAL, result.status());
     }
 
     @Test
@@ -119,6 +159,25 @@ final class OjAlgoAdapterTest {
 
         assertEquals(SolverStatus.UNSUPPORTED, result.status());
         assertTrue(result.message().contains("lower bound must not be positive infinity"));
+    }
+
+    @Test
+    void rejectsUnsupportedNaNBounds() {
+        LpProblem problem = new LpProblem(
+                "nan-bound",
+                new LpObjective(ObjectiveSense.MINIMIZE, 0.0d, new double[] {0.0d}),
+                List.of(new LpVariableBounds(Double.NaN, 1.0d)),
+                List.of(),
+                new LpProblemStats(0, 1, 0));
+        SolverRunResult result = new OjAlgoAdapter().solve(
+                SolverInput.withGeneratedNames(
+                        problem,
+                        new CsrMatrix(0, 1, new double[0], new int[0], new int[] {0})),
+                SolverOptions.defaults(),
+                new SolverWorkDirectory(tempDir));
+
+        assertEquals(SolverStatus.UNSUPPORTED, result.status());
+        assertTrue(result.message().contains("bound must not be NaN"));
     }
 
     @Test
@@ -189,6 +248,33 @@ final class OjAlgoAdapterTest {
                         new int[] {0, 2, 3}),
                 List.of("capacity", "y-limit"),
                 List.of("x", "y"),
+                "OBJ");
+    }
+
+    private static SolverInput objectiveConstantInput(final double objectiveConstant) {
+        LpProblem problem = new LpProblem(
+                "objective-constant",
+                new LpObjective(ObjectiveSense.MINIMIZE, objectiveConstant, new double[] {1.0d}),
+                List.of(new LpVariableBounds(0.0d, 1.0d)),
+                List.of(),
+                new LpProblemStats(0, 1, 0));
+        return SolverInput.withGeneratedNames(
+                problem,
+                new CsrMatrix(0, 1, new double[0], new int[0], new int[] {0}));
+    }
+
+    private static SolverInput freeRowInput() {
+        LpProblem problem = new LpProblem(
+                "free-row",
+                new LpObjective(ObjectiveSense.MINIMIZE, 0.0d, new double[] {1.0d}),
+                List.of(new LpVariableBounds(0.0d, 1.0d)),
+                List.of(LpRowBounds.FREE),
+                new LpProblemStats(1, 1, 0));
+        return new SolverInput(
+                problem,
+                new CsrMatrix(1, 1, new double[0], new int[0], new int[] {0, 0}),
+                List.of("free"),
+                List.of("x"),
                 "OBJ");
     }
 

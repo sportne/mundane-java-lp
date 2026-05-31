@@ -185,7 +185,7 @@ public final class OjAlgoAdapter implements LpSolverAdapter {
         return new SolverRunResult(ID, status, objective, primal, elapsedSeconds, message);
     }
 
-    private static String message(final Throwable throwable) {
+    static String message(final Throwable throwable) {
         String message = throwable.getMessage();
         if (message == null || message.isBlank()) {
             return throwable.getClass().getSimpleName();

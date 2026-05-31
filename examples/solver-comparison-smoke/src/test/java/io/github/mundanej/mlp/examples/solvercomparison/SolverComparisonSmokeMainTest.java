@@ -62,6 +62,8 @@ final class SolverComparisonSmokeMainTest {
         assertTrue(Files.readString(result.markdownPath()).contains("SUCCESS"));
         assertTrue(Files.readString(result.jsonPath()).contains("\"solver\":\"highs\""));
         assertTrue(Files.readString(result.csvPath()).contains("highs"));
+        SolverComparisonSmokeMain.printSummary(result);
+        result.throwIfFailed();
     }
 
     @Test

@@ -2,6 +2,7 @@ package io.github.mundanej.mlp.adapter.ortools;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.ortools.Loader;
@@ -32,6 +33,7 @@ final class OrToolsJavaAdapterTest {
     void hasExpectedId() {
         assertEquals("ortools", new OrToolsJavaAdapter().id().name());
         assertEquals("java", new OrToolsJavaAdapter().id().mode());
+        assertThrows(NullPointerException.class, () -> new OrToolsJavaAdapter(null));
     }
 
     @Test
@@ -53,6 +55,37 @@ final class OrToolsJavaAdapterTest {
 
         assertEquals(SolverStatus.UNSUPPORTED, result.status());
         assertTrue(result.message().contains("native runtime unavailable"));
+    }
+
+    @Test
+    void usesThrowableClassNameWhenNativeRuntimeFailureHasNoMessage() {
+        SolverRunResult result = new OrToolsJavaAdapter(() -> {
+            throw new IllegalStateException();
+        }).solve(input(0.0d), SolverOptions.defaults(), new SolverWorkDirectory(tempDir));
+
+        assertEquals(SolverStatus.UNSUPPORTED, result.status());
+        assertTrue(result.message().contains("IllegalStateException"));
+    }
+
+    @Test
+    void usesThrowableClassNameWhenNativeLinkageFailureHasNoMessage() {
+        SolverRunResult result = new OrToolsJavaAdapter(() -> {
+            throw new UnsatisfiedLinkError();
+        }).solve(input(0.0d), SolverOptions.defaults(), new SolverWorkDirectory(tempDir));
+
+        assertEquals(SolverStatus.UNSUPPORTED, result.status());
+        assertTrue(result.message().contains("UnsatisfiedLinkError"));
+    }
+
+    @Test
+    void rejectsNullSolveInputs() {
+        OrToolsJavaAdapter adapter = new OrToolsJavaAdapter(() -> {
+        });
+
+        assertThrows(NullPointerException.class,
+                () -> adapter.solve(null, SolverOptions.defaults(), new SolverWorkDirectory(tempDir)));
+        assertThrows(NullPointerException.class,
+                () -> adapter.solve(input(1.0d), null, new SolverWorkDirectory(tempDir)));
     }
 
     @Test
@@ -91,6 +124,19 @@ final class OrToolsJavaAdapterTest {
 
         assertEquals(SolverStatus.UNSUPPORTED, result.status());
         assertTrue(result.message().contains("objective coefficient must be finite"));
+    }
+
+    @Test
+    @EnabledIf("ortoolsRuntimeAvailable")
+    void guardedIntegrationDetectsInfeasibleLp() {
+        SolverRunResult result = new OrToolsJavaAdapter().solve(
+                infeasibleInput(),
+                SolverOptions.defaults(),
+                new SolverWorkDirectory(tempDir));
+
+        assertEquals(SolverStatus.INFEASIBLE, result.status());
+        assertTrue(result.objectiveValue().isEmpty());
+        assertArrayEquals(new double[0], result.primalValues());
     }
 
     private static boolean ortoolsRuntimeAvailable() {
@@ -135,6 +181,28 @@ final class OrToolsJavaAdapterTest {
                         new int[] {0, 2, 3}),
                 List.of("capacity", "y-limit"),
                 List.of("x", "y"),
+                "OBJ");
+    }
+
+    private static SolverInput infeasibleInput() {
+        LpProblem problem = new LpProblem(
+                "infeasible",
+                new LpObjective(ObjectiveSense.MINIMIZE, 0.0d, new double[] {0.0d}),
+                List.of(LpVariableBounds.FREE),
+                List.of(
+                        new LpRowBounds(1.0d, Double.POSITIVE_INFINITY),
+                        new LpRowBounds(Double.NEGATIVE_INFINITY, 0.0d)),
+                new LpProblemStats(2, 1, 2));
+        return new SolverInput(
+                problem,
+                new CsrMatrix(
+                        2,
+                        1,
+                        new double[] {1.0d, 1.0d},
+                        new int[] {0, 0},
+                        new int[] {0, 1, 2}),
+                List.of("lower", "upper"),
+                List.of("x"),
                 "OBJ");
     }
 }
