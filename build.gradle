@@ -16,6 +16,7 @@ def checkedProjects = [
     ':modules:lp-generators',
     ':modules:lp-solver-spi',
     ':modules:lp-solver-simple',
+    ':modules:lp-solver-performance',
     ':modules:lp-harness-api',
     ':modules:lp-harness-cli',
     ':modules:lp-harness-report',
@@ -93,6 +94,7 @@ tasks.register('printPublishedArtifacts') {
 :modules:lp-generators -> io.github.mundanej:mlp-generators:${releaseVersion}
 :modules:lp-solver-spi -> io.github.mundanej:mlp-solver-spi:${releaseVersion}
 :modules:lp-solver-simple -> io.github.mundanej:mlp-solver-simple:${releaseVersion}
+:modules:lp-solver-performance -> io.github.mundanej:mlp-solver-performance:${releaseVersion}
 :modules:lp-harness-api -> io.github.mundanej:mlp-harness-api:${releaseVersion}
 :modules:lp-harness-cli -> io.github.mundanej:mlp-harness-cli:${releaseVersion}
 :modules:lp-harness-report -> io.github.mundanej:mlp-harness-report:${releaseVersion}

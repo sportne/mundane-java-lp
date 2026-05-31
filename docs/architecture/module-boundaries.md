@@ -12,8 +12,8 @@
 
 - `lp-solver-spi`: adapter contract.
 - `lp-solver-simple`: in-project correctness-first simple solver adapter.
-- `lp-solver-performance`: planned in-project performance-oriented solver
-  adapter following ADR-0007.
+- `lp-solver-performance`: in-project performance-oriented solver adapter
+  following ADR-0007.
 - `lp-harness-api`: benchmark orchestration model.
 - `lp-harness-cli`: command-line entrypoint.
 - `lp-harness-report`: JSON/CSV/Markdown report output.

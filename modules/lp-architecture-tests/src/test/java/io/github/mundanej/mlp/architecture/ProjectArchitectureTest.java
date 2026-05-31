@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 import javax.lang.model.element.Modifier;
@@ -34,7 +35,7 @@ import javax.tools.ToolProvider;
 import org.junit.jupiter.api.Test;
 
 final class ProjectArchitectureTest {
-  private static final Path ROOT = Path.of(System.getProperty("user.dir")).getParent().getParent();
+  private static final Path ROOT = repositoryRoot();
 
   @Test
   void onlyCliAdaptersUseProcessBuilder() throws IOException {
@@ -70,6 +71,16 @@ final class ProjectArchitectureTest {
         Set.of(":modules:lp-solver-spi"),
         dependencies,
         () -> "Unexpected simple solver project dependencies: " + dependencies);
+  }
+
+  @Test
+  void performanceSolverDependsOnlyOnSolverSpi() throws IOException {
+    Path buildFile = ROOT.resolve("modules/lp-solver-performance/build.gradle");
+    Set<String> dependencies = productionProjectDependencies(buildFile);
+    assertEquals(
+        Set.of(":modules:lp-solver-spi"),
+        dependencies,
+        () -> "Unexpected performance solver project dependencies: " + dependencies);
   }
 
   @Test
@@ -167,7 +178,14 @@ final class ProjectArchitectureTest {
     return value.contains("lp-model")
         || value.contains("lp-sparse")
         || value.contains("lp-validation")
+        || value.contains("lp-solver-performance")
         || value.contains("lp-native-api");
+  }
+
+  private static Path repositoryRoot() {
+    Path projectDirectory = Path.of(System.getProperty("user.dir"));
+    Path moduleDirectory = Objects.requireNonNull(projectDirectory.getParent(), "module directory");
+    return Objects.requireNonNull(moduleDirectory.getParent(), "repository root");
   }
 
   private static Stream<Path> javaFiles() throws IOException {

@@ -19,6 +19,7 @@ dependencies {
         api project(':modules:lp-harness-api')
         api project(':modules:lp-solver-spi')
         api project(':modules:lp-solver-simple')
+        api project(':modules:lp-solver-performance')
     }
 }
 
