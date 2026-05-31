@@ -10,6 +10,10 @@
   ratio tests. The in-project simple solver should not copy these optimizations;
   it should keep the state transparent enough to debug against third-party
   solvers.
+- G9 separates the simple correctness-first solver from revised-simplex work.
+  The simple solver uses low-dimensional enumeration for Tier 1 evidence
+  clarity; revised-simplex concepts move to the later performance-solver
+  decision.
 - Hyper-sparse behavior matters for the later performance solver. The sparse
   matrix layer should preserve row/column access patterns and avoid hidden dense
   expansion so G9 can experiment with sparse pivot paths.

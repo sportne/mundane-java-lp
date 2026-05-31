@@ -11,6 +11,9 @@
 - A first-order solver would require the validation layer to treat approximate
   certificates and residual tolerances as first-class outputs. It should not be
   mixed with the simple correctness-first solver.
+- The G9 simple solver is deliberately not first-order: its job is to enumerate
+  tiny hand-checkable cases and make terminal statuses inspectable, not to scale
+  matrix-vector throughput.
 - For Java/GraalVM, the implementation question is whether sparse
   matrix-vector kernels and allocation discipline can be made predictable enough
   before adding algorithmic complexity.
