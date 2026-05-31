@@ -82,7 +82,14 @@ public final class HarnessRunner {
                     result,
                     report,
                     outcome,
-                    failureMessage(outcome, result.message()));
+                    failureMessage(outcome, result.message()),
+                    "not-measured",
+                    config.solverOptions(),
+                    MachineFingerprint.capture(),
+                    0.0d,
+                    0.0d,
+                    0.0d,
+                    result.elapsedSeconds());
         } catch (RuntimeException | IOException exception) {
             SolverRunResult result = new SolverRunResult(
                     solverId,
@@ -99,7 +106,14 @@ public final class HarnessRunner {
                     result,
                     report,
                     RunOutcome.ADAPTER_ERROR,
-                    result.message());
+                    result.message(),
+                    "not-measured",
+                    config.solverOptions(),
+                    MachineFingerprint.capture(),
+                    0.0d,
+                    0.0d,
+                    0.0d,
+                    result.elapsedSeconds());
         }
     }
 

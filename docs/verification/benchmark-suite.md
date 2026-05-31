@@ -40,6 +40,11 @@ Every solver-instance pair yields a run record:
 - adapter exceptions and harness errors are recorded deterministically;
 - reports preserve suite order and solver order.
 
+0.1.0 report outputs are Markdown, JSON, and CSV. The formats are deterministic:
+records are rendered in harness run order, unknown solver versions use
+`not-measured`, and unavailable objective values render as blank CSV/Markdown
+cells or JSON `null`.
+
 ## Default Lanes
 
 The default local lane is the quality gate. Solver comparison, benchmark, and
