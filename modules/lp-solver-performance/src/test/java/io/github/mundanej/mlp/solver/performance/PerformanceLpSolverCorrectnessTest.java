@@ -44,12 +44,11 @@ final class PerformanceLpSolverCorrectnessTest {
       List.of("infeasible-rows", "fixed-variable", "free-variable-row-bounded", "ranged-row");
 
   @TempDir private Path tempDir;
+  private final PerformanceLpSolverAdapter adapter = new PerformanceLpSolverAdapter();
+  private final LpSolutionValidator validator = new LpSolutionValidator();
 
   @Test
   void validatesSupportedTierOneFixtures() {
-    PerformanceLpSolverAdapter adapter = new PerformanceLpSolverAdapter();
-    LpSolutionValidator validator = new LpSolutionValidator();
-
     for (String fixtureName : SUPPORTED_TIER_ONE_FIXTURES) {
       CanonicalLpFixture fixture = LpTestInstances.tierOneFixture(fixtureName);
       SolverRunResult result = adapter.solve(input(fixture), SolverOptions.defaults(), work());
@@ -68,8 +67,6 @@ final class PerformanceLpSolverCorrectnessTest {
 
   @Test
   void recordsUnsupportedTierOneOutcomesExplicitly() {
-    PerformanceLpSolverAdapter adapter = new PerformanceLpSolverAdapter();
-
     for (String fixtureName : UNSUPPORTED_TIER_ONE_FIXTURES) {
       SolverRunResult result =
           adapter.solve(
@@ -83,8 +80,6 @@ final class PerformanceLpSolverCorrectnessTest {
 
   @Test
   void validatesSupportedInfeasibleShape() {
-    PerformanceLpSolverAdapter adapter = new PerformanceLpSolverAdapter();
-    LpSolutionValidator validator = new LpSolutionValidator();
     SolverInput input = supportedInfeasibleInput();
 
     SolverRunResult result = adapter.solve(input, SolverOptions.defaults(), work());
@@ -112,8 +107,6 @@ final class PerformanceLpSolverCorrectnessTest {
 
   @Test
   void acceptsObjectiveAtToleranceBoundary() {
-    PerformanceLpSolverAdapter adapter = new PerformanceLpSolverAdapter();
-    LpSolutionValidator validator = new LpSolutionValidator();
     CanonicalLpFixture fixture = LpTestInstances.tierOneFixture("single-bounded-variable");
     SolverRunResult result = adapter.solve(input(fixture), SolverOptions.defaults(), work());
     double boundaryObjective =
@@ -132,8 +125,6 @@ final class PerformanceLpSolverCorrectnessTest {
   }
 
   private void assertValidatedTierOneFixture(final String fixtureName) {
-    PerformanceLpSolverAdapter adapter = new PerformanceLpSolverAdapter();
-    LpSolutionValidator validator = new LpSolutionValidator();
     CanonicalLpFixture fixture = LpTestInstances.tierOneFixture(fixtureName);
 
     SolverRunResult result = adapter.solve(input(fixture), SolverOptions.defaults(), work());

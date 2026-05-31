@@ -34,9 +34,7 @@ final class PerformanceLpSolverAdapterTest {
 
   @Test
   void solvesEmptyLpSmokePath() {
-    PerformanceLpSolverAdapter adapter = new PerformanceLpSolverAdapter();
-
-    SolverRunResult result = adapter.solve(emptyInput(), SolverOptions.defaults(), work());
+    SolverRunResult result = solve(emptyInput());
 
     assertEquals(SolverStatus.OPTIMAL, result.status());
     assertEquals(3.0d, result.objectiveValue().orElseThrow());
@@ -46,9 +44,7 @@ final class PerformanceLpSolverAdapterTest {
 
   @Test
   void solvesOneVariableBoundedMinimization() {
-    PerformanceLpSolverAdapter adapter = new PerformanceLpSolverAdapter();
-
-    SolverRunResult result = adapter.solve(oneVariableInput(), SolverOptions.defaults(), work());
+    SolverRunResult result = solve(oneVariableInput());
 
     assertEquals(SolverStatus.OPTIMAL, result.status());
     assertEquals(0.0d, result.objectiveValue().orElseThrow());
@@ -57,10 +53,7 @@ final class PerformanceLpSolverAdapterTest {
 
   @Test
   void solvesTwoVariableMaximizationSmokePath() {
-    PerformanceLpSolverAdapter adapter = new PerformanceLpSolverAdapter();
-
-    SolverRunResult result =
-        adapter.solve(twoVariableMaximizationInput(), SolverOptions.defaults(), work());
+    SolverRunResult result = solve(twoVariableMaximizationInput());
 
     assertEquals(SolverStatus.OPTIMAL, result.status());
     assertEquals(10.0d, result.objectiveValue().orElseThrow());
@@ -70,9 +63,7 @@ final class PerformanceLpSolverAdapterTest {
 
   @Test
   void reportsInfeasibleForContradictoryRows() {
-    PerformanceLpSolverAdapter adapter = new PerformanceLpSolverAdapter();
-
-    SolverRunResult result = adapter.solve(infeasibleInput(), SolverOptions.defaults(), work());
+    SolverRunResult result = solve(infeasibleInput());
 
     assertEquals(SolverStatus.INFEASIBLE, result.status());
     assertTrue(result.objectiveValue().isEmpty());
@@ -80,9 +71,7 @@ final class PerformanceLpSolverAdapterTest {
 
   @Test
   void reportsUnboundedForImprovingRay() {
-    PerformanceLpSolverAdapter adapter = new PerformanceLpSolverAdapter();
-
-    SolverRunResult result = adapter.solve(unboundedInput(), SolverOptions.defaults(), work());
+    SolverRunResult result = solve(unboundedInput());
 
     assertEquals(SolverStatus.UNBOUNDED, result.status());
     assertTrue(result.objectiveValue().isEmpty());
@@ -90,9 +79,7 @@ final class PerformanceLpSolverAdapterTest {
 
   @Test
   void reportsUnsupportedForFreeVariables() {
-    PerformanceLpSolverAdapter adapter = new PerformanceLpSolverAdapter();
-
-    SolverRunResult result = adapter.solve(freeVariableInput(), SolverOptions.defaults(), work());
+    SolverRunResult result = solve(freeVariableInput());
 
     assertEquals(SolverStatus.UNSUPPORTED, result.status());
     assertTrue(result.objectiveValue().isEmpty());
@@ -102,10 +89,7 @@ final class PerformanceLpSolverAdapterTest {
 
   @Test
   void reportsInfeasibleForZeroColumnRowViolation() {
-    PerformanceLpSolverAdapter adapter = new PerformanceLpSolverAdapter();
-
-    SolverRunResult result =
-        adapter.solve(infeasibleZeroColumnInput(), SolverOptions.defaults(), work());
+    SolverRunResult result = solve(infeasibleZeroColumnInput());
 
     assertEquals(SolverStatus.INFEASIBLE, result.status());
     assertTrue(result.objectiveValue().isEmpty());
@@ -113,10 +97,7 @@ final class PerformanceLpSolverAdapterTest {
 
   @Test
   void reportsUnsupportedForNonFiniteObjectiveData() {
-    PerformanceLpSolverAdapter adapter = new PerformanceLpSolverAdapter();
-
-    SolverRunResult result =
-        adapter.solve(nonFiniteObjectiveInput(), SolverOptions.defaults(), work());
+    SolverRunResult result = solve(nonFiniteObjectiveInput());
 
     assertEquals(SolverStatus.UNSUPPORTED, result.status());
     assertTrue(result.message().contains("objective coefficients"));
@@ -124,9 +105,7 @@ final class PerformanceLpSolverAdapterTest {
 
   @Test
   void reportsUnsupportedForNanBounds() {
-    PerformanceLpSolverAdapter adapter = new PerformanceLpSolverAdapter();
-
-    SolverRunResult result = adapter.solve(nanBoundInput(), SolverOptions.defaults(), work());
+    SolverRunResult result = solve(nanBoundInput());
 
     assertEquals(SolverStatus.UNSUPPORTED, result.status());
     assertTrue(result.message().contains("row bounds"));
@@ -146,6 +125,10 @@ final class PerformanceLpSolverAdapterTest {
 
   private SolverWorkDirectory work() {
     return new SolverWorkDirectory(tempDir);
+  }
+
+  private SolverRunResult solve(final SolverInput input) {
+    return new PerformanceLpSolverAdapter().solve(input, SolverOptions.defaults(), work());
   }
 
   private static SolverInput emptyInput() {

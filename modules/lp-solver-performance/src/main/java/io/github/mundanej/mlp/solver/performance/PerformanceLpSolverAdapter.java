@@ -21,13 +21,7 @@ public final class PerformanceLpSolverAdapter implements LpSolverAdapter {
     return ID;
   }
 
-  /**
-   * Solves only the initial empty-LP smoke shape until the core lands.
-   *
-   * @param input solver input envelope
-   * @param options solver options
-   * @param workDirectory solver work directory
-   */
+  /** {@inheritDoc} */
   @Override
   public SolverRunResult solve(
       final SolverInput input,
