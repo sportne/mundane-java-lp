@@ -47,6 +47,11 @@ canonical LP data and reported through the public benchmark suite without
 requiring an external solver. Unsupported or malformed local files are reported
 as deterministic load failures.
 
+The generated benchmark smoke path runs the in-project performance solver
+against the deterministic three-node network-flow fixture and keeps the
+generated evidence adapter as a fixture sanity record. The lane reports timing
+and validation evidence only; it is not comparative performance evidence.
+
 ## Evidence Baseline
 
 No benchmark output may be described as a performance claim unless every

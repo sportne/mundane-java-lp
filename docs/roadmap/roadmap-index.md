@@ -118,7 +118,7 @@ correctness, and simplification passes. Work proceeds in gate order.
 - [G9-006 performance solver SPI](tasks/g9-006-performance-solver-spi.md) - **Complete**
 - [G9-007 performance solver core](tasks/g9-007-performance-solver-core.md) - **Complete**
 - [G9-008 performance solver correctness](tasks/g9-008-performance-solver-correctness.md) - **Complete**
-- [G9-009 performance solver benchmark smoke](tasks/g9-009-performance-solver-benchmark-smoke.md) - **Proposed**
+- [G9-009 performance solver benchmark smoke](tasks/g9-009-performance-solver-benchmark-smoke.md) - **Complete**
 - [G9-010 performance measurement instrumentation](tasks/g9-010-performance-measurement-instrumentation.md) - **Proposed**
 - [G9-011 performance solver profiling baseline](tasks/g9-011-performance-solver-profiling-baseline.md) - **Proposed**
 - [G9-012 performance iteration 1 sparse hot path](tasks/g9-012-performance-iteration-1-sparse-hot-path.md) - **Proposed**

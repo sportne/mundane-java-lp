@@ -27,10 +27,11 @@ Native checks are explicit because they require GraalVM/native-image.
 ```
 
 This lane compares the tiny Tier 1 smoke instance through HiGHS, CLP, GLPK,
-OR-Tools, and ojAlgo adapters. Missing external binaries or unavailable optional
-runtimes are reported as unavailable solver outcomes. The lane still passes when
-all optional solvers are unavailable, but it fails when an available solver
-returns an adapter error or fails validation.
+OR-Tools, ojAlgo, and the in-project simple and performance solver adapters.
+Missing external binaries or unavailable optional runtimes are reported as
+unavailable solver outcomes. The lane still passes when optional third-party
+solvers are unavailable, but it fails when an available solver returns an
+adapter error or fails validation.
 
 ## Benchmark lane
 
@@ -39,6 +40,8 @@ returns an adapter error or fails validation.
 ```
 
 Benchmark smoke is advisory only. It does not support competitive claims.
+Its generated fixture path runs the in-project performance solver without
+requiring external solver binaries.
 
 ## Manual future lanes
 

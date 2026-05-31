@@ -29,11 +29,14 @@ final class MlpBenchMainTest {
   void benchmarkSmokeWritesReportsAndMissingPublicInputRecord() throws IOException {
     MlpBenchMain.BenchmarkSmokeResult result = MlpBenchMain.runBenchmarkSmoke(tempDir);
 
-    assertEquals(4, result.records().size());
+    assertEquals(5, result.records().size());
     assertEquals(RunOutcome.SUCCESS, result.records().getFirst().outcome());
-    assertEquals(RunOutcome.SOLVER_UNAVAILABLE, result.records().get(1).outcome());
+    assertEquals("performance", result.records().getFirst().solverResult().solverId().name());
+    assertEquals(RunOutcome.SUCCESS, result.records().get(1).outcome());
+    assertEquals(RunOutcome.SOLVER_UNAVAILABLE, result.records().get(2).outcome());
     assertTrue(Files.readString(result.markdownPath()).contains("benchmark-smoke-generated"));
     assertTrue(Files.readString(result.jsonPath()).contains("\"instance\":\"netlib-afiro\""));
+    assertTrue(Files.readString(result.csvPath()).contains("performance"));
     assertTrue(Files.readString(result.csvPath()).contains("missing local public benchmark file"));
   }
 
@@ -85,9 +88,10 @@ final class MlpBenchMainTest {
     MlpBenchMain.BenchmarkSmokeResult result =
         MlpBenchMain.runBenchmarkSmoke(tempDir.resolve("reports"), manifest);
 
-    assertEquals(2, result.records().size());
+    assertEquals(3, result.records().size());
     assertEquals(RunOutcome.SUCCESS, result.records().getFirst().outcome());
-    assertEquals(RunOutcome.SOLVER_UNAVAILABLE, result.records().get(1).outcome());
+    assertEquals(RunOutcome.SUCCESS, result.records().get(1).outcome());
+    assertEquals(RunOutcome.SOLVER_UNAVAILABLE, result.records().get(2).outcome());
     assertTrue(Files.readString(result.csvPath()).contains("public benchmark loaded"));
   }
 
@@ -118,7 +122,7 @@ final class MlpBenchMainTest {
     MlpBenchMain.BenchmarkSmokeResult result =
         MlpBenchMain.runBenchmarkSmoke(tempDir.resolve("skip-reports"), manifest);
 
-    assertEquals(1, result.records().size());
+    assertEquals(2, result.records().size());
     assertEquals(RunOutcome.SUCCESS, result.records().getFirst().outcome());
   }
 
@@ -156,7 +160,7 @@ final class MlpBenchMainTest {
     MlpBenchMain.BenchmarkSmokeResult result =
         MlpBenchMain.runBenchmarkSmoke(tempDir.resolve("load-failure-reports"), manifest);
 
-    assertEquals(RunOutcome.ADAPTER_ERROR, result.records().get(1).outcome());
+    assertEquals(RunOutcome.ADAPTER_ERROR, result.records().get(2).outcome());
     assertTrue(Files.readString(result.csvPath()).contains("could not load public benchmark file"));
   }
 
@@ -181,8 +185,8 @@ final class MlpBenchMainTest {
     MlpBenchMain.BenchmarkSmokeResult result =
         MlpBenchMain.runBenchmarkSmoke(tempDir.resolve("relative-reports"), manifest);
 
-    assertEquals(RunOutcome.SOLVER_UNAVAILABLE, result.records().get(1).outcome());
-    assertTrue(result.records().get(1).failureMessage().contains("missing-local.mps"));
+    assertEquals(RunOutcome.SOLVER_UNAVAILABLE, result.records().get(2).outcome());
+    assertTrue(result.records().get(2).failureMessage().contains("missing-local.mps"));
   }
 
   @Test

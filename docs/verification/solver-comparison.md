@@ -7,9 +7,12 @@ Comparison targets:
 - GLPK CLI.
 - OR-Tools Java.
 - ojAlgo.
+- In-project simple solver.
+- In-project performance solver.
 
 G5 implements the CLI adapter lane for HiGHS, CLP, and GLPK. G6 owns Java
-library adapter behavior for OR-Tools and ojAlgo.
+library adapter behavior for OR-Tools and ojAlgo. G9 adds the in-project
+simple and performance solvers to the explicit smoke list.
 
 ## Fairness rules
 
@@ -43,9 +46,11 @@ modules. OR-Tools native-runtime load failures and unavailable optional solver
 capabilities are reported as unavailable solver records.
 
 The comparison smoke runs one tiny Tier 1 instance through HiGHS, CLP, GLPK,
-OR-Tools, and ojAlgo. It writes Markdown, JSON, and CSV reports under
+OR-Tools, ojAlgo, the simple solver, and the performance solver. It writes
+Markdown, JSON, and CSV reports under
 `examples/solver-comparison-smoke/build/reports/solver-comparison-smoke` for
 both direct example-project runs and the root `solverComparisonSmoke` lane. It
-passes when all optional solvers are unavailable, provided each unavailable
-solver is reported explicitly. If any available solver returns an adapter error
-or fails validation, the lane fails after writing reports.
+passes when optional third-party solvers are unavailable, provided each
+unavailable solver is reported explicitly and in-project solvers validate. If
+any available solver returns an adapter error or fails validation, the lane
+fails after writing reports.

@@ -12,6 +12,8 @@ dependencies {
     implementation project(':modules:lp-generators')
     implementation project(':modules:lp-harness-api')
     implementation project(':modules:lp-harness-report')
+    implementation project(':modules:lp-solver-performance')
+    implementation project(':modules:lp-solver-simple')
     implementation project(':modules:lp-solver-spi')
     implementation project(':modules:lp-testkit')
     implementation project(':modules:lp-validation')

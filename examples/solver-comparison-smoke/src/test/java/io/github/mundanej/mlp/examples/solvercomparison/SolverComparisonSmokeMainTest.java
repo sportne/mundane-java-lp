@@ -33,15 +33,18 @@ final class SolverComparisonSmokeMainTest {
                 unavailable("clp"),
                 unavailable("glpk"),
                 unavailable("ortools"),
-                unavailable("ojalgo")));
+                unavailable("ojalgo"),
+                unavailable("simple"),
+                unavailable("performance")));
 
-    assertEquals(5, result.records().size());
+    assertEquals(7, result.records().size());
     assertEquals(0, result.successfulSolvers());
     assertEquals(0, result.failedSolvers());
-    assertEquals(5, result.unavailableSolvers());
+    assertEquals(7, result.unavailableSolvers());
     assertTrue(Files.readString(result.markdownPath()).contains("SOLVER_UNAVAILABLE"));
     assertTrue(Files.readString(result.jsonPath()).contains("\"outcome\":\"SOLVER_UNAVAILABLE\""));
     assertTrue(Files.readString(result.csvPath()).contains("SOLVER_UNAVAILABLE"));
+    assertThrows(IllegalStateException.class, result::throwIfFailed);
   }
 
   @Test
@@ -54,10 +57,12 @@ final class SolverComparisonSmokeMainTest {
                 unavailable("clp"),
                 unavailable("glpk"),
                 unavailable("ortools"),
-                unavailable("ojalgo")));
+                unavailable("ojalgo"),
+                optimal("simple"),
+                optimal("performance")));
 
-    assertEquals(5, result.records().size());
-    assertEquals(1, result.successfulSolvers());
+    assertEquals(7, result.records().size());
+    assertEquals(3, result.successfulSolvers());
     assertEquals(0, result.failedSolvers());
     assertEquals(4, result.unavailableSolvers());
     assertTrue(Files.readString(result.markdownPath()).contains("SUCCESS"));
@@ -77,9 +82,11 @@ final class SolverComparisonSmokeMainTest {
                 unavailable("clp"),
                 unavailable("glpk"),
                 unavailable("ortools"),
-                unavailable("ojalgo")));
+                unavailable("ojalgo"),
+                optimal("simple"),
+                optimal("performance")));
 
-    assertEquals(0, result.successfulSolvers());
+    assertEquals(2, result.successfulSolvers());
     assertEquals(1, result.failedSolvers());
     assertEquals(4, result.unavailableSolvers());
     assertThrows(IllegalStateException.class, result::throwIfFailed);
@@ -95,11 +102,34 @@ final class SolverComparisonSmokeMainTest {
                 unavailable("clp"),
                 unavailable("glpk"),
                 unavailable("ortools"),
-                unavailable("ojalgo")));
+                unavailable("ojalgo"),
+                optimal("simple"),
+                optimal("performance")));
 
-    assertEquals(0, result.successfulSolvers());
+    assertEquals(2, result.successfulSolvers());
     assertEquals(1, result.failedSolvers());
     assertEquals(4, result.unavailableSolvers());
+    assertThrows(IllegalStateException.class, result::throwIfFailed);
+  }
+
+  @Test
+  void requiredInProjectSolverUnavailableFailsAfterWritingReports() throws IOException {
+    SolverComparisonSmokeMain.SmokeResult result =
+        SolverComparisonSmokeMain.run(
+            tempDir,
+            List.of(
+                unavailable("highs"),
+                unavailable("clp"),
+                unavailable("glpk"),
+                unavailable("ortools"),
+                unavailable("ojalgo"),
+                unavailable("simple"),
+                optimal("performance")));
+
+    assertEquals(1, result.successfulSolvers());
+    assertEquals(0, result.failedSolvers());
+    assertEquals(6, result.unavailableSolvers());
+    assertTrue(Files.exists(result.markdownPath()));
     assertThrows(IllegalStateException.class, result::throwIfFailed);
   }
 
@@ -117,7 +147,9 @@ final class SolverComparisonSmokeMainTest {
             new SolverId("clp", "cli"),
             new SolverId("glpk", "cli"),
             new SolverId("ortools", "java"),
-            new SolverId("ojalgo", "java")),
+            new SolverId("ojalgo", "java"),
+            new SolverId("simple", "java"),
+            new SolverId("performance", "java")),
         ids);
   }
 

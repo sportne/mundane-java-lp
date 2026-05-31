@@ -15,6 +15,7 @@ import io.github.mundanej.mlp.harness.report.JsonReportWriter;
 import io.github.mundanej.mlp.harness.report.MarkdownReportWriter;
 import io.github.mundanej.mlp.io.mps.MpsLp;
 import io.github.mundanej.mlp.io.mps.MpsReader;
+import io.github.mundanej.mlp.solver.performance.PerformanceLpSolverAdapter;
 import io.github.mundanej.mlp.solver.spi.LpSolverAdapter;
 import io.github.mundanej.mlp.solver.spi.SolverId;
 import io.github.mundanej.mlp.solver.spi.SolverInput;
@@ -84,6 +85,7 @@ public final class MlpBenchMain {
             .run(
                 new BenchmarkSuite("benchmark-smoke-generated", List.of(instance)),
                 List.of(
+                    new PerformanceLpSolverAdapter(),
                     new EvidenceAdapter(
                         generated.fixture().evidence().objectiveValue().orElseThrow(),
                         generated.fixture().evidence().primal())),

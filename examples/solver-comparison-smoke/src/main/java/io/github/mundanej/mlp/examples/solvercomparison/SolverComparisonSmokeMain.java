@@ -15,6 +15,8 @@ import io.github.mundanej.mlp.harness.RunRecord;
 import io.github.mundanej.mlp.harness.report.CsvReportWriter;
 import io.github.mundanej.mlp.harness.report.JsonReportWriter;
 import io.github.mundanej.mlp.harness.report.MarkdownReportWriter;
+import io.github.mundanej.mlp.solver.performance.PerformanceLpSolverAdapter;
+import io.github.mundanej.mlp.solver.simple.SimpleLpSolverAdapter;
 import io.github.mundanej.mlp.solver.spi.LpSolverAdapter;
 import io.github.mundanej.mlp.solver.spi.SolverOptions;
 import io.github.mundanej.mlp.testkit.LpTestInstances;
@@ -23,11 +25,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
 
 /** Runs a tiny solver comparison smoke suite. */
 public final class SolverComparisonSmokeMain {
   static final String DEFAULT_OUTPUT_DIRECTORY = "build/reports/solver-comparison-smoke";
+  private static final Set<String> REQUIRED_SOLVER_NAMES = Set.of("simple", "performance");
 
   private SolverComparisonSmokeMain() {}
 
@@ -89,7 +93,9 @@ public final class SolverComparisonSmokeMain {
         ClpCliAdapter::new,
         GlpkCliAdapter::new,
         OrToolsJavaAdapter::new,
-        OjAlgoAdapter::new);
+        OjAlgoAdapter::new,
+        SimpleLpSolverAdapter::new,
+        PerformanceLpSolverAdapter::new);
   }
 
   private static BenchmarkSuite suite() {
@@ -175,6 +181,20 @@ public final class SolverComparisonSmokeMain {
             "solver comparison smoke failed for "
                 + failedSolvers
                 + " solver(s); reports are available at "
+                + markdownPath);
+      }
+      long unavailableRequiredSolvers =
+          records.stream()
+              .filter(record -> record.outcome() == RunOutcome.SOLVER_UNAVAILABLE)
+              .map(record -> record.solverResult().solverId().name())
+              .filter(REQUIRED_SOLVER_NAMES::contains)
+              .distinct()
+              .count();
+      if (unavailableRequiredSolvers > 0) {
+        throw new IllegalStateException(
+            "solver comparison smoke missing "
+                + unavailableRequiredSolvers
+                + " required in-project solver(s); reports are available at "
                 + markdownPath);
       }
     }
