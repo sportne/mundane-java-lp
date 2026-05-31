@@ -51,6 +51,8 @@ The generated benchmark smoke path runs the in-project performance solver
 against the deterministic three-node network-flow fixture and keeps the
 generated evidence adapter as a fixture sanity record. The lane reports timing
 and validation evidence only; it is not comparative performance evidence.
+The first profiling baseline for this lane is recorded in
+`docs/verification/performance-profiling-baseline.md`.
 
 ## Evidence Baseline
 

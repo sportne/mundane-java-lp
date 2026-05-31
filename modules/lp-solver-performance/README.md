@@ -32,6 +32,14 @@ The Tier 1 fixtures that require free variables, shifted variable lower bounds,
 or ranged-row normalization are recorded as deterministic `UNSUPPORTED`
 outcomes until those transformations are in scope.
 
+## Profiling baseline
+
+The first profiling baseline is recorded in
+`docs/verification/performance-profiling-baseline.md`. It uses
+`benchmarkSmoke` output for the generated three-node network-flow fixture and
+selects sparse-to-constraint setup allocation as the first optimization target.
+The baseline is not a performance claim.
+
 See the repository root `README.md`,
 `docs/architecture/module-boundaries.md`, and
 `docs/architecture/solver-adapter-contract.md`.
