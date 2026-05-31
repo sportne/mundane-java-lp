@@ -11,6 +11,7 @@
 ## Harness modules
 
 - `lp-solver-spi`: adapter contract.
+- `lp-solver-simple`: in-project correctness-first simple solver adapter.
 - `lp-harness-api`: benchmark orchestration model.
 - `lp-harness-cli`: command-line entrypoint.
 - `lp-harness-report`: JSON/CSV/Markdown report output.
@@ -20,6 +21,8 @@
 - CLI adapter modules may use `ProcessBuilder`.
 - Java adapter modules may add external solver/library dependencies inside the
   adapter module only.
+- In-project solver modules must not execute external processes or depend on
+  third-party solver libraries.
 - Adapters must normalize status, objective, timing, and logs.
 
 ## Native modules

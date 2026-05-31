@@ -71,6 +71,15 @@ adapter returns `UNSUPPORTED` with a deterministic diagnostic instead of failing
 class loading or the harness process. ojAlgo is pure Java for the 0.1.0 adapter
 scope and reports unsupported model features through the same result path.
 
+## In-Project Solver Rule
+
+In-project solver adapters use the same solver input and result evidence
+contract as third-party adapters. They must not invoke external processes or
+depend on third-party solver libraries.
+
+The G9 simple solver is the first in-project solver. G9-002 wires only a small
+SPI smoke path; broad algorithm behavior belongs to the later correctness task.
+
 ## MPS Export
 
 The 0.1.0 CLI adapters use the supported MPS subset as their interchange format.

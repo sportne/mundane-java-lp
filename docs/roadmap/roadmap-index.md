@@ -111,7 +111,7 @@ correctness, and simplification passes. Work proceeds in gate order.
 ### G9: first in-project solver experiment
 
 - [G9-001 simple solver design decision](tasks/g9-001-simple-solver-design-decision.md) - **Complete**
-- [G9-002 simple solver SPI](tasks/g9-002-simple-solver-spi.md) - **Proposed**
+- [G9-002 simple solver SPI](tasks/g9-002-simple-solver-spi.md) - **Complete**
 - [G9-003 simple solver correctness](tasks/g9-003-simple-solver-correctness.md) - **Proposed**
 - [G9-004 simple solver MPS path](tasks/g9-004-simple-solver-mps-path.md) - **Proposed**
 - [G9-005 performance solver design decision](tasks/g9-005-performance-solver-design-decision.md) - **Proposed**

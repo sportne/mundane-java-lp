@@ -12,6 +12,7 @@ documented here or in an ADR in the same change.
 | `lp-model` must not depend on harness, adapter, native, or example modules. | The canonical model is foundational. | `modules/lp-model` main code. | None. | `ProjectArchitectureTest`. |
 | `lp-sparse` must use primitive arrays for storage types. | Massive LP kernels cannot rely on object-heavy sparse entries. | `modules/lp-sparse` main code. | Builders may use temporary collections before materialization. | `ProjectArchitectureTest`. |
 | Only CLI adapter modules may use `ProcessBuilder`. | Process execution is an adapter boundary. | All main source. | `lp-adapter-*-cli` modules and CLI examples. | `ProjectArchitectureTest`. |
+| In-project solver modules must not execute external processes. | In-project solvers are library code, not binary wrappers. | Solver modules under `modules/lp-solver-*`, excluding `lp-solver-spi`. | None. | `ProjectArchitectureTest`. |
 | Only CLI entrypoints may call `System.exit`. | Libraries must return diagnostics instead of terminating hosts. | All main source. | Documented CLI main classes. | `ProjectArchitectureTest`. |
 | Adapters must return normalized `SolverRunResult`. | Benchmark and validation behavior must be comparable. | Adapter modules. | None. | Future adapter tests. |
 | Benchmark reports must record solver ID, version, options, tolerance profile, timing, and machine metadata. | Benchmark claims need context. | Harness/report modules. | None. | Future report tests. |

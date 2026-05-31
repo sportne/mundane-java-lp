@@ -1,5 +1,6 @@
 package io.github.mundanej.mlp.architecture;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.sun.source.doctree.DocCommentTree;
@@ -22,6 +23,7 @@ import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -45,6 +47,29 @@ final class ProjectArchitectureTest {
             .filter(path -> !path.toString().contains("lp-architecture-tests"))
             .toList();
     assertTrue(offenders.isEmpty(), () -> "ProcessBuilder outside CLI adapters: " + offenders);
+  }
+
+  @Test
+  void inProjectSolversDoNotUseExternalProcesses() throws IOException {
+    List<String> forbidden = List.of("ProcessBuilder", "Runtime.getRuntime", "ProcessHandle");
+    List<Path> offenders =
+        javaFiles()
+            .filter(path -> path.toString().contains("lp-solver-"))
+            .filter(path -> !path.toString().contains("lp-solver-spi"))
+            .filter(path -> !path.toString().contains("lp-architecture-tests"))
+            .filter(path -> forbidden.stream().anyMatch(token -> contains(path, token)))
+            .toList();
+    assertTrue(offenders.isEmpty(), () -> "In-project solver external process use: " + offenders);
+  }
+
+  @Test
+  void simpleSolverDependsOnlyOnSolverSpi() throws IOException {
+    Path buildFile = ROOT.resolve("modules/lp-solver-simple/build.gradle");
+    Set<String> dependencies = productionProjectDependencies(buildFile);
+    assertEquals(
+        Set.of(":modules:lp-solver-spi"),
+        dependencies,
+        () -> "Unexpected simple solver project dependencies: " + dependencies);
   }
 
   @Test
@@ -198,6 +223,30 @@ final class ProjectArchitectureTest {
     } catch (IOException exception) {
       throw new IllegalStateException(exception);
     }
+  }
+
+  private static Set<String> productionProjectDependencies(final Path buildFile)
+      throws IOException {
+    Set<String> dependencies = new HashSet<>();
+    for (String line : Files.readAllLines(buildFile)) {
+      String trimmed = line.trim();
+      if (isProductionDependencyDeclaration(trimmed)) {
+        int start = trimmed.indexOf("project('");
+        int dependencyStart = start + "project('".length();
+        int dependencyEnd = trimmed.indexOf("')", dependencyStart);
+        if (dependencyEnd > dependencyStart) {
+          dependencies.add(trimmed.substring(dependencyStart, dependencyEnd));
+        }
+      }
+    }
+    return dependencies;
+  }
+
+  private static boolean isProductionDependencyDeclaration(final String line) {
+    return line.startsWith("api project('")
+        || line.startsWith("implementation project('")
+        || line.startsWith("compileOnly project('")
+        || line.startsWith("runtimeOnly project('");
   }
 
   private static List<String> nativeMethodOffenders() throws IOException {
