@@ -40,6 +40,11 @@ The first profiling baseline is recorded in
 selects sparse-to-constraint setup allocation as the first optimization target.
 The baseline is not a performance claim.
 
+G9-012 keeps the same solver semantics while replacing full dense CSR row
+materialization with caller-owned row buffers. The change reduces setup
+allocation pressure before tableau construction; it does not change the
+remaining tableau copy or make a runtime performance claim.
+
 See the repository root `README.md`,
 `docs/architecture/module-boundaries.md`, and
 `docs/architecture/solver-adapter-contract.md`.

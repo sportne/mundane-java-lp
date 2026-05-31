@@ -1,5 +1,6 @@
 package io.github.mundanej.mlp.sparse;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 /** Compressed sparse row matrix backed by primitive arrays. */
@@ -103,6 +104,26 @@ public final class CsrMatrix {
         sum += values[offset] * x[columnIndices[offset]];
       }
       y[row] = sum;
+    }
+  }
+
+  /**
+   * Copies one sparse row into a caller-owned dense output buffer.
+   *
+   * @param row zero-based row index
+   * @param output dense output vector overwritten with the row coefficients
+   */
+  public void copyRowInto(final int row, final double[] output) {
+    Objects.requireNonNull(output, "output");
+    if (row < 0 || row >= rows) {
+      throw new IllegalArgumentException("row index out of range");
+    }
+    if (output.length != columns) {
+      throw new IllegalArgumentException("output length must match matrix columns");
+    }
+    Arrays.fill(output, 0.0d);
+    for (int offset = rowPointers[row]; offset < rowPointers[row + 1]; offset++) {
+      output[columnIndices[offset]] += values[offset];
     }
   }
 

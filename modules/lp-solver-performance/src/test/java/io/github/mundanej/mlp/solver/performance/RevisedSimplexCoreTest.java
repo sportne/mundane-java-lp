@@ -1,5 +1,6 @@
 package io.github.mundanej.mlp.solver.performance;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.github.mundanej.mlp.solver.performance.RevisedSimplexCore.LinearConstraint;
@@ -64,5 +65,17 @@ final class RevisedSimplexCoreTest {
     assertEquals(SimplexStatus.OPTIMAL, tableau.optimize(tableau.phaseOneObjective()));
 
     assertEquals(0.0d, tableau.objectiveValue());
+  }
+
+  @Test
+  void constraintsRemainStableWhenSourceBufferIsReused() {
+    double[] rowBuffer = {1.0d, 0.0d};
+    LinearConstraint first = LinearConstraint.le(rowBuffer, 2.0d);
+    rowBuffer[0] = 0.0d;
+    rowBuffer[1] = 1.0d;
+    LinearConstraint second = LinearConstraint.le(rowBuffer, 3.0d);
+
+    assertArrayEquals(new double[] {1.0d, 0.0d}, first.coefficients());
+    assertArrayEquals(new double[] {0.0d, 1.0d}, second.coefficients());
   }
 }

@@ -43,6 +43,27 @@ final class CsrMatrixTest {
   }
 
   @Test
+  void copiesRowsIntoCallerOwnedOutputAndClearsStaleValues() {
+    CsrMatrix matrix =
+        new CsrMatrix(
+            3,
+            4,
+            new double[] {1.0d, 2.0d, 3.0d, -1.0d},
+            new int[] {0, 2, 1, 2},
+            new int[] {0, 2, 3, 4});
+    double[] output = {99.0d, 99.0d, 99.0d, 99.0d};
+
+    matrix.copyRowInto(0, output);
+    assertArrayEquals(new double[] {1.0d, 0.0d, 2.0d, 0.0d}, output);
+
+    matrix.copyRowInto(1, output);
+    assertArrayEquals(new double[] {0.0d, 3.0d, 0.0d, 0.0d}, output);
+
+    matrix.copyRowInto(2, output);
+    assertArrayEquals(new double[] {0.0d, 0.0d, -1.0d, 0.0d}, output);
+  }
+
+  @Test
   void accessorsReturnDefensiveCopies() {
     double[] values = {1.0d};
     int[] indices = {0};
@@ -105,6 +126,14 @@ final class CsrMatrixTest {
     assertThrows(
         IllegalArgumentException.class,
         () -> matrix.multiplyInto(new double[] {1.0d}, new double[] {0.0d}));
+  }
+
+  @Test
+  void rejectsCopyRowIntoInvalidArguments() {
+    CsrMatrix matrix = new CsrMatrix(2, 1, new double[0], new int[0], new int[] {0, 0, 0});
+    assertThrows(IllegalArgumentException.class, () -> matrix.copyRowInto(-1, new double[] {0.0d}));
+    assertThrows(IllegalArgumentException.class, () -> matrix.copyRowInto(2, new double[] {0.0d}));
+    assertThrows(IllegalArgumentException.class, () -> matrix.copyRowInto(0, new double[0]));
   }
 
   @Test

@@ -121,7 +121,7 @@ correctness, and simplification passes. Work proceeds in gate order.
 - [G9-009 performance solver benchmark smoke](tasks/g9-009-performance-solver-benchmark-smoke.md) - **Complete**
 - [G9-010 performance measurement instrumentation](tasks/g9-010-performance-measurement-instrumentation.md) - **Complete**
 - [G9-011 performance solver profiling baseline](tasks/g9-011-performance-solver-profiling-baseline.md) - **Complete**
-- [G9-012 performance iteration 1 sparse hot path](tasks/g9-012-performance-iteration-1-sparse-hot-path.md) - **Proposed**
+- [G9-012 performance iteration 1 sparse hot path](tasks/g9-012-performance-iteration-1-sparse-hot-path.md) - **Complete**
 - [G9-013 iteration 1 correctness and simplification](tasks/g9-013-iteration-1-correctness-and-simplification.md) - **Proposed**
 - [G9-014 performance iteration 2 algorithmic bottleneck](tasks/g9-014-performance-iteration-2-algorithmic-bottleneck.md) - **Proposed**
 - [G9-015 numerical robustness stress suite](tasks/g9-015-numerical-robustness-stress-suite.md) - **Proposed**

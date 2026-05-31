@@ -92,9 +92,7 @@ final class RevisedSimplexCore {
         return "performance solver supports only zero lower bounds";
       }
       if (Double.isFinite(bounds.upper())) {
-        double[] coefficients = new double[columns];
-        coefficients[column] = 1.0d;
-        constraints.add(LinearConstraint.le(coefficients, bounds.upper()));
+        constraints.add(LinearConstraint.unitLe(columns, column, bounds.upper()));
       }
     }
     return null;
@@ -103,35 +101,28 @@ final class RevisedSimplexCore {
   private static String addRowConstraints(
       final SolverInput input, final List<LinearConstraint> constraints) {
     LpProblem problem = input.problem();
-    double[][] rows = denseRows(input.matrix());
+    CsrMatrix matrix = input.matrix();
+    double[] rowCoefficients = new double[matrix.columns()];
     for (int row = 0; row < problem.rowBounds().size(); row++) {
       LpRowBounds bounds = problem.rowBounds().get(row);
-      if (bounds.isEquality()) {
-        constraints.add(LinearConstraint.eq(rows[row], bounds.upper()));
-      } else if (!Double.isFinite(bounds.lower()) && Double.isFinite(bounds.upper())) {
-        constraints.add(LinearConstraint.le(rows[row], bounds.upper()));
-      } else if (Double.isFinite(bounds.lower()) && !Double.isFinite(bounds.upper())) {
-        constraints.add(LinearConstraint.ge(rows[row], bounds.lower()));
-      } else if (!Double.isFinite(bounds.lower()) && !Double.isFinite(bounds.upper())) {
+      if (!Double.isFinite(bounds.lower()) && !Double.isFinite(bounds.upper())) {
         continue;
-      } else {
+      }
+      if (!bounds.isEquality()
+          && Double.isFinite(bounds.lower())
+          && Double.isFinite(bounds.upper())) {
         return "performance solver does not support ranged rows";
+      }
+      matrix.copyRowInto(row, rowCoefficients);
+      if (bounds.isEquality()) {
+        constraints.add(LinearConstraint.eq(rowCoefficients, bounds.upper()));
+      } else if (!Double.isFinite(bounds.lower()) && Double.isFinite(bounds.upper())) {
+        constraints.add(LinearConstraint.le(rowCoefficients, bounds.upper()));
+      } else if (Double.isFinite(bounds.lower()) && !Double.isFinite(bounds.upper())) {
+        constraints.add(LinearConstraint.ge(rowCoefficients, bounds.lower()));
       }
     }
     return null;
-  }
-
-  private static double[][] denseRows(final CsrMatrix matrix) {
-    double[][] rows = new double[matrix.rows()][matrix.columns()];
-    double[] values = matrix.values();
-    int[] columnIndices = matrix.columnIndices();
-    int[] rowPointers = matrix.rowPointers();
-    for (int row = 0; row < matrix.rows(); row++) {
-      for (int offset = rowPointers[row]; offset < rowPointers[row + 1]; offset++) {
-        rows[row][columnIndices[offset]] += values[offset];
-      }
-    }
-    return rows;
   }
 
   private static SolveResult unconstrainedNonnegative(final LpProblem problem) {
@@ -181,6 +172,12 @@ final class RevisedSimplexCore {
   }
 
   record LinearConstraint(double[] coefficients, Relation relation, double rhs) {
+    static LinearConstraint unitLe(final int columns, final int column, final double rhs) {
+      double[] coefficients = new double[columns];
+      coefficients[column] = 1.0d;
+      return normalizeOwned(coefficients, Relation.LE, rhs);
+    }
+
     static LinearConstraint le(final double[] coefficients, final double rhs) {
       return normalize(coefficients, Relation.LE, rhs);
     }
@@ -196,11 +193,16 @@ final class RevisedSimplexCore {
     private static LinearConstraint normalize(
         final double[] coefficients, final Relation relation, final double rhs) {
       double[] copy = coefficients.clone();
+      return normalizeOwned(copy, relation, rhs);
+    }
+
+    private static LinearConstraint normalizeOwned(
+        final double[] coefficients, final Relation relation, final double rhs) {
       Relation normalizedRelation = relation;
       double normalizedRhs = rhs;
       if (normalizedRhs < 0.0d) {
-        for (int index = 0; index < copy.length; index++) {
-          copy[index] = -copy[index];
+        for (int index = 0; index < coefficients.length; index++) {
+          coefficients[index] = -coefficients[index];
         }
         normalizedRhs = -normalizedRhs;
         if (normalizedRelation == Relation.LE) {
@@ -209,7 +211,7 @@ final class RevisedSimplexCore {
           normalizedRelation = Relation.LE;
         }
       }
-      return new LinearConstraint(copy, normalizedRelation, normalizedRhs);
+      return new LinearConstraint(coefficients, normalizedRelation, normalizedRhs);
     }
   }
 

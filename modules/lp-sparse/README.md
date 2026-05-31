@@ -8,7 +8,8 @@ coefficients:
 - CSR: row-major primitive arrays for row activity kernels.
 - CSC: column-major primitive arrays for column-oriented algorithms.
 - Small dense-vector multiplication kernels for `y = A x`.
-- Low-allocation CSR `multiplyInto(x, y)` for caller-owned output buffers.
+- Low-allocation CSR `multiplyInto(x, y)` and `copyRowInto(row, output)` for
+  caller-owned output buffers.
 
 Constructors validate dimensions, pointer arrays, and index ranges. Array input
 is copied on construction, and public array accessors must return defensive

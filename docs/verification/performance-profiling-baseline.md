@@ -72,3 +72,34 @@ avoid repeated dense coefficient-vector allocation where the caller can reuse
 buffers or where CSR row slices can be copied once into the tableau. The goal is
 lower allocation pressure with unchanged solver results, not a public runtime
 claim.
+
+## Iteration 1 Result
+
+G9-012 added a low-allocation CSR `copyRowInto(row, output)` API and updated the
+performance solver to reuse a single dense row buffer while translating CSR rows
+into linear constraints. Variable upper-bound constraints now build owned unit
+vectors without the extra normalization clone.
+
+The change removes the full `rows x columns` dense matrix allocation from solver
+setup. Constraint objects still own defensive coefficient arrays, and tableau
+assembly still copies coefficients into tableau storage. Those remaining copies
+are intentional until a later iteration can prove a narrower tableau input
+contract.
+
+Focused validation after the change used:
+
+```bash
+./gradlew :modules:lp-sparse:test :modules:lp-solver-performance:test benchmarkSmoke --console=plain
+```
+
+One post-change sample report recorded:
+
+- performance solver status: `OPTIMAL`
+- objective: `6.0`
+- solve seconds: `0.036619611`
+- validation seconds: `0.012539286`
+- total seconds: `0.113334826`
+- parse/export: `not-measured`
+
+These numbers are a smoke-run snapshot only. The evidence supports the narrower
+allocation change and preserves the no-public-performance-claim policy.
