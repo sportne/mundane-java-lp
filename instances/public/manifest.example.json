@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "sourceSet": "netlib-0.1.0-candidates",
+  "instances": [
+    {
+      "id": "netlib-afiro",
+      "family": "Netlib LP",
+      "upstreamUrl": "https://www.netlib.org/lp/data/afiro",
+      "licenseOrTerms": "Netlib public benchmark collection; redistribution terms must be confirmed before vendoring",
+      "downloadDate": "not-downloaded",
+      "sha256": "pending-local-download",
+      "format": "MPS",
+      "localPath": "instances/public/netlib/afiro.mps",
+      "normalization": "Keep upstream content unchanged; record decompression only if local copy is compressed.",
+      "status": "candidate"
+    },
+    {
+      "id": "netlib-adlittle",
+      "family": "Netlib LP",
+      "upstreamUrl": "https://www.netlib.org/lp/data/adlittle",
+      "licenseOrTerms": "Netlib public benchmark collection; redistribution terms must be confirmed before vendoring",
+      "downloadDate": "not-downloaded",
+      "sha256": "pending-local-download",
+      "format": "MPS",
+      "localPath": "instances/public/netlib/adlittle.mps",
+      "normalization": "Keep upstream content unchanged; record decompression only if local copy is compressed.",
+      "status": "candidate"
+    },
+    {
+      "id": "netlib-scorpion",
+      "family": "Netlib LP",
+      "upstreamUrl": "https://www.netlib.org/lp/data/scorpion",
+      "licenseOrTerms": "Netlib public benchmark collection; redistribution terms must be confirmed before vendoring",
+      "downloadDate": "not-downloaded",
+      "sha256": "pending-local-download",
+      "format": "MPS",
+      "localPath": "instances/public/netlib/scorpion.mps",
+      "normalization": "Keep upstream content unchanged; record decompression only if local copy is compressed.",
+      "status": "candidate"
+    }
+  ]
+}

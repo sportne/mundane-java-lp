@@ -27,6 +27,19 @@ canonical model metadata, sparse coefficients, names needed by file formats, and
 expected validation evidence. Solver lists are explicit and ordered; the harness
 does not discover solvers automatically.
 
+## Public Benchmark Curation
+
+Public benchmark suites use metadata manifests instead of vendored instance
+files. The 0.1.0 curated candidate set is documented in
+`docs/verification/public-benchmark-sources.md` and represented by
+`instances/public/manifest.example.json`.
+
+Before a public instance can support performance evidence, its manifest entry
+must record upstream URL, redistribution terms, download date, SHA-256 checksum,
+format, local path, normalization notes, and curation status. Missing local files
+are reported by benchmark smoke tooling as unavailable or missing input, not as
+solver failures.
+
 ## Required Run Outcomes
 
 Every solver-instance pair yields a run record:
