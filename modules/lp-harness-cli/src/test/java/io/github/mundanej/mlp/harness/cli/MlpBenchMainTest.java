@@ -9,4 +9,9 @@ final class MlpBenchMainTest {
     void helpDoesNotThrow() {
         assertDoesNotThrow(() -> MlpBenchMain.main(new String[] {"--help"}));
     }
+
+    @Test
+    void defaultTinySuiteDoesNotThrow() {
+        assertDoesNotThrow(() -> MlpBenchMain.main(new String[0]));
+    }
 }

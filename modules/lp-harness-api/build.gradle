@@ -5,6 +5,7 @@ plugins {
 
 dependencies {
     api project(':modules:lp-model')
+    api project(':modules:lp-sparse')
     api project(':modules:lp-solver-spi')
     api project(':modules:lp-validation')
 }
