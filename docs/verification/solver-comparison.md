@@ -19,7 +19,15 @@ library adapter behavior for OR-Tools and ojAlgo.
 - Record all failures.
 - Validate solver outputs independently.
 - Record versions and machine metadata.
+- Record timeout/thread options and timing buckets with `not-measured` where a
+  bucket is not implemented yet.
+- Keep validation failures in the report instead of filtering them from
+  comparison summaries.
 - Do not hide unfavorable results.
+
+Solver comparison smoke is correctness-oriented evidence. It may show that
+adapters can run the same tiny instance and produce validated results, but it is
+not enough for solver performance claims.
 
 ## CLI Adapter Baseline
 

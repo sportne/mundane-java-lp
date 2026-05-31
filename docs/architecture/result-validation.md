@@ -73,6 +73,19 @@ Validation checks only dimensions for which it has enough evidence:
 Unavailable dimensions are omitted from findings. Rejected findings are emitted
 only for dimensions that were actually checked.
 
+## Benchmark Evidence Policy
+
+Benchmark reports must include validation output before any timing data is used
+for comparison. A solver run is eligible for performance evidence only when its
+validation report is accepted for the dimensions available to the instance. If
+expected objective, primal evidence, or terminal status evidence is absent, the
+report must state the missing dimension; missing validation evidence cannot be
+treated as acceptance.
+
+Adapter errors, unavailable solvers, unsupported features, missing public input,
+and validation failures are benchmark evidence and must remain visible in
+Markdown, JSON, and CSV outputs. They are not successful timings.
+
 ## Tolerance Profiles
 
 Initial named profiles:

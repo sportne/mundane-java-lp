@@ -40,6 +40,35 @@ format, local path, normalization notes, and curation status. Missing local file
 are reported by benchmark smoke tooling as unavailable or missing input, not as
 solver failures.
 
+## Evidence Baseline
+
+No benchmark output may be described as a performance claim unless every
+solver-instance record includes the evidence below, or records a deterministic
+reason that the evidence is unavailable:
+
+- instance provenance: generated family metadata or public benchmark manifest
+  entry with source URL, checksum, and local path;
+- canonical model shape: rows, columns, nonzeros, objective sense, and bound
+  categories;
+- solver identity: solver ID, adapter mode, solver version when available, and
+  unavailable-binary or unavailable-runtime diagnostics when absent;
+- solver options: timeout, threads, and adapter-specific options used for the
+  run;
+- validation result: accepted/rejected status, finding codes, tolerance profile,
+  expected status, expected objective when known, reported objective, and primal
+  evidence availability;
+- timing buckets: parse/load, canonicalization or export, solve, validation, and
+  total wall time, using `not-measured` where a bucket is not implemented yet;
+- machine metadata: operating system, architecture, Java version, and available
+  processor count;
+- failure records: adapter errors, validation failures, missing input,
+  unsupported features, and unavailable solvers must remain in reports.
+
+Generated fixtures may support correctness and smoke evidence as soon as they
+carry deterministic expected evidence. Public benchmark entries require checksum
+and local download provenance before they can support any comparative runtime
+statement.
+
 ## Required Run Outcomes
 
 Every solver-instance pair yields a run record:
