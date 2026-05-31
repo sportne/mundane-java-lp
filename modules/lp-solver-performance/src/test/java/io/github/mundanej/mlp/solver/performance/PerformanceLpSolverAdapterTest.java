@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import io.github.mundanej.mlp.model.LpObjective;
 import io.github.mundanej.mlp.model.LpProblem;
 import io.github.mundanej.mlp.model.LpProblemStats;
+import io.github.mundanej.mlp.model.LpRowBounds;
 import io.github.mundanej.mlp.model.LpVariableBounds;
 import io.github.mundanej.mlp.model.ObjectiveSense;
 import io.github.mundanej.mlp.solver.spi.SolverInput;
@@ -40,19 +41,95 @@ final class PerformanceLpSolverAdapterTest {
     assertEquals(SolverStatus.OPTIMAL, result.status());
     assertEquals(3.0d, result.objectiveValue().orElseThrow());
     assertEquals(0, result.primalValues().length);
-    assertTrue(result.message().contains("empty LP"));
+    assertTrue(result.message().contains("optimal"));
   }
 
   @Test
-  void reportsUnsupportedUntilCoreLands() {
+  void solvesOneVariableBoundedMinimization() {
     PerformanceLpSolverAdapter adapter = new PerformanceLpSolverAdapter();
 
     SolverRunResult result = adapter.solve(oneVariableInput(), SolverOptions.defaults(), work());
 
+    assertEquals(SolverStatus.OPTIMAL, result.status());
+    assertEquals(0.0d, result.objectiveValue().orElseThrow());
+    assertEquals(0.0d, result.primalValues()[0]);
+  }
+
+  @Test
+  void solvesTwoVariableMaximizationSmokePath() {
+    PerformanceLpSolverAdapter adapter = new PerformanceLpSolverAdapter();
+
+    SolverRunResult result =
+        adapter.solve(twoVariableMaximizationInput(), SolverOptions.defaults(), work());
+
+    assertEquals(SolverStatus.OPTIMAL, result.status());
+    assertEquals(10.0d, result.objectiveValue().orElseThrow());
+    assertEquals(2.0d, result.primalValues()[0]);
+    assertEquals(2.0d, result.primalValues()[1]);
+  }
+
+  @Test
+  void reportsInfeasibleForContradictoryRows() {
+    PerformanceLpSolverAdapter adapter = new PerformanceLpSolverAdapter();
+
+    SolverRunResult result = adapter.solve(infeasibleInput(), SolverOptions.defaults(), work());
+
+    assertEquals(SolverStatus.INFEASIBLE, result.status());
+    assertTrue(result.objectiveValue().isEmpty());
+  }
+
+  @Test
+  void reportsUnboundedForImprovingRay() {
+    PerformanceLpSolverAdapter adapter = new PerformanceLpSolverAdapter();
+
+    SolverRunResult result = adapter.solve(unboundedInput(), SolverOptions.defaults(), work());
+
+    assertEquals(SolverStatus.UNBOUNDED, result.status());
+    assertTrue(result.objectiveValue().isEmpty());
+  }
+
+  @Test
+  void reportsUnsupportedForFreeVariables() {
+    PerformanceLpSolverAdapter adapter = new PerformanceLpSolverAdapter();
+
+    SolverRunResult result = adapter.solve(freeVariableInput(), SolverOptions.defaults(), work());
+
     assertEquals(SolverStatus.UNSUPPORTED, result.status());
     assertTrue(result.objectiveValue().isEmpty());
     assertEquals(0, result.primalValues().length);
-    assertTrue(result.message().contains("not implemented"));
+    assertTrue(result.message().contains("zero lower bounds"));
+  }
+
+  @Test
+  void reportsInfeasibleForZeroColumnRowViolation() {
+    PerformanceLpSolverAdapter adapter = new PerformanceLpSolverAdapter();
+
+    SolverRunResult result =
+        adapter.solve(infeasibleZeroColumnInput(), SolverOptions.defaults(), work());
+
+    assertEquals(SolverStatus.INFEASIBLE, result.status());
+    assertTrue(result.objectiveValue().isEmpty());
+  }
+
+  @Test
+  void reportsUnsupportedForNonFiniteObjectiveData() {
+    PerformanceLpSolverAdapter adapter = new PerformanceLpSolverAdapter();
+
+    SolverRunResult result =
+        adapter.solve(nonFiniteObjectiveInput(), SolverOptions.defaults(), work());
+
+    assertEquals(SolverStatus.UNSUPPORTED, result.status());
+    assertTrue(result.message().contains("objective coefficients"));
+  }
+
+  @Test
+  void reportsUnsupportedForNanBounds() {
+    PerformanceLpSolverAdapter adapter = new PerformanceLpSolverAdapter();
+
+    SolverRunResult result = adapter.solve(nanBoundInput(), SolverOptions.defaults(), work());
+
+    assertEquals(SolverStatus.UNSUPPORTED, result.status());
+    assertTrue(result.message().contains("row bounds"));
   }
 
   @Test
@@ -93,5 +170,98 @@ final class PerformanceLpSolverAdapterTest {
             new LpProblemStats(0, 1, 0));
     return SolverInput.withGeneratedNames(
         problem, new CsrMatrix(0, 1, new double[0], new int[0], new int[] {0}));
+  }
+
+  private static SolverInput infeasibleZeroColumnInput() {
+    LpProblem problem =
+        new LpProblem(
+            "empty-infeasible",
+            new LpObjective(ObjectiveSense.MINIMIZE, 0.0d, new double[0]),
+            List.of(),
+            List.of(new LpRowBounds(1.0d, Double.POSITIVE_INFINITY)),
+            new LpProblemStats(1, 0, 0));
+    return SolverInput.withGeneratedNames(
+        problem, new CsrMatrix(1, 0, new double[0], new int[0], new int[] {0, 0}));
+  }
+
+  private static SolverInput twoVariableMaximizationInput() {
+    LpProblem problem =
+        new LpProblem(
+            "two-variable-max",
+            new LpObjective(ObjectiveSense.MAXIMIZE, 0.0d, new double[] {3.0d, 2.0d}),
+            List.of(
+                new LpVariableBounds(0.0d, Double.POSITIVE_INFINITY),
+                new LpVariableBounds(0.0d, Double.POSITIVE_INFINITY)),
+            List.of(
+                new LpRowBounds(Double.NEGATIVE_INFINITY, 4.0d),
+                new LpRowBounds(Double.NEGATIVE_INFINITY, 2.0d)),
+            new LpProblemStats(2, 2, 3));
+    return SolverInput.withGeneratedNames(
+        problem,
+        new CsrMatrix(
+            2, 2, new double[] {1.0d, 1.0d, 1.0d}, new int[] {0, 1, 0}, new int[] {0, 2, 3}));
+  }
+
+  private static SolverInput infeasibleInput() {
+    LpProblem problem =
+        new LpProblem(
+            "infeasible",
+            new LpObjective(ObjectiveSense.MINIMIZE, 0.0d, new double[] {1.0d}),
+            List.of(new LpVariableBounds(0.0d, Double.POSITIVE_INFINITY)),
+            List.of(
+                new LpRowBounds(2.0d, Double.POSITIVE_INFINITY),
+                new LpRowBounds(Double.NEGATIVE_INFINITY, 1.0d)),
+            new LpProblemStats(2, 1, 2));
+    return SolverInput.withGeneratedNames(
+        problem,
+        new CsrMatrix(2, 1, new double[] {1.0d, 1.0d}, new int[] {0, 0}, new int[] {0, 1, 2}));
+  }
+
+  private static SolverInput unboundedInput() {
+    LpProblem problem =
+        new LpProblem(
+            "unbounded",
+            new LpObjective(ObjectiveSense.MAXIMIZE, 0.0d, new double[] {1.0d}),
+            List.of(new LpVariableBounds(0.0d, Double.POSITIVE_INFINITY)),
+            List.of(),
+            new LpProblemStats(0, 1, 0));
+    return SolverInput.withGeneratedNames(
+        problem, new CsrMatrix(0, 1, new double[0], new int[0], new int[] {0}));
+  }
+
+  private static SolverInput freeVariableInput() {
+    LpProblem problem =
+        new LpProblem(
+            "free-variable",
+            new LpObjective(ObjectiveSense.MINIMIZE, 0.0d, new double[] {1.0d}),
+            List.of(LpVariableBounds.FREE),
+            List.of(),
+            new LpProblemStats(0, 1, 0));
+    return SolverInput.withGeneratedNames(
+        problem, new CsrMatrix(0, 1, new double[0], new int[0], new int[] {0}));
+  }
+
+  private static SolverInput nonFiniteObjectiveInput() {
+    LpProblem problem =
+        new LpProblem(
+            "non-finite-objective",
+            new LpObjective(ObjectiveSense.MINIMIZE, 0.0d, new double[] {Double.NaN}),
+            List.of(new LpVariableBounds(0.0d, 1.0d)),
+            List.of(),
+            new LpProblemStats(0, 1, 0));
+    return SolverInput.withGeneratedNames(
+        problem, new CsrMatrix(0, 1, new double[0], new int[0], new int[] {0}));
+  }
+
+  private static SolverInput nanBoundInput() {
+    LpProblem problem =
+        new LpProblem(
+            "nan-row-bound",
+            new LpObjective(ObjectiveSense.MINIMIZE, 0.0d, new double[] {1.0d}),
+            List.of(new LpVariableBounds(0.0d, 1.0d)),
+            List.of(new LpRowBounds(Double.NaN, 1.0d)),
+            new LpProblemStats(1, 1, 1));
+    return SolverInput.withGeneratedNames(
+        problem, new CsrMatrix(1, 1, new double[] {1.0d}, new int[] {0}, new int[] {0, 1}));
   }
 }

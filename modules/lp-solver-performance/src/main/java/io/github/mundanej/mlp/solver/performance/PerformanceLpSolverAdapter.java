@@ -13,6 +13,7 @@ import java.util.OptionalDouble;
 /** Minimal in-project performance solver adapter. */
 public final class PerformanceLpSolverAdapter implements LpSolverAdapter {
   private static final SolverId ID = new SolverId("performance", "java");
+  private final RevisedSimplexCore core = new RevisedSimplexCore();
 
   /** {@inheritDoc} */
   @Override
@@ -36,20 +37,13 @@ public final class PerformanceLpSolverAdapter implements LpSolverAdapter {
     Objects.requireNonNull(options, "options");
     Objects.requireNonNull(workDirectory, "workDirectory");
     long startNanos = System.nanoTime();
-    if (input.problem().stats().rows() == 0 && input.problem().stats().columns() == 0) {
-      return result(
-          SolverStatus.OPTIMAL,
-          OptionalDouble.of(input.problem().objective().constant()),
-          new double[0],
-          startNanos,
-          "empty LP performance smoke optimal");
-    }
+    RevisedSimplexCore.SolveResult outcome = core.solve(input);
     return result(
-        SolverStatus.UNSUPPORTED,
-        OptionalDouble.empty(),
-        new double[0],
+        outcome.status(),
+        outcome.objectiveValue(),
+        outcome.primalValues(),
         startNanos,
-        "performance solver core is not implemented for this shape");
+        outcome.message());
   }
 
   private static SolverRunResult result(
