@@ -8,8 +8,8 @@ Initial comparison targets:
 - OR-Tools Java.
 - ojAlgo.
 
-Current G0 adapter modules return normalized unsupported results. G5 owns real
-CLI adapter behavior, and G6 owns real Java library adapter behavior.
+G5 owns real CLI adapter behavior for HiGHS, CLP, and GLPK. G6 owns real Java
+library adapter behavior.
 
 ## Fairness rules
 
@@ -20,3 +20,13 @@ CLI adapter behavior, and G6 owns real Java library adapter behavior.
 - Validate solver outputs independently.
 - Record versions and machine metadata.
 - Do not hide unfavorable results.
+
+## CLI Adapter Baseline
+
+The CLI comparison suite uses the same solver input envelope for every CLI
+adapter. Each adapter exports the model to its own work directory, captures a
+bounded diagnostic, normalizes status, and reports unavailable binaries as
+records instead of skipped runs.
+
+The comparison smoke passes when all optional external binaries are unavailable,
+provided each unavailable solver is reported explicitly.

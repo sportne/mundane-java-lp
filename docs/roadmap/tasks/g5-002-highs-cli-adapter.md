@@ -22,11 +22,13 @@ proposed
 
 - `modules/lp-adapter-highs-cli/`
 - `modules/lp-solver-spi/`
+- Compile-only updates to SPI consumers required by the 0.1.0 solver input
+  envelope migration.
 - Adapter docs and README.
 
 ## Forbidden files
 
-- Other adapter modules.
+- Other adapter modules except compile-only SPI migration updates.
 - In-project solver modules.
 - Core model behavior unless required by the adapter contract.
 
