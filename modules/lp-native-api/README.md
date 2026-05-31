@@ -2,4 +2,5 @@
 
 Native API boundary module for GraalVM shared-library targets.
 
-See the repository root `README.md` and `docs/architecture/module-boundaries.md`.
+The current 0.1.0 surface is a smoke-status API used by native verification.
+The C ABI remains deferred until a dedicated shared-library task defines it.

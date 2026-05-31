@@ -6,9 +6,14 @@ plugins {
 dependencies {
     implementation project(':modules:lp-generators')
     implementation project(':modules:lp-harness-api')
+    implementation project(':modules:lp-native-api')
     implementation project(':modules:lp-validation')
 }
 
 application {
     mainClass = 'io.github.mundanej.mlp.examples.nativecli.NativeCliSmokeMain'
+}
+
+mlpNativeSmoke {
+    executableSmoke = true
 }

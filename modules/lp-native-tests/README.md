@@ -2,4 +2,5 @@
 
 Native smoke test module for GraalVM executable and library checks.
 
-See the repository root `README.md` and `docs/architecture/module-boundaries.md`.
+The module keeps JVM-level checks for the native API surface. Executable
+native-image smoke coverage is owned by `examples/native-cli-smoke:nativeSmoke`.

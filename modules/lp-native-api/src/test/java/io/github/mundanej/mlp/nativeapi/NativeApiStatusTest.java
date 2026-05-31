@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 final class NativeApiStatusTest {
     @Test
-    void statusMentionsPlaceholder() {
-        assertTrue(NativeApiStatus.status().contains("placeholder"));
+    void statusMentionsNativeSmokeReadiness() {
+        assertTrue(NativeApiStatus.status().contains("native API smoke ready"));
     }
 }

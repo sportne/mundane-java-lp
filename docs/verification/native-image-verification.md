@@ -1,13 +1,22 @@
-# Native Image verification
+# Native Image Verification
 
-G0 native verification is a scaffold lane that checks whether `native-image` is
-present and records the native checks that G8 must make meaningful.
+The native lane is explicit because GraalVM `native-image` is optional on local
+machines and CI workers.
 
-G8 native verification should cover:
+Run:
 
-- CLI native executable starts.
-- CLI native executable validates a tiny MPS.
-- CLI native executable runs a generated tiny instance.
-- Shared library loads from C smoke test.
-- Shared library handles create/free cycles safely.
-- Native runs produce the same normalized result shape as JVM runs.
+```bash
+./gradlew nativeSmoke --console=plain
+```
+
+If `native-image` is absent, the lane reports a clean skip. If it is present,
+the lane builds and runs the native CLI smoke executable. The smoke validates a
+deterministic generated LP through the same validation engine used by JVM
+checks.
+
+Still deferred:
+
+- tiny MPS validation from the native executable;
+- shared-library load checks from C;
+- shared-library create/free cycles;
+- normalized native solver result parity with JVM solver runs.

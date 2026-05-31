@@ -2,11 +2,14 @@
 
 Native Image support is a project constraint, not a late packaging step.
 
-## G0 posture
+## 0.1.0 posture
 
-G0 includes only native smoke placeholders. Real native executable and shared
-library builds are introduced after the harness CLI and model validation are
-stable.
+The native lane is meaningful for command-line startup and validation smoke. The
+`nativeSmoke` Gradle task checks for GraalVM `native-image`; when the tool is
+absent it skips cleanly, and when present it builds and runs the
+`examples/native-cli-smoke` executable against a deterministic generated LP.
+
+Native shared-library and C ABI checks remain future work.
 
 ## Native-targeted constraints
 
@@ -25,7 +28,7 @@ Native-targeted code should avoid:
 ## Planned targets
 
 - JVM jars.
-- Native command-line executable.
+- Native command-line executable smoke.
 - Native shared library with a small C ABI.
 
 The C ABI should expose opaque handles and primitive arrays, not Java object

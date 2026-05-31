@@ -1,13 +1,76 @@
+import org.gradle.api.provider.Property
+import org.gradle.process.ExecOperations
+
+abstract class MlpNativeSmokeExtension {
+    abstract Property<Boolean> getExecutableSmoke()
+}
+
+def executableName = { String projectName ->
+    if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
+        return "${projectName}.exe"
+    }
+    projectName
+}
+
+def findNativeImageExecutable = {
+    def executableNames = org.gradle.internal.os.OperatingSystem.current().isWindows()
+            ? ['native-image.cmd', 'native-image.exe', 'native-image']
+            : ['native-image']
+    def candidates = []
+    def graalHome = System.getenv('GRAALVM_HOME')
+    if (graalHome != null && !graalHome.isBlank()) {
+        executableNames.each { candidates.add(new File(new File(graalHome, 'bin'), it)) }
+    }
+    def path = System.getenv('PATH')
+    if (path != null && !path.isBlank()) {
+        path.split(File.pathSeparator).each { entry ->
+            executableNames.each { candidates.add(new File(entry, it)) }
+        }
+    }
+    candidates.find { it.isFile() && it.canExecute() }?.absolutePath
+}
+
+def execOperations = services.get(ExecOperations)
+def projectPathValue = project.path
+def hasApplicationPlugin = plugins.hasPlugin('application')
+def mainClassProvider = hasApplicationPlugin
+        ? extensions.getByType(org.gradle.api.plugins.JavaApplication).mainClass
+        : null
+def runtimeClasspath = hasApplicationPlugin ? sourceSets.main.runtimeClasspath : files()
+def nativeOutputDirectory = layout.buildDirectory.dir('native/nativeSmoke')
+def nativeExecutableName = executableName(project.name)
+def nativeSmokeExtension = extensions.create('mlpNativeSmoke', MlpNativeSmokeExtension)
+nativeSmokeExtension.executableSmoke.convention(false)
+def executableSmokeProvider = nativeSmokeExtension.executableSmoke
+
 tasks.register('nativeSmoke') {
     group = 'verification'
-    description = 'Runs a Native Image smoke placeholder. Real native-image builds are added after G0.'
+    description = 'Runs a native-image smoke when GraalVM native-image is available.'
+    dependsOn tasks.matching { it.name == 'classes' }
     doLast {
-        def nativeImage = ['native-image', '--version'].execute()
-        nativeImage.waitForOrKill(5000)
-        if (nativeImage.exitValue() == 0) {
-            println nativeImage.in.text.trim()
-        } else {
-            println 'native-image was not available; G0 native smoke is a placeholder.'
+        def nativeImage = findNativeImageExecutable()
+        if (nativeImage == null) {
+            println "${projectPathValue}: native-image unavailable; skipping native executable smoke."
+            return
+        }
+        if (!hasApplicationPlugin || !executableSmokeProvider.get()) {
+            println "${projectPathValue}: native-image available; no application smoke target."
+            return
+        }
+        def mainClassName = mainClassProvider.get()
+        def nativeOutputDir = nativeOutputDirectory.get().asFile
+        nativeOutputDir.mkdirs()
+        def executable = new File(nativeOutputDir, nativeExecutableName)
+        execOperations.exec {
+            commandLine nativeImage,
+                    '--no-fallback',
+                    '-cp',
+                    runtimeClasspath.asPath,
+                    mainClassName,
+                    executable.absolutePath
+        }
+        execOperations.exec {
+            commandLine executable.absolutePath
         }
     }
 }
