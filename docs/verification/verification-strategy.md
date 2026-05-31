@@ -26,8 +26,10 @@ Native checks are explicit because they require GraalVM/native-image.
 ./gradlew solverComparisonSmoke --console=plain
 ```
 
-This lane must skip or mark unavailable solvers cleanly when external binaries
-are absent.
+This lane compares the tiny Tier 1 smoke instance through HiGHS, CLP, and GLPK
+CLI adapters. Missing external binaries are reported as unavailable solver
+outcomes. The lane still passes when all three solvers are unavailable, but it
+fails when an available solver returns an adapter error or fails validation.
 
 ## Benchmark lane
 
@@ -35,7 +37,7 @@ are absent.
 ./gradlew benchmarkSmoke --console=plain
 ```
 
-G0 benchmark smoke is advisory only. It does not support competitive claims.
+Benchmark smoke is advisory only. It does not support competitive claims.
 
 ## Manual future lanes
 

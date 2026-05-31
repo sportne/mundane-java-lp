@@ -87,8 +87,10 @@ The CLI stays small and explicit:
 
 - `--help` prints command usage;
 - the default smoke path runs a tiny built-in suite with explicit test/dummy
-  adapters until real adapter wiring exists;
-- later solver comparison commands list adapters explicitly.
+  adapters so local harness CLI wiring is testable without external solver
+  binaries;
+- solver comparison smoke lives in the `examples/solver-comparison-smoke`
+  application and lists HiGHS, CLP, and GLPK explicitly.
 
 The CLI must not discover adapters from the classpath or environment implicitly.
 
@@ -98,8 +100,8 @@ Default local lanes are:
 
 - local quality lane: `validateDesignControlPack qualityGate`;
 - solver comparison lane: `solverComparisonSmoke`;
-- benchmark lane: future generated/public benchmark smoke tasks;
-- native lane: future native-image smoke tasks.
+- benchmark lane: `benchmarkSmoke`;
+- native lane: `nativeSmoke`.
 
 Solver comparison, benchmark, and native lanes may report unavailable optional
 tools, but the local quality lane must stay deterministic without external

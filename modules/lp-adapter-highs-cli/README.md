@@ -7,9 +7,11 @@ inputs as MPS in the supplied work directory, applies timeout/thread options whe
 supported by the CLI, captures bounded logs, normalizes status, and reports a
 deterministic unavailable result when the binary is absent.
 
-The initial implementation parses HiGHS stdout/stderr for normalized status and
-objective evidence. If HiGHS reports an optimal status without a parseable
-objective, the adapter returns `ERROR` so validation does not accept incomplete
-evidence.
+The 0.1.0 command form is `highs --model_file=<model.mps>
+--solution_file=<solution.sol> --write_solution_to_file=true
+--time_limit=<seconds> --threads=<n>`. Output parsing is intentionally narrow:
+status and objective evidence are read from HiGHS text output, malformed numeric
+evidence is reported as an adapter error, and unsupported MPS inputs are
+reported without starting the external process.
 
 See the repository root `README.md` and `docs/architecture/module-boundaries.md`.
