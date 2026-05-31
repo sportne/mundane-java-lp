@@ -1,5 +1,4 @@
 import org.gradle.api.provider.Property
-import org.gradle.process.ExecOperations
 
 abstract class MlpNativeSmokeExtension {
     abstract Property<Boolean> getExecutableSmoke()
@@ -12,65 +11,94 @@ def executableName = { String projectName ->
     projectName
 }
 
-def findNativeImageExecutable = {
-    def executableNames = org.gradle.internal.os.OperatingSystem.current().isWindows()
-            ? ['native-image.cmd', 'native-image.exe', 'native-image']
-            : ['native-image']
-    def candidates = []
-    def graalHome = System.getenv('GRAALVM_HOME')
-    if (graalHome != null && !graalHome.isBlank()) {
-        executableNames.each { candidates.add(new File(new File(graalHome, 'bin'), it)) }
+def executableNames = org.gradle.internal.os.OperatingSystem.current().isWindows()
+        ? ['native-image.cmd', 'native-image.exe', 'native-image']
+        : ['native-image']
+
+def nativeImageAvailable = {
+    def homes = [System.getenv('GRAALVM_HOME'), System.getenv('JAVA_HOME'), System.getProperty('java.home')]
+            .findAll { it != null && !it.isBlank() }
+            .any { home ->
+                executableNames.any {
+                    def candidate = new File(new File(home, 'bin'), it)
+                    candidate.isFile() && candidate.canExecute()
+                }
+            }
+    if (homes) {
+        return true
     }
     def path = System.getenv('PATH')
-    if (path != null && !path.isBlank()) {
-        path.split(File.pathSeparator).each { entry ->
-            executableNames.each { candidates.add(new File(entry, it)) }
+    if (path == null || path.isBlank()) {
+        return false
+    }
+    path.split(File.pathSeparator).any { entry ->
+        executableNames.any {
+            def candidate = new File(entry, it)
+            candidate.isFile() && candidate.canExecute()
         }
     }
-    candidates.find { it.isFile() && it.canExecute() }?.absolutePath
 }
 
-def execOperations = services.get(ExecOperations)
 def projectPathValue = project.path
-def hasApplicationPlugin = plugins.hasPlugin('application')
-def mainClassProvider = hasApplicationPlugin
-        ? extensions.getByType(org.gradle.api.plugins.JavaApplication).mainClass
-        : null
-def runtimeClasspath = hasApplicationPlugin ? sourceSets.main.runtimeClasspath : files()
-def nativeOutputDirectory = layout.buildDirectory.dir('native/nativeSmoke')
-def nativeExecutableName = executableName(project.name)
 def nativeSmokeExtension = extensions.create('mlpNativeSmoke', MlpNativeSmokeExtension)
 nativeSmokeExtension.executableSmoke.convention(false)
 def executableSmokeProvider = nativeSmokeExtension.executableSmoke
+def hasApplicationProject = false
+def nativeSmokeRequested = gradle.startParameter.taskNames.any {
+    it == 'nativeSmoke' || it.endsWith(':nativeSmoke')
+}
 
 tasks.register('nativeSmoke') {
     group = 'verification'
-    description = 'Runs a native-image smoke when GraalVM native-image is available.'
+    description = 'Runs the GraalVM Native Build Tools smoke when native-image is available.'
     dependsOn tasks.matching { it.name == 'classes' }
     doLast {
-        def nativeImage = findNativeImageExecutable()
-        if (nativeImage == null) {
+        if (!nativeImageAvailable()) {
             println "${projectPathValue}: native-image unavailable; skipping native executable smoke."
             return
         }
-        if (!hasApplicationPlugin || !executableSmokeProvider.get()) {
+        if (!hasApplicationProject || !executableSmokeProvider.get()) {
             println "${projectPathValue}: native-image available; no application smoke target."
-            return
         }
-        def mainClassName = mainClassProvider.get()
-        def nativeOutputDir = nativeOutputDirectory.get().asFile
-        nativeOutputDir.mkdirs()
-        def executable = new File(nativeOutputDir, nativeExecutableName)
-        execOperations.exec {
-            commandLine nativeImage,
-                    '--no-fallback',
-                    '-cp',
-                    runtimeClasspath.asPath,
-                    mainClassName,
-                    executable.absolutePath
+    }
+}
+
+afterEvaluate {
+    def applicationExtension = extensions.findByName('application')
+    if (applicationExtension == null) {
+        return
+    }
+    hasApplicationProject = true
+    pluginManager.apply('org.graalvm.buildtools.native')
+
+    graalvmNative {
+        metadataRepository {
+            enabled.set(false)
         }
-        execOperations.exec {
-            commandLine executable.absolutePath
+        binaries {
+            named('main') {
+                imageName.set(executableName(project.name))
+                mainClass.set(applicationExtension.mainClass)
+                fallback.set(false)
+            }
+        }
+    }
+
+    tasks.named('nativeCompile') {
+        notCompatibleWithConfigurationCache('GraalVM Native Build Tools 1.1.1 metadata service is not serializable on Gradle 9.5.1.')
+        onlyIf {
+            !nativeSmokeRequested || (nativeImageAvailable() && executableSmokeProvider.get())
+        }
+    }
+    tasks.named('nativeRun') {
+        notCompatibleWithConfigurationCache('GraalVM Native Build Tools 1.1.1 metadata service is not serializable on Gradle 9.5.1.')
+        onlyIf {
+            !nativeSmokeRequested || (nativeImageAvailable() && executableSmokeProvider.get())
+        }
+    }
+    if (executableSmokeProvider.get()) {
+        tasks.named('nativeSmoke') {
+            dependsOn tasks.named('nativeRun')
         }
     }
 }

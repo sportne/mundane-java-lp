@@ -29,36 +29,36 @@ final class NativeConventionsPluginTest {
 
     @Test
     void nativeSmokeSkipsApplicationWithoutExecutableOptIn() throws IOException {
-        Path bin = projectDir.resolve("bin");
-        writeFakeNativeImage(bin);
+        Path graalHome = projectDir.resolve("fake-graalvm");
+        writeFakeGraalVm(graalHome);
         writeApplicationProject(false);
 
-        BuildResult result = runner()
-                .withEnvironment(environmentWithPath(bin, true))
-                .build();
+        BuildResult result = runner().withEnvironment(environmentWithGraalHome(graalHome)).build();
 
         assertTrue(result.getOutput().contains("native-image available; no application smoke target."));
     }
 
     @Test
     void nativeSmokeBuildsAndRunsExecutableWhenOptedIn() throws IOException {
-        Path bin = projectDir.resolve("bin");
-        writeFakeNativeImage(bin);
+        Path graalHome = projectDir.resolve("fake-graalvm");
+        writeFakeGraalVm(graalHome);
         writeApplicationProject(true);
 
-        BuildResult result = runner()
-                .withEnvironment(environmentWithPath(bin, true))
-                .build();
+        BuildResult result = runner().withEnvironment(environmentWithGraalHome(graalHome)).build();
 
         assertTrue(result.getOutput().contains("fake native executable ran"));
-        assertTrue(Files.exists(projectDir.resolve("build/native/nativeSmoke/native-test")));
+        assertTrue(Files.exists(projectDir.resolve("build/native/nativeCompile/native-test")));
     }
 
     private GradleRunner runner() {
+        return runner("nativeSmoke", "--console=plain", "--configuration-cache");
+    }
+
+    private GradleRunner runner(final String... arguments) {
         return GradleRunner.create()
                 .withProjectDir(projectDir.toFile())
                 .withPluginClasspath()
-                .withArguments("nativeSmoke", "--console=plain", "--configuration-cache");
+                .withArguments(arguments);
     }
 
     private void writeApplicationProject(final boolean executableSmoke) throws IOException {
@@ -123,12 +123,61 @@ final class NativeConventionsPluginTest {
         return environment;
     }
 
+    private static Map<String, String> environmentWithGraalHome(final Path graalHome) {
+        Map<String, String> environment = new HashMap<>(System.getenv());
+        environment.put("GRAALVM_HOME", graalHome.toString());
+        environment.put("JAVA_HOME", graalHome.toString());
+        return environment;
+    }
+
+    private static void writeFakeGraalVm(final Path graalHome) throws IOException {
+        writeExecutableSymlink(graalHome.resolve("bin/java"), Path.of(System.getProperty("java.home"), "bin", "java"));
+        writeExecutableSymlink(graalHome.resolve("bin/javac"), Path.of(System.getProperty("java.home"), "bin", "javac"));
+        writeFakeNativeImage(graalHome.resolve("bin"));
+    }
+
+    private static void writeExecutableSymlink(final Path link, final Path target) throws IOException {
+        Files.createDirectories(link.getParent());
+        Files.deleteIfExists(link);
+        if (Files.exists(target)) {
+            Files.createSymbolicLink(link, target);
+        }
+    }
+
     private static void writeFakeNativeImage(final Path bin) throws IOException {
         Files.createDirectories(bin);
         Path nativeImage = bin.resolve("native-image");
         Files.writeString(nativeImage, """
                 #!/bin/sh
-                output="$5"
+                for argument in "$@"; do
+                  if [ "$argument" = "--version" ]; then
+                    echo "GraalVM 21.0.2 Java 21.0.2"
+                    exit 0
+                  fi
+                done
+                output=""
+                image_path=""
+                image_name=""
+                previous=""
+                last=""
+                for argument in "$@"; do
+                  if [ "$previous" = "-o" ]; then
+                    output="$argument"
+                  fi
+                  case "$argument" in
+                    -H:Path=*) image_path="${argument#-H:Path=}" ;;
+                    -H:Name=*) image_name="${argument#-H:Name=}" ;;
+                  esac
+                  previous="$argument"
+                  last="$argument"
+                done
+                if [ -z "$output" ] && [ -n "$image_path" ] && [ -n "$image_name" ]; then
+                  output="$image_path/$image_name"
+                fi
+                if [ -z "$output" ]; then
+                  output="$last"
+                fi
+                mkdir -p "$(dirname "$output")"
                 cat > "$output" <<'SCRIPT'
                 #!/usr/bin/env sh
                 echo "fake native executable ran"

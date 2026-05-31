@@ -4,10 +4,15 @@ Native Image support is a project constraint, not a late packaging step.
 
 ## 0.1.0 posture
 
-The native lane is meaningful for command-line startup and validation smoke. The
-`nativeSmoke` Gradle task checks for GraalVM `native-image`; when the tool is
-absent it skips cleanly, and when present it builds and runs the
-`examples/native-cli-smoke` executable against a deterministic generated LP.
+The native lane is meaningful for command-line startup and validation smoke.
+Native executable builds are owned by the official GraalVM Native Build Tools
+Gradle plugin. The project-level `nativeSmoke` task keeps a small wrapper around
+that plugin so non-GraalVM environments skip cleanly, while opted-in executable
+projects build and run through the plugin's `nativeRun` path.
+
+The plugin's reachability metadata repository is disabled for 0.1.0. Native
+support must come from code shape and documented architecture decisions rather
+than downloaded metadata workarounds.
 
 Native shared-library and C ABI checks remain future work.
 
@@ -33,7 +38,7 @@ files without a documented architecture decision.
 ## Planned targets
 
 - JVM jars.
-- Native command-line executable smoke.
+- Native command-line executable smoke through the GraalVM Gradle plugin.
 - Native shared library with a small C ABI.
 
 The C ABI should expose opaque handles and primitive arrays, not Java object
