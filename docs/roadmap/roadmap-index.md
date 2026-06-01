@@ -12,21 +12,23 @@
 - **G7**: generated LP families.
 - **G8**: GraalVM native executable/shared-library smoke.
 - **G9**: first in-project solver experiment.
+- **G10**: strict solver and benchmark evidence readiness.
 
 ## How gates and tasks relate
 
 Gates are capability milestones. Task file prefixes match the gate they
 advance: `g3-*` tasks belong to G3 validation work, `g9-*` tasks belong to G9
 in-project solver work, and so on. Release-hardening tasks use the `release-*`
-prefix because they happen after the G0-G9 capability gates. Task files are
+prefix because they happen after the G0-G10 capability gates. Task files are
 trace records for completed and future work; they are exempt from markdown
 consolidation unless a task explicitly allows task-file maintenance.
 
 ## Current status
 
 G0 through G5 are complete. The next open gate is G6 Java library solver
-adapters, followed by generated benchmark families, native-image smoke, in-project
-solver experiments, and release hardening.
+adapters, followed by generated benchmark families, native-image smoke,
+in-project solver experiments, strict evidence readiness, and release
+hardening.
 
 Task status labels in this index:
 
@@ -43,7 +45,12 @@ hand-checkable fixtures, a functioning comparison harness for HiGHS, CLP, GLPK,
 OR-Tools, and ojAlgo, and two in-project solvers: one simple correctness-first
 solver and one performance-oriented solver. The performance solver must have a
 credible but modest evidence trail from iterative profiling, optimization,
-correctness, and simplification passes. Work proceeds in gate order.
+correctness, and simplification passes. Before release hardening, the solver
+comparison and benchmark environment must move beyond smoke evidence: required
+comparison solvers must be installed in the evidence environment, strict lanes
+must fail on missing required solvers, and benchmark reports must cover a
+broader validated suite with repeatable methodology. Work proceeds in gate
+order.
 
 ### G0: design-control scaffold and harness foundation
 
@@ -129,6 +136,16 @@ correctness, and simplification passes. Work proceeds in gate order.
 - [G9-017 performance evidence report](tasks/g9-017-performance-evidence-report.md) - **Complete**
 - [G9-018 performance code simplification pass](tasks/g9-018-performance-code-simplification-pass.md) - **Complete**
 - [G9-019 performance readiness review](tasks/g9-019-performance-readiness-review.md) - **Complete**
+
+### G10: strict solver and benchmark evidence readiness
+
+- [G10-001 solver toolchain provisioning](tasks/g10-001-solver-toolchain-provisioning.md) - **Proposed**
+- [G10-002 strict solver availability gate](tasks/g10-002-strict-solver-availability-gate.md) - **Proposed**
+- [G10-003 expanded correctness comparison suite](tasks/g10-003-expanded-correctness-comparison-suite.md) - **Proposed**
+- [G10-004 expanded generated and public benchmarks](tasks/g10-004-expanded-generated-and-public-benchmarks.md) - **Proposed**
+- [G10-005 benchmark methodology and statistics](tasks/g10-005-benchmark-methodology-and-statistics.md) - **Proposed**
+- [G10-006 real performance evidence report](tasks/g10-006-real-performance-evidence-report.md) - **Proposed**
+- [G10-007 evidence readiness review](tasks/g10-007-evidence-readiness-review.md) - **Proposed**
 
 ### Release hardening
 
