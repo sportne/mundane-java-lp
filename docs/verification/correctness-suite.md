@@ -61,6 +61,12 @@ adds those normalizations.
 Generators should eventually create primal/dual certificates so correctness can
 be checked without trusting another solver as oracle.
 
+The 0.1.0 generated correctness baseline includes `numerical-stress-v1`.
+Scaling, degeneracy, and tight-bound cases carry optimal primal/objective
+evidence and are validated through `lp-validation`. The ill-conditioned ranged
+case carries feasible optimal evidence, but the performance solver records a
+deterministic unsupported outcome until ranged-row normalization is in scope.
+
 ## Tier 3: public benchmark instances
 
 Public instance suites are added only after file-ingestion and validation logic

@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.github.mundanej.mlp.generators.CanonicalLpFixture;
+import io.github.mundanej.mlp.generators.GeneratedLpInstance;
+import io.github.mundanej.mlp.generators.NumericalStressGenerator;
 import io.github.mundanej.mlp.model.LpObjective;
 import io.github.mundanej.mlp.model.LpProblem;
 import io.github.mundanej.mlp.model.LpProblemStats;
@@ -76,6 +78,39 @@ final class PerformanceLpSolverCorrectnessTest {
       assertTrue(result.objectiveValue().isEmpty(), fixtureName);
       assertEquals(0, result.primalValues().length, fixtureName);
     }
+  }
+
+  @Test
+  void validatesSupportedNumericalStressFixtures() {
+    for (GeneratedLpInstance instance : new NumericalStressGenerator().suite()) {
+      CanonicalLpFixture fixture = instance.fixture();
+      if (fixture.problem().name().equals("stress-ill-conditioned-ranged")) {
+        continue;
+      }
+
+      SolverRunResult result = adapter.solve(input(fixture), SolverOptions.defaults(), work());
+
+      assertEquals(SolverStatus.OPTIMAL, result.status(), fixture.problem().name());
+      ValidationReport report =
+          validator.validate(
+              fixture.problem(),
+              fixture.matrix(),
+              LpTestInstances.expectedValidationResult(fixture),
+              validationEvidence(result),
+              ToleranceProfile.STANDARD);
+      assertTrue(report.accepted(), () -> fixture.problem().name() + " " + report.findings());
+    }
+  }
+
+  @Test
+  void recordsUnsupportedNumericalStressOutcomesExplicitly() {
+    CanonicalLpFixture fixture =
+        new NumericalStressGenerator().illConditionedUnsupported().fixture();
+
+    SolverRunResult result = adapter.solve(input(fixture), SolverOptions.defaults(), work());
+
+    assertEquals(SolverStatus.UNSUPPORTED, result.status());
+    assertTrue(result.message().contains("ranged rows"));
   }
 
   @Test

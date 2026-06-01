@@ -53,6 +53,11 @@ G9-014 removed the solve-path constraint-record staging step. Supported
 constraints are counted first and then written directly into tableau storage,
 which reduces setup copying while preserving the same phase and pivot behavior.
 
+G9-015 adds deterministic numerical stress coverage. Scaling, degeneracy, and
+tight-bound generated fixtures validate through `lp-validation`; the
+ill-conditioned ranged-row fixture has feasible evidence but remains an
+explicit unsupported outcome for this solver.
+
 See the repository root `README.md`,
 `docs/architecture/module-boundaries.md`, and
 `docs/architecture/solver-adapter-contract.md`.

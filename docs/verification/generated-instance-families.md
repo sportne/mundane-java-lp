@@ -37,3 +37,22 @@ The generator records:
 
 The known optimum sends `min(source_middle_capacity, middle_sink_capacity)`
 through the relay path and `source_sink_capacity` through the direct path.
+
+## 0.1.0 numerical stress baseline
+
+The 0.1.0 numerical stress baseline is `numerical-stress-v1`, a deterministic
+small fixture family used for robustness checks, not benchmark claims. The
+suite contains:
+
+- `stress-scaling`: two nonnegative variables with coefficients separated by
+  `1.0e6`, expected optimal objective `1.0`;
+- `stress-degeneracy`: duplicate active rows and a zero objective, expected
+  accepted optimum;
+- `stress-tight-bounds`: a one-variable case with width `1.0e-9`, expected
+  accepted optimum at the tight bound;
+- `stress-ill-conditioned-ranged`: a nearly parallel ranged-row case recorded
+  with feasible optimal evidence and intentionally unsupported by the current
+  performance solver.
+
+Each generated instance records generator name, seed, size/scaling parameters,
+canonical model data, CSR coefficients, names, and expected evidence.

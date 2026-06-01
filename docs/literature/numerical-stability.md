@@ -17,6 +17,11 @@
   with documented numerical risk. Degeneracy, scaling, tight bounds, and
   ill-conditioning must become deterministic validation, unsupported, or
   limitation records before the project treats timing evidence as meaningful.
+- G9-015 adds the first bounded numerical stress suite. Scaling, degeneracy,
+  and tight-bound cases must validate with `ToleranceProfile.STANDARD`; the
+  current ill-conditioned ranged-row case has feasible evidence but is an
+  explicit performance-solver unsupported outcome because ranged-row
+  normalization is outside the 0.1.0 performance solver subset.
 
 ## Roadmap references
 
