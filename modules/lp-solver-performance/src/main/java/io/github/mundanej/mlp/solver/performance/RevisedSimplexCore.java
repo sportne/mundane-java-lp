@@ -7,7 +7,6 @@ import io.github.mundanej.mlp.model.ObjectiveSense;
 import io.github.mundanej.mlp.solver.spi.SolverInput;
 import io.github.mundanej.mlp.solver.spi.SolverStatus;
 import io.github.mundanej.mlp.sparse.CsrMatrix;
-import java.util.List;
 import java.util.OptionalDouble;
 
 final class RevisedSimplexCore {
@@ -243,46 +242,6 @@ final class RevisedSimplexCore {
     }
   }
 
-  record LinearConstraint(double[] coefficients, Relation relation, double rhs) {
-    static LinearConstraint unitLe(final int columns, final int column, final double rhs) {
-      double[] coefficients = new double[columns];
-      coefficients[column] = 1.0d;
-      return normalizeOwned(coefficients, Relation.LE, rhs);
-    }
-
-    static LinearConstraint le(final double[] coefficients, final double rhs) {
-      return normalize(coefficients, Relation.LE, rhs);
-    }
-
-    static LinearConstraint ge(final double[] coefficients, final double rhs) {
-      return normalize(coefficients, Relation.GE, rhs);
-    }
-
-    static LinearConstraint eq(final double[] coefficients, final double rhs) {
-      return normalize(coefficients, Relation.EQ, rhs);
-    }
-
-    private static LinearConstraint normalize(
-        final double[] coefficients, final Relation relation, final double rhs) {
-      double[] copy = coefficients.clone();
-      return normalizeOwned(copy, relation, rhs);
-    }
-
-    private static LinearConstraint normalizeOwned(
-        final double[] coefficients, final Relation relation, final double rhs) {
-      Relation normalizedRelation = relation;
-      double normalizedRhs = rhs;
-      if (normalizedRhs < 0.0d) {
-        for (int index = 0; index < coefficients.length; index++) {
-          coefficients[index] = -coefficients[index];
-        }
-        normalizedRhs = -normalizedRhs;
-        normalizedRelation = flipInequality(normalizedRelation);
-      }
-      return new LinearConstraint(coefficients, normalizedRelation, normalizedRhs);
-    }
-  }
-
   enum SimplexStatus {
     OPTIMAL,
     UNBOUNDED
@@ -303,24 +262,6 @@ final class RevisedSimplexCore {
       this.basis = basis;
       this.artificial = artificial;
       this.variableCount = variableCount;
-    }
-
-    static Tableau from(final int originalColumns, final List<LinearConstraint> constraints) {
-      int extraColumns = 0;
-      for (LinearConstraint constraint : constraints) {
-        extraColumns +=
-            switch (constraint.relation()) {
-              case LE -> 1;
-              case GE -> 2;
-              case EQ -> 1;
-            };
-      }
-      TableauBuilder builder =
-          new TableauBuilder(originalColumns, constraints.size(), extraColumns);
-      for (LinearConstraint constraint : constraints) {
-        builder.add(constraint.relation(), constraint.coefficients(), constraint.rhs());
-      }
-      return builder.build();
     }
 
     boolean hasArtificialVariables() {
@@ -441,7 +382,7 @@ final class RevisedSimplexCore {
     }
   }
 
-  private static final class TableauBuilder {
+  static final class TableauBuilder {
     private final int originalColumns;
     private final int variableCount;
     private final double[][] rows;
@@ -450,8 +391,7 @@ final class RevisedSimplexCore {
     private int nextColumn;
     private int nextRow;
 
-    private TableauBuilder(
-        final int originalColumns, final int constraintCount, final int extraColumns) {
+    TableauBuilder(final int originalColumns, final int constraintCount, final int extraColumns) {
       this.originalColumns = originalColumns;
       this.variableCount = originalColumns + extraColumns;
       this.rows = new double[constraintCount + 1][variableCount + 1];
@@ -460,11 +400,23 @@ final class RevisedSimplexCore {
       this.nextColumn = originalColumns;
     }
 
-    private void addUnitLe(final int column, final double rhs) {
+    void addUnitLe(final int column, final double rhs) {
       rows[nextRow][column] = 1.0d;
       rows[nextRow][variableCount] = rhs;
       addSlackBasis();
       nextRow++;
+    }
+
+    void addLe(final double[] coefficients, final double rhs) {
+      add(Relation.LE, coefficients, rhs);
+    }
+
+    void addGe(final double[] coefficients, final double rhs) {
+      add(Relation.GE, coefficients, rhs);
+    }
+
+    void addEq(final double[] coefficients, final double rhs) {
+      add(Relation.EQ, coefficients, rhs);
     }
 
     private void add(final Relation relation, final double[] coefficients, final double rhs) {
@@ -520,7 +472,7 @@ final class RevisedSimplexCore {
       nextColumn++;
     }
 
-    private Tableau build() {
+    Tableau build() {
       return new Tableau(rows, basis, artificial, variableCount);
     }
   }

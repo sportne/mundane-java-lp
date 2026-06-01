@@ -109,8 +109,9 @@ allocation change and preserves the no-public-performance-claim policy.
 G9-014 removed the solve-path `LinearConstraint` list as an intermediate
 tableau input. The solver now counts supported constraints once, allocates the
 tableau directly, and writes variable-bound and CSR-row constraints into tableau
-storage through a small builder. The test-only `LinearConstraint` path remains
-for focused tableau unit tests.
+storage through a small builder. G9-018 later removed the remaining test-only
+`LinearConstraint` path, so focused tableau unit tests now use that builder
+directly.
 
 This targets the next setup bottleneck left by G9-012: coefficient arrays no
 longer flow through both constraint records and tableau rows during normal

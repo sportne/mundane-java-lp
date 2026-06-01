@@ -73,6 +73,11 @@ in-project simple and performance solvers with available third-party adapters
 only as validation and reporting evidence; it makes no runtime superiority
 claim.
 
+G9-018 removes production-only test scaffolding around tableau construction.
+Focused tableau tests now use the internal builder directly, keeping pivot and
+phase tests readable without carrying a separate constraint wrapper in solver
+code.
+
 See the repository root `README.md`,
 `docs/architecture/module-boundaries.md`, and
 `docs/architecture/solver-adapter-contract.md`.
