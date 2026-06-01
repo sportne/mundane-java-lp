@@ -87,6 +87,40 @@ final class MarkdownReportWriterTest {
   }
 
   @Test
+  void rendersRequiredPerformanceEvidenceFieldsAcrossFormats() {
+    RunRecord record =
+        record(
+            SolverStatus.OPTIMAL,
+            OptionalDouble.of(1.0d),
+            RunOutcome.SUCCESS,
+            new ValidationReport(ToleranceProfile.STANDARD, List.of()),
+            "");
+
+    String markdown = new MarkdownReportWriter().render(List.of(record));
+    String csv = new CsvReportWriter().render(List.of(record));
+    String json = new JsonReportWriter().render(List.of(record));
+
+    assertTrue(markdown.contains("Parse Seconds"));
+    assertTrue(markdown.contains("Export Seconds"));
+    assertTrue(markdown.contains("Validation Seconds"));
+    assertTrue(markdown.contains("Peak Memory Bytes"));
+    assertTrue(markdown.contains("Processors"));
+    assertTrue(csv.startsWith("suite,instance,solver,version,status,objective,outcome"));
+    assertTrue(csv.contains("parse_seconds,export_seconds,solve_seconds,validation_seconds"));
+    assertTrue(csv.contains("peak_memory_bytes,residuals,os,arch,java,processors,termination"));
+    assertTrue(json.contains("\"version\":\"1.0\""));
+    assertTrue(json.contains("\"tolerance\":\"STANDARD\""));
+    assertTrue(json.contains("\"timeLimitSeconds\":30"));
+    assertTrue(json.contains("\"parseSeconds\":0.0"));
+    assertTrue(json.contains("\"exportSeconds\":0.0"));
+    assertTrue(json.contains("\"solveSeconds\":0.25"));
+    assertTrue(json.contains("\"validationSeconds\":0.5"));
+    assertTrue(json.contains("\"totalSeconds\":0.75"));
+    assertTrue(json.contains("\"peakMemoryBytes\":\"not-measured\""));
+    assertTrue(json.contains("\"termination\":\"message\""));
+  }
+
+  @Test
   void rendersEmptyCsvAndJsonDeterministically() {
     assertEquals(
         "suite,instance,solver,version,status,objective,outcome,accepted,tolerance,threads,"

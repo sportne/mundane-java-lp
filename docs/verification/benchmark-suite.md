@@ -53,6 +53,8 @@ generated evidence adapter as a fixture sanity record. The lane reports timing
 and validation evidence only; it is not comparative performance evidence.
 The first profiling baseline for this lane is recorded in
 `docs/verification/performance-profiling-baseline.md`.
+The current smoke evidence snapshot for G9-017 is recorded in
+`docs/verification/performance-evidence-report.md`.
 
 ## Evidence Baseline
 

@@ -67,6 +67,12 @@ keeps existing fixture outcomes stable and improves large-coefficient stress
 behavior; ranged rows, shifted lower bounds, broad scaling/equilibration, and
 broader numerical claims remain out of scope.
 
+G9-017 records the first smoke-level performance evidence report in
+`docs/verification/performance-evidence-report.md`. The report compares the
+in-project simple and performance solvers with available third-party adapters
+only as validation and reporting evidence; it makes no runtime superiority
+claim.
+
 See the repository root `README.md`,
 `docs/architecture/module-boundaries.md`, and
 `docs/architecture/solver-adapter-contract.md`.
