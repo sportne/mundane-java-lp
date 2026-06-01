@@ -1,4 +1,4 @@
-# G10-007 evidence readiness review
+# G10-008 evidence readiness review
 
 ## Status
 
@@ -10,7 +10,7 @@ proposed
 
 ## References
 
-- `docs/roadmap/tasks/g10-006-real-performance-evidence-report.md`
+- `docs/roadmap/tasks/g10-007-real-performance-evidence-report.md`
 - `docs/roadmap/tasks/g9-019-performance-readiness-review.md`
 - `docs/charter.md`
 
@@ -35,8 +35,8 @@ proposed
 - Decide whether the project has enough solver-comparison and benchmark
   evidence to enter release hardening.
 - Distinguish implementation readiness from benchmark-evidence readiness.
-- Record any missing solver, benchmark, validation, methodology, or reporting
-  evidence as a release blocker.
+- Record any missing solver, benchmark, validation, profiling, methodology, or
+  reporting evidence as a release blocker.
 - Update the roadmap status only after strict solver and expanded benchmark
   lanes pass.
 
