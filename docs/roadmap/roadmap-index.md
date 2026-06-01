@@ -128,7 +128,7 @@ correctness, and simplification passes. Work proceeds in gate order.
 - [G9-016 performance iteration 3 robustness and scaling](tasks/g9-016-performance-iteration-3-robustness-and-scaling.md) - **Complete**
 - [G9-017 performance evidence report](tasks/g9-017-performance-evidence-report.md) - **Complete**
 - [G9-018 performance code simplification pass](tasks/g9-018-performance-code-simplification-pass.md) - **Complete**
-- [G9-019 performance readiness review](tasks/g9-019-performance-readiness-review.md) - **Proposed**
+- [G9-019 performance readiness review](tasks/g9-019-performance-readiness-review.md) - **Complete**
 
 ### Release hardening
 

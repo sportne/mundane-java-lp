@@ -43,6 +43,10 @@ Benchmark smoke is advisory only. It does not support competitive claims.
 Its generated fixture path runs the in-project performance solver without
 requiring external solver binaries.
 
+The performance solver readiness review is recorded in
+`performance-readiness-review.md`. It treats benchmark smoke as release evidence
+for wiring, validation, and reporting only.
+
 ## Manual future lanes
 
 - `publicBenchmarkSuite`

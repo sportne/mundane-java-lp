@@ -78,6 +78,11 @@ Focused tableau tests now use the internal builder directly, keeping pivot and
 phase tests readable without carrying a separate constraint wrapper in solver
 code.
 
+G9-019 records the readiness decision in
+`docs/verification/performance-readiness-review.md`: the module meets the
+0.1.0 credible-but-modest bar as an experimental, evidence-producing adapter.
+It is not a production solver and does not carry public performance claims.
+
 See the repository root `README.md`,
 `docs/architecture/module-boundaries.md`, and
 `docs/architecture/solver-adapter-contract.md`.

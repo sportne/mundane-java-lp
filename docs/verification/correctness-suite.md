@@ -67,6 +67,10 @@ evidence and are validated through `lp-validation`. The ill-conditioned ranged
 case carries feasible optimal evidence, but the performance solver records a
 deterministic unsupported outcome until ranged-row normalization is in scope.
 
+The performance solver readiness decision in
+`performance-readiness-review.md` uses this supported and unsupported case split
+as the 0.1.0 correctness boundary.
+
 ## Tier 3: public benchmark instances
 
 Public instance suites are added only after file-ingestion and validation logic

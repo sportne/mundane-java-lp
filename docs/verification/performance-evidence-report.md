@@ -113,3 +113,7 @@ This evidence is intentionally small:
 The evidence supports smoke-level correctness and reporting confidence only. It
 does not support claims that one solver is faster, more robust, or more scalable
 than another.
+
+G9-019 uses this report as the performance readiness evidence snapshot. The
+readiness decision is recorded in
+`docs/verification/performance-readiness-review.md`.
