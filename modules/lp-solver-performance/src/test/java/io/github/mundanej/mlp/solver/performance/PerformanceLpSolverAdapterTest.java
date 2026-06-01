@@ -71,6 +71,33 @@ final class PerformanceLpSolverAdapterTest {
   }
 
   @Test
+  void solvesLargeCoefficientRowsAfterRowScaling() {
+    SolverRunResult result = solve(largeCoefficientInput());
+
+    assertEquals(SolverStatus.OPTIMAL, result.status());
+    assertEquals(1.0d, result.objectiveValue().orElseThrow(), 1.0e-9d);
+    assertEquals(1.0d, result.primalValues()[0], 1.0e-9d);
+  }
+
+  @Test
+  void preservesRhsDominatedBoundsAfterRowScaling() {
+    SolverRunResult result = solve(rhsDominatedInput());
+
+    assertEquals(SolverStatus.OPTIMAL, result.status());
+    assertEquals(1.0e12d, result.objectiveValue().orElseThrow(), 1.0e3d);
+    assertEquals(1.0e12d, result.primalValues()[0], 1.0e3d);
+  }
+
+  @Test
+  void reportsInfeasibleWhenScaledResidualViolatesOriginalRows() {
+    SolverRunResult result = solve(scaledInfeasibleInput());
+
+    assertEquals(SolverStatus.INFEASIBLE, result.status());
+    assertTrue(result.objectiveValue().isEmpty());
+    assertTrue(result.message().contains("original row bounds"));
+  }
+
+  @Test
   void reportsInfeasibleForContradictoryRows() {
     SolverRunResult result = solve(infeasibleInput());
 
@@ -239,6 +266,45 @@ final class PerformanceLpSolverAdapterTest {
             new LpProblemStats(1, 1, 1));
     return SolverInput.withGeneratedNames(
         problem, new CsrMatrix(1, 1, new double[] {-1.0d}, new int[] {0}, new int[] {0, 1}));
+  }
+
+  private static SolverInput largeCoefficientInput() {
+    LpProblem problem =
+        new LpProblem(
+            "large-coefficient",
+            new LpObjective(ObjectiveSense.MINIMIZE, 0.0d, new double[] {1.0d}),
+            List.of(new LpVariableBounds(0.0d, Double.POSITIVE_INFINITY)),
+            List.of(new LpRowBounds(1.0e9d, Double.POSITIVE_INFINITY)),
+            new LpProblemStats(1, 1, 1));
+    return SolverInput.withGeneratedNames(
+        problem, new CsrMatrix(1, 1, new double[] {1.0e9d}, new int[] {0}, new int[] {0, 1}));
+  }
+
+  private static SolverInput rhsDominatedInput() {
+    LpProblem problem =
+        new LpProblem(
+            "rhs-dominated",
+            new LpObjective(ObjectiveSense.MAXIMIZE, 0.0d, new double[] {1.0d}),
+            List.of(new LpVariableBounds(0.0d, Double.POSITIVE_INFINITY)),
+            List.of(new LpRowBounds(Double.NEGATIVE_INFINITY, 1.0e12d)),
+            new LpProblemStats(1, 1, 1));
+    return SolverInput.withGeneratedNames(
+        problem, new CsrMatrix(1, 1, new double[] {1.0d}, new int[] {0}, new int[] {0, 1}));
+  }
+
+  private static SolverInput scaledInfeasibleInput() {
+    LpProblem problem =
+        new LpProblem(
+            "scaled-infeasible",
+            new LpObjective(ObjectiveSense.MINIMIZE, 0.0d, new double[] {0.0d}),
+            List.of(new LpVariableBounds(0.0d, Double.POSITIVE_INFINITY)),
+            List.of(
+                new LpRowBounds(Double.NEGATIVE_INFINITY, 0.0d),
+                new LpRowBounds(1.0d, Double.POSITIVE_INFINITY)),
+            new LpProblemStats(2, 1, 2));
+    return SolverInput.withGeneratedNames(
+        problem,
+        new CsrMatrix(2, 1, new double[] {1.0d, 1.0e12d}, new int[] {0, 0}, new int[] {0, 1, 2}));
   }
 
   private static SolverInput unboundedInput() {

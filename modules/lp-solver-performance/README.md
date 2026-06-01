@@ -13,8 +13,8 @@ libraries. Solver state remains primitive-array based and is exposed only
 through normalized `lp-solver-spi` results.
 
 Current limitations are intentional: free variables, shifted lower variable
-bounds, ranged rows, presolve, scaling, warm starts, and numerical robustness
-claims are out of scope.
+bounds, ranged rows, presolve, broad scaling/equilibration, warm starts, and
+numerical robustness claims are out of scope.
 
 ## Correctness coverage
 
@@ -57,6 +57,15 @@ G9-015 adds deterministic numerical stress coverage. Scaling, degeneracy, and
 tight-bound generated fixtures validate through `lp-validation`; the
 ill-conditioned ranged-row fixture has feasible evidence but remains an
 explicit unsupported outcome for this solver.
+
+G9-016 adds narrow row scaling during tableau construction for non-unit row
+constraints. When the largest absolute original coefficient exceeds one,
+original coefficients and right-hand sides are divided by that coefficient
+scale before slack, surplus, or artificial columns are added. The final primal
+is checked against the original unscaled model before reporting `OPTIMAL`. This
+keeps existing fixture outcomes stable and improves large-coefficient stress
+behavior; ranged rows, shifted lower bounds, broad scaling/equilibration, and
+broader numerical claims remain out of scope.
 
 See the repository root `README.md`,
 `docs/architecture/module-boundaries.md`, and

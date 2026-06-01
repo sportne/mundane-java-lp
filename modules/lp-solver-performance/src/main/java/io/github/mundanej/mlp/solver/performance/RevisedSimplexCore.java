@@ -43,6 +43,10 @@ final class RevisedSimplexCore {
       return SolveResult.statusOnly(SolverStatus.UNBOUNDED, "simplex detected improving ray");
     }
     double[] primal = tableau.originalSolution(columns);
+    String violation = originalFeasibilityViolation(input, primal);
+    if (violation != null) {
+      return SolveResult.statusOnly(SolverStatus.INFEASIBLE, violation);
+    }
     return SolveResult.optimal(problem.objective().evaluate(primal), primal);
   }
 
@@ -177,6 +181,39 @@ final class RevisedSimplexCore {
 
   private static boolean satisfies(final double value, final LpRowBounds bounds) {
     return value >= bounds.lower() - EPSILON && value <= bounds.upper() + EPSILON;
+  }
+
+  private static String originalFeasibilityViolation(
+      final SolverInput input, final double[] primal) {
+    LpProblem problem = input.problem();
+    for (int column = 0; column < primal.length; column++) {
+      LpVariableBounds bounds = problem.variableBounds().get(column);
+      if (violatesLower(primal[column], bounds.lower())
+          || violatesUpper(primal[column], bounds.upper())) {
+        return "simplex primal violates original variable bounds";
+      }
+    }
+    double[] activities = input.matrix().multiply(primal);
+    for (int row = 0; row < activities.length; row++) {
+      LpRowBounds bounds = problem.rowBounds().get(row);
+      if (violatesLower(activities[row], bounds.lower())
+          || violatesUpper(activities[row], bounds.upper())) {
+        return "simplex primal violates original row bounds";
+      }
+    }
+    return null;
+  }
+
+  private static boolean violatesLower(final double value, final double lower) {
+    return Double.isFinite(lower) && lower - value > feasibilityTolerance(value, lower);
+  }
+
+  private static boolean violatesUpper(final double value, final double upper) {
+    return Double.isFinite(upper) && value - upper > feasibilityTolerance(value, upper);
+  }
+
+  private static double feasibilityTolerance(final double value, final double bound) {
+    return EPSILON * Math.max(1.0d, Math.max(Math.abs(value), Math.abs(bound)));
   }
 
   record SolveResult(
@@ -443,6 +480,7 @@ final class RevisedSimplexCore {
         rows[nextRow][column] = sign * coefficients[column];
       }
       rows[nextRow][variableCount] = normalizedRhs;
+      scaleOriginalColumns();
       if (normalizedRelation == Relation.LE) {
         addSlackBasis();
       } else if (normalizedRelation == Relation.GE) {
@@ -453,6 +491,20 @@ final class RevisedSimplexCore {
         addArtificialBasis();
       }
       nextRow++;
+    }
+
+    private void scaleOriginalColumns() {
+      double scale = 0.0d;
+      for (int column = 0; column < originalColumns; column++) {
+        scale = Math.max(scale, Math.abs(rows[nextRow][column]));
+      }
+      if (scale <= 1.0d || !Double.isFinite(scale)) {
+        return;
+      }
+      for (int column = 0; column < originalColumns; column++) {
+        rows[nextRow][column] /= scale;
+      }
+      rows[nextRow][variableCount] /= scale;
     }
 
     private void addSlackBasis() {

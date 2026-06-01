@@ -125,7 +125,7 @@ correctness, and simplification passes. Work proceeds in gate order.
 - [G9-013 iteration 1 correctness and simplification](tasks/g9-013-iteration-1-correctness-and-simplification.md) - **Complete**
 - [G9-014 performance iteration 2 algorithmic bottleneck](tasks/g9-014-performance-iteration-2-algorithmic-bottleneck.md) - **Complete**
 - [G9-015 numerical robustness stress suite](tasks/g9-015-numerical-robustness-stress-suite.md) - **Complete**
-- [G9-016 performance iteration 3 robustness and scaling](tasks/g9-016-performance-iteration-3-robustness-and-scaling.md) - **Proposed**
+- [G9-016 performance iteration 3 robustness and scaling](tasks/g9-016-performance-iteration-3-robustness-and-scaling.md) - **Complete**
 - [G9-017 performance evidence report](tasks/g9-017-performance-evidence-report.md) - **Proposed**
 - [G9-018 performance code simplification pass](tasks/g9-018-performance-code-simplification-pass.md) - **Proposed**
 - [G9-019 performance readiness review](tasks/g9-019-performance-readiness-review.md) - **Proposed**

@@ -22,6 +22,14 @@
   current ill-conditioned ranged-row case has feasible evidence but is an
   explicit performance-solver unsupported outcome because ranged-row
   normalization is outside the 0.1.0 performance solver subset.
+- G9-016 adds a narrow tableau row-scaling step for non-unit row constraints:
+  when the largest absolute original row coefficient exceeds one, generated row
+  coefficients and right-hand sides are divided by that coefficient scale before
+  slack/surplus/artificial columns are appended. The final primal is checked
+  against the original unscaled model before reporting `OPTIMAL`. This improves
+  large-coefficient robustness without changing the supported subset. It is not
+  presolve, equilibration, iterative refinement, or a claim of broad numerical
+  stability.
 
 ## Roadmap references
 
