@@ -25,10 +25,10 @@ consolidation unless a task explicitly allows task-file maintenance.
 
 ## Current status
 
-G0 through G5 are complete. The next open gate is G6 Java library solver
-adapters, followed by generated benchmark families, native-image smoke,
-in-project solver experiments, strict evidence readiness, and release
-hardening.
+G0 through G9 are complete. The next open gate is G10 strict evidence
+readiness, followed by release hardening. Native executable smoke is already
+owned by the official GraalVM Native Build Tools Gradle plugin through the
+project `nativeSmoke` wrapper.
 
 Task status labels in this index:
 
@@ -98,22 +98,22 @@ order.
 
 ### G6: Java library solver adapters
 
-- [G6-001 Java adapter design completion](tasks/g6-001-java-adapter-design-completion.md) - **Proposed**
-- [G6-002 OR-Tools Java adapter](tasks/g6-002-ortools-java-adapter.md) - **Proposed**
-- [G6-003 ojAlgo adapter](tasks/g6-003-ojalgo-adapter.md) - **Proposed**
-- [G6-004 Java adapter comparison smoke](tasks/g6-004-java-adapter-comparison-smoke.md) - **Proposed**
+- [G6-001 Java adapter design completion](tasks/g6-001-java-adapter-design-completion.md) - **Complete**
+- [G6-002 OR-Tools Java adapter](tasks/g6-002-ortools-java-adapter.md) - **Complete**
+- [G6-003 ojAlgo adapter](tasks/g6-003-ojalgo-adapter.md) - **Complete**
+- [G6-004 Java adapter comparison smoke](tasks/g6-004-java-adapter-comparison-smoke.md) - **Complete**
 
 ### G7: generated LP families
 
-- [G7-001 generated fixture baseline](tasks/g7-001-generated-fixture-baseline.md) - **Proposed**
-- [G7-002 public benchmark curation](tasks/g7-002-public-benchmark-curation.md) - **Proposed**
-- [G7-003 benchmark evidence baseline](tasks/g7-003-benchmark-evidence-baseline.md) - **Proposed**
-- [G7-004 performance benchmark suite baseline](tasks/g7-004-performance-benchmark-suite-baseline.md) - **Proposed**
+- [G7-001 generated fixture baseline](tasks/g7-001-generated-fixture-baseline.md) - **Complete**
+- [G7-002 public benchmark curation](tasks/g7-002-public-benchmark-curation.md) - **Complete**
+- [G7-003 benchmark evidence baseline](tasks/g7-003-benchmark-evidence-baseline.md) - **Complete**
+- [G7-004 performance benchmark suite baseline](tasks/g7-004-performance-benchmark-suite-baseline.md) - **Complete**
 
 ### G8: GraalVM native executable/shared-library smoke
 
-- [G8-001 native-image smoke](tasks/g8-001-native-image-smoke.md) - **Proposed**
-- [G8-002 allocation and native friendliness pass](tasks/g8-002-allocation-and-native-friendliness-pass.md) - **Proposed**
+- [G8-001 native-image smoke](tasks/g8-001-native-image-smoke.md) - **Complete**
+- [G8-002 allocation and native friendliness pass](tasks/g8-002-allocation-and-native-friendliness-pass.md) - **Complete**
 
 ### G9: first in-project solver experiment
 
