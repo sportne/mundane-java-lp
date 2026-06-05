@@ -67,6 +67,12 @@ tasks.register('solverComparisonSmoke') {
     dependsOn ':examples:solver-comparison-smoke:run'
 }
 
+tasks.register('verifySolverToolchain', Exec) {
+    group = 'verification'
+    description = 'Reports external and in-project solver toolchain availability.'
+    commandLine 'bash', 'scripts/verify-solver-toolchain.sh'
+}
+
 tasks.register('benchmarkSmoke') {
     group = 'verification'
     description = 'Runs advisory LP benchmark smoke checks. It does not establish competitive claims.'

@@ -12,5 +12,9 @@ continuous variables, linear constraints, objective sense and coefficients, then
 returns normalized status, optional objective value, primal values when
 available, elapsed seconds, and a bounded message.
 
+The OR-Tools Java dependency is pinned in `gradle/libs.versions.toml` as
+`com.google.ortools:ortools-java:9.15.6755`; no CLI binary is discovered for
+this adapter.
+
 See the repository root `README.md`, `docs/architecture/module-boundaries.md`,
 and `docs/architecture/solver-adapter-contract.md`.

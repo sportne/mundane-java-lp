@@ -58,3 +58,29 @@ fails after writing reports.
 The first G9 performance evidence snapshot for this lane is recorded in
 `docs/verification/performance-evidence-report.md`. It is smoke evidence only
 and does not make a solver-speed claim.
+
+## Toolchain Provisioning
+
+CI runs the comparison lane on `ubuntu-24.04` with the external CLI solvers
+installed before Gradle verification:
+
+- HiGHS CLI `highs` is installed from the pinned upstream release archive
+  `v1.14.0/highs-1.14.0-x86_64-linux-gnu-static-mit.tar.gz`.
+- CLP CLI `clp` is installed from the Ubuntu `coinor-clp` package.
+- GLPK CLI `glpsol` is installed from the Ubuntu `glpk-utils` package.
+
+OR-Tools Java and ojAlgo remain Gradle-managed library adapters. Their versions
+are pinned in `gradle/libs.versions.toml` as
+`com.google.ortools:ortools-java:9.15.6755` and
+`org.ojalgo:ojalgo:56.2.1`.
+
+Developers can inspect local solver availability without mutating the machine:
+
+```bash
+./gradlew verifySolverToolchain --console=plain
+```
+
+The task prints each solver name, command path, version output when available,
+and a deterministic unavailable diagnostic when a command is absent. CI runs the
+same verifier with `MLP_SOLVER_TOOLCHAIN_STRICT=true` after installing the
+external binaries so missing required commands fail the evidence lane.

@@ -7,7 +7,7 @@ on:
 
 jobs:
   quality-gate:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -17,5 +17,18 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.5.1'
+      - name: Install solver comparison toolchain
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y coinor-clp glpk-utils
+          highs_version=1.14.0
+          highs_archive="highs-${highs_version}-x86_64-linux-gnu-static-mit.tar.gz"
+          curl -fsSLo "/tmp/${highs_archive}" \
+            "https://github.com/ERGO-Code/HiGHS/releases/download/v${highs_version}/${highs_archive}"
+          tar -xzf "/tmp/${highs_archive}" -C /tmp
+          sudo install -m 0755 /tmp/bin/highs /usr/local/bin/highs
+      - name: Verify solver comparison toolchain
+        run: MLP_SOLVER_TOOLCHAIN_STRICT=true gradle verifySolverToolchain --console=plain
       - name: Quality gate
         run: gradle qualityGate solverComparisonSmoke benchmarkSmoke nativeSmoke --console=plain

@@ -14,4 +14,10 @@ status and objective evidence are read from HiGHS text output, malformed numeric
 evidence is reported as an adapter error, and unsupported MPS inputs are
 reported without starting the external process.
 
+CI provisions `highs` from the pinned upstream
+`v1.14.0/highs-1.14.0-x86_64-linux-gnu-static-mit.tar.gz` archive. Local
+machines may use any compatible `highs` on `PATH`; run
+`./gradlew verifySolverToolchain --console=plain` from the repository root to
+see the discovered path and version diagnostic.
+
 See the repository root `README.md` and `docs/architecture/module-boundaries.md`.
