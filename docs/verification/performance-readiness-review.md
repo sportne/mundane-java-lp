@@ -73,7 +73,7 @@ The readiness decision is based on these completed records:
 - correctness coverage in `docs/verification/correctness-suite.md`;
 - profiling and optimization notes in
   `docs/verification/performance-profiling-baseline.md`;
-- smoke evidence in `docs/verification/performance-evidence-report.md`;
+- G10 evidence in `docs/verification/performance-evidence-report.md`;
 - report fields for validation, timing, options, machine metadata, unavailable
   solvers, and missing public inputs;
 - local acceptance with:
@@ -85,6 +85,23 @@ The readiness decision is based on these completed records:
 The evidence demonstrates that the performance solver can participate in the
 same harness and reporting lanes as the other adapters. It does not demonstrate
 that the solver is faster, more robust, or more scalable than another solver.
+
+## G10 Evidence Update
+
+G10 expanded the evidence lanes beyond the original smoke snapshot:
+
+- `strictSolverComparison` now runs all required solvers over the expanded
+  correctness suite and records solver versions and binary paths;
+- `expandedBenchmarkSuite` runs generated benchmark families and curated public
+  Netlib manifest entries;
+- `profileExpandedBenchmarkSuite` produces JVM profiling artifacts for the
+  expanded benchmark lane.
+
+The G10 evidence report is currently incomplete for public performance claims
+because the downloaded Netlib candidates produce deterministic MPS load errors
+under the 0.1.0 reader. That does not invalidate generated benchmark or strict
+solver-comparison evidence, but it blocks treating the benchmark evidence as
+release-complete.
 
 ## Release posture
 

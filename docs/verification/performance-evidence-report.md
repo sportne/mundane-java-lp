@@ -1,123 +1,141 @@
 # Performance evidence report
 
-G9-017 records the first 0.1.0 performance evidence snapshot. This report is a
-smoke-evidence record, not a public performance claim. It compares the simple
-solver, performance solver, and third-party adapters only where the adapters are
-available in the local environment.
+G10-007 records the current 0.1.0 performance-evidence snapshot. This is an
+evidence report, not a public performance claim.
+
+## Evidence Status
+
+Benchmark evidence is **incomplete** for release-performance claims.
+
+The strict solver comparison lane passed with all required solvers available.
+The expanded benchmark lane passed as a reporting lane, but the three curated
+Netlib public benchmark candidates currently produce deterministic
+`ADAPTER_ERROR` records because the 0.1.0 MPS reader cannot load those full
+Netlib files. Generated benchmark evidence is valid; public benchmark runtime
+evidence is not yet valid.
 
 ## Commands
 
 ```bash
-./gradlew solverComparisonSmoke benchmarkSmoke --console=plain
-./gradlew validateDesignControlPack qualityGate solverComparisonSmoke benchmarkSmoke nativeSmoke --console=plain
+PATH="/tmp/mlp-micromamba-root/envs/mlp-solvers/bin:$PATH" \
+  ./gradlew strictSolverComparison expandedBenchmarkSuite --console=plain
+
+tools/fetch-public-benchmarks.sh
+
+./gradlew :modules:lp-harness-cli:profileExpandedRun --console=plain
 ```
 
-The full gate was the commit acceptance command. `nativeSmoke` skipped native
-executable work when `native-image` was unavailable, which is expected for this
-lane.
+The full task acceptance command remains:
 
-## Solver comparison evidence
+```bash
+PATH="/tmp/mlp-micromamba-root/envs/mlp-solvers/bin:$PATH" \
+  ./gradlew validateDesignControlPack qualityGate strictSolverComparison expandedBenchmarkSuite --console=plain
+```
 
-`solverComparisonSmoke` runs the `single-bounded-variable` Tier 1 fixture
-through the explicit solver list:
+## Report Artifacts
 
-- HiGHS CLI;
-- CLP CLI;
-- GLPK CLI;
-- OR-Tools Java;
-- ojAlgo;
-- in-project simple solver;
-- in-project performance solver.
+- Strict solver comparison Markdown/JSON/CSV:
+  `examples/solver-comparison-smoke/build/reports/strict-solver-comparison/`
+- Expanded benchmark Markdown/JSON/CSV:
+  `modules/lp-harness-cli/build/reports/expanded-benchmark-suite/`
+- JVM profiling artifact:
+  `modules/lp-harness-cli/build/reports/expanded-benchmark-profile/mlp-expanded-benchmark.jfr`
 
-The local snapshot produced seven solver-instance records. HiGHS, CLP, and GLPK
-were reported as `SOLVER_UNAVAILABLE` because their CLI binaries were not
-available. OR-Tools, ojAlgo, the simple solver, and the performance solver
-returned accepted validation evidence for the fixture.
+## Strict Solver Comparison
 
-The generated reports are written under
-`examples/solver-comparison-smoke/build/reports/solver-comparison-smoke/` when
-the example runs directly and through the root `solverComparisonSmoke` lane.
+`strictSolverComparison` ran 16 deterministic correctness instances through the
+required solver set: HiGHS, CLP, GLPK, OR-Tools, ojAlgo, the simple solver, and
+the performance solver.
 
-Snapshot row evidence:
+Summary:
 
-| Solver | Status | Outcome | Accepted | Objective | Residuals | Solve seconds | Validation seconds | Total seconds | Version | Threads | Time limit | Peak memory | Machine | Termination |
-|---|---|---|---:|---:|---|---:|---:|---:|---|---:|---:|---|---|---|
-| HiGHS CLI | `UNSUPPORTED` | `SOLVER_UNAVAILABLE` | false | | 1 | 0.079166626 | 0.01172232 | 0.131100547 | `not-measured` | 1 | 60 | `not-measured` | Linux amd64, Java 21.0.11, 32 processors | HiGHS binary unavailable: highs |
-| CLP CLI | `UNSUPPORTED` | `SOLVER_UNAVAILABLE` | false | | 1 | 0.058576657 | 0.000019274 | 0.061928273 | `not-measured` | 1 | 60 | `not-measured` | Linux amd64, Java 21.0.11, 32 processors | CLP binary unavailable: clp |
-| GLPK CLI | `UNSUPPORTED` | `SOLVER_UNAVAILABLE` | false | | 1 | 0.072651602 | 0.000022124 | 0.076256151 | `not-measured` | 1 | 60 | `not-measured` | Linux amd64, Java 21.0.11, 32 processors | GLPK binary unavailable: glpsol |
-| OR-Tools Java | `OPTIMAL` | `SUCCESS` | true | 0.0 | none | 0.395729656 | 0.000891568 | 0.402107657 | `not-measured` | 1 | 60 | `not-measured` | Linux amd64, Java 21.0.11, 32 processors | OR-Tools GLOP status: OPTIMAL |
-| ojAlgo | `OPTIMAL` | `SUCCESS` | true | 0.0 | none | 0.700289104 | 0.000027452 | 0.703644667 | `not-measured` | 1 | 60 | `not-measured` | Linux amd64, Java 21.0.11, 32 processors | ojAlgo state: DISTINCT |
-| Simple solver | `OPTIMAL` | `SUCCESS` | true | 0.0 | none | 0.005719971 | 0.000030925 | 0.009188327 | `not-measured` | 1 | 60 | `not-measured` | Linux amd64, Java 21.0.11, 32 processors | one-dimensional LP optimal |
-| Performance solver | `OPTIMAL` | `SUCCESS` | true | 0.0 | none | 0.015798537 | 0.000035661 | 0.020088372 | `not-measured` | 1 | 60 | `not-measured` | Linux amd64, Java 21.0.11, 32 processors | simplex core optimal |
+| Solver | Version or path evidence | Records | Success | Unsupported | Failures | Solve seconds range |
+|---|---|---:|---:|---:|---:|---:|
+| HiGHS | HiGHS 1.14.0 at `/tmp/mlp-micromamba-root/envs/mlp-solvers/bin/highs` | 16 | 12 | 4 | 0 | 0.026098767-0.066869205 |
+| CLP | Coin LP 1.17.11 at `/tmp/mlp-micromamba-root/envs/mlp-solvers/bin/clp` | 16 | 10 | 6 | 0 | 0.041218107-0.099416286 |
+| GLPK | GLPSOL 5.0 at `/tmp/mlp-micromamba-root/envs/mlp-solvers/bin/glpsol` | 16 | 12 | 4 | 0 | 0.015156458-0.026135461 |
+| OR-Tools | Gradle dependency `9.15.6755` | 16 | 15 | 1 | 0 | 0.000112114-0.357395544 |
+| ojAlgo | Gradle dependency `56.2.1` | 16 | 16 | 0 | 0 | 0.000194456-0.842953844 |
+| Simple solver | In-project adapter | 16 | 16 | 0 | 0 | 0.000008952-0.009204931 |
+| Performance solver | In-project adapter | 16 | 10 | 6 | 0 | 0.000016634-0.022188083 |
 
-Parse/load and export/canonicalization seconds were `not-measured` for every
-solver-comparison row.
+Overall strict comparison counts:
 
-## Benchmark smoke evidence
+- records: 112;
+- successful validated records: 91;
+- unsupported solver/instance records: 21;
+- unavailable solvers: 0;
+- adapter errors: 0;
+- validation failures: 0.
 
-`benchmarkSmoke` runs the generated three-node network-flow fixture through the
-in-project performance solver and the generated-evidence adapter. It also checks
-the curated public manifest entries without vendoring public benchmark files.
+Unsupported records are expected 0.1.0 subset boundaries. They remain visible
+in the reports and are not counted as accepted solves.
 
-The local snapshot produced five benchmark records: two accepted generated
-records and three deterministic missing-public-input records. Missing public
-files are evidence records, not failures, because the public benchmark curation
-policy keeps downloaded benchmark files out of git.
+## Expanded Benchmark Suite
 
-The generated reports are written under
-`modules/lp-harness-cli/build/reports/benchmark-smoke/` for the root lane. Each
-row uses the same Markdown, JSON, and CSV evidence fields as solver comparison
-reports.
+`expandedBenchmarkSuite` ran six deterministic generated benchmark families and
+three curated public Netlib manifest entries.
 
-Snapshot row evidence:
+Summary:
 
-| Suite | Instance | Solver | Status | Outcome | Accepted | Objective | Residuals | Solve seconds | Validation seconds | Total seconds | Version | Threads | Time limit | Peak memory | Machine | Termination |
-|---|---|---|---|---|---:|---:|---|---:|---:|---:|---|---:|---:|---|---|---|
-| `benchmark-smoke-generated` | `network-flow-3-node-seed-7` | performance | `OPTIMAL` | `SUCCESS` | true | 6.0 | none | 0.018648067 | 0.00728461 | 0.063212986 | `not-measured` | 1 | 60 | `not-measured` | Linux amd64, Java 21.0.11, 32 processors | simplex core optimal |
-| `benchmark-smoke-generated` | `network-flow-3-node-seed-7` | generated-evidence | `OPTIMAL` | `SUCCESS` | true | 6.0 | none | 0.0 | 0.000023882 | 0.00521822 | `not-measured` | 1 | 60 | `not-measured` | Linux amd64, Java 21.0.11, 32 processors | built-in generated evidence adapter |
-| `benchmark-smoke-public` | `netlib-afiro` | public-benchmark | `UNSUPPORTED` | `SOLVER_UNAVAILABLE` | false | | 1 | 0.0 | `not-measured` | `not-measured` | `not-measured` | 1 | 60 | `not-measured` | Linux amd64, Java 21.0.11, 32 processors | missing local public benchmark file: `instances/public/netlib/afiro.mps` |
-| `benchmark-smoke-public` | `netlib-adlittle` | public-benchmark | `UNSUPPORTED` | `SOLVER_UNAVAILABLE` | false | | 1 | 0.0 | `not-measured` | `not-measured` | `not-measured` | 1 | 60 | `not-measured` | Linux amd64, Java 21.0.11, 32 processors | missing local public benchmark file: `instances/public/netlib/adlittle.mps` |
-| `benchmark-smoke-public` | `netlib-scorpion` | public-benchmark | `UNSUPPORTED` | `SOLVER_UNAVAILABLE` | false | | 1 | 0.0 | `not-measured` | `not-measured` | `not-measured` | 1 | 60 | `not-measured` | Linux amd64, Java 21.0.11, 32 processors | missing local public benchmark file: `instances/public/netlib/scorpion.mps` |
+| Suite | Solver | Records | Success | Adapter errors | Notes |
+|---|---|---:|---:|---:|---|
+| `expanded-benchmark-generated` | performance | 6 | 6 | 0 | Generated dense, sparse, network-like, equality-heavy, degenerate, and scaled cases validated. |
+| `expanded-benchmark-generated` | generated-evidence | 6 | 6 | 0 | Fixture sanity adapter validated expected evidence. |
+| `expanded-benchmark-public` | public-benchmark | 3 | 0 | 3 | Netlib AFIRO, ADLITTLE, and SCORPION are present locally but not loadable by the 0.1.0 MPS subset. |
 
-Parse/load and export/canonicalization seconds were `not-measured` for every
-benchmark-smoke row.
+Expanded benchmark public failures:
 
-## Required evidence fields
+- `netlib-afiro`: malformed for current MPS subset, record outside supported
+  section;
+- `netlib-adlittle`: malformed for current MPS subset, record outside supported
+  section;
+- `netlib-scorpion`: malformed for current MPS subset, record outside supported
+  section.
 
-The report formats must keep these fields visible before any future performance
-claim can be evaluated:
+Generated benchmark timing evidence is valid for instrumentation and regression
+tracking. It is not enough for public comparative claims because the public
+benchmark lane is not yet producing validated runtime records.
 
-- instance provenance through suite and instance identifiers;
-- solver identity, version field, normalized status, objective evidence, and
-  termination diagnostics;
+## Required Evidence Fields
+
+The report formats include these fields before any future performance claim is
+evaluated:
+
+- mode, suite, instance, and solver identity;
+- solver version and binary path or dependency/in-project diagnostic;
+- normalized solver status, objective evidence, and termination diagnostic;
 - validation acceptance, tolerance profile, and residual/finding summary;
-- solver options, including thread count and time limit;
+- solver options: thread count and time limit;
 - parse/load, export/canonicalization, solve, validation, and total timing
-  buckets, with `not-measured` where a bucket is unavailable;
+  buckets, with `not-measured` for missing buckets;
 - warmup count, repetition count, min/median/max solve-time summaries, failure
-  count, and unavailable count for each mode/suite/instance/solver group;
-- peak memory evidence, currently `not-measured` in smoke lanes;
-- machine metadata: operating system, architecture, Java version, and available
-  processor count;
-- failure and unavailable records instead of silent skips.
+  count, and unavailable count;
+- peak memory field, currently `not-measured`;
+- machine metadata: operating system, architecture, Java version, and processor
+  count;
+- failure, unsupported, and unavailable records instead of silent skips.
+
+## Profiling Evidence
+
+The JVM profiling workflow produced a Java Flight Recorder artifact for the
+expanded benchmark lane:
+
+`modules/lp-harness-cli/build/reports/expanded-benchmark-profile/mlp-expanded-benchmark.jfr`
+
+Native optimized and PGO profile modes are wired through the GraalVM Native
+Build Tools plugin, but no native profiling artifact is required for this
+snapshot because local `native-image` is unavailable.
 
 ## Limitations
 
-This evidence is intentionally small:
-
-- the solver-comparison lane uses one tiny Tier 1 fixture;
-- the benchmark lane uses one generated fixture plus manifest checks;
-- external CLI solvers may be unavailable;
-- peak memory is not measured;
-- no warm-up or repeated benchmark measurement is recorded in the G9 evidence;
-  G10 report renderers add statistical summary fields, but this old snapshot
-  remains smoke-scale evidence rather than a public benchmark runtime
-  comparison.
-
-The evidence supports smoke-level correctness and reporting confidence only. It
-does not support claims that one solver is faster, more robust, or more scalable
-than another.
-
-G9-019 uses this report as the performance readiness evidence snapshot. The
-readiness decision is recorded in
-`docs/verification/performance-readiness-review.md`.
+- The strict comparison suite is correctness-oriented; it is not a benchmark
+  methodology for solver speed.
+- Each benchmark group currently has warmup count `0` and repetition count `1`.
+- Peak memory is not measured.
+- Parse/load and export timing remain `not-measured` for current generated
+  benchmark rows.
+- The public Netlib benchmark candidates are downloaded and checksum-verified,
+  but the 0.1.0 MPS reader cannot yet load them.
+- No conclusion should be drawn that one solver is faster or more robust than
+  another from this snapshot.

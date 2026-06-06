@@ -55,9 +55,10 @@ unavailable solver is reported explicitly and in-project solvers validate. If
 any available solver returns an adapter error or fails validation, the lane
 fails after writing reports.
 
-The first G9 performance evidence snapshot for this lane is recorded in
-`docs/verification/performance-evidence-report.md`. It is smoke evidence only
-and does not make a solver-speed claim.
+The current G10 performance evidence snapshot for this lane is recorded in
+`docs/verification/performance-evidence-report.md`. It includes strict
+comparison evidence with all required solvers available, but it remains
+correctness-oriented evidence and does not make a solver-speed claim.
 
 ## Toolchain Provisioning
 
