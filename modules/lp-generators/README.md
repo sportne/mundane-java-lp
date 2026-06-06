@@ -14,4 +14,10 @@ correctness suite. Each canonical fixture carries:
 Fixtures are intentionally small and directly constructed so reviews can check
 the math without trusting a solver.
 
+`BenchmarkFixtureGenerator` adds the expanded generated benchmark baseline:
+small dense, sparse rectangular, network-like, equality-heavy, degenerate, and
+scaled cases. These instances are still deterministic and hand-checkable; they
+exist to broaden benchmark evidence, not to support performance claims by
+themselves.
+
 See the repository root `README.md` and `docs/architecture/module-boundaries.md`.

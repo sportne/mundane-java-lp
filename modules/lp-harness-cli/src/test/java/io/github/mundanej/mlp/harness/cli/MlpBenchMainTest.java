@@ -26,8 +26,15 @@ final class MlpBenchMainTest {
   }
 
   @Test
+  void expandedBenchmarkSuiteDoesNotThrow() {
+    assertDoesNotThrow(() -> MlpBenchMain.main(new String[] {"--expanded", tempDir.toString()}));
+  }
+
+  @Test
   void benchmarkSmokeWritesReportsAndMissingPublicInputRecord() throws IOException {
-    MlpBenchMain.BenchmarkSmokeResult result = MlpBenchMain.runBenchmarkSmoke(tempDir);
+    Path manifest = missingPublicManifest(tempDir.resolve("missing-smoke-manifest.json"));
+    MlpBenchMain.BenchmarkSmokeResult result =
+        MlpBenchMain.runBenchmarkSmoke(tempDir.resolve("missing-smoke-reports"), manifest);
 
     assertEquals(5, result.records().size());
     assertTrue(
@@ -40,6 +47,77 @@ final class MlpBenchMainTest {
     assertTrue(Files.readString(result.jsonPath()).contains("\"instance\":\"netlib-afiro\""));
     assertTrue(Files.readString(result.csvPath()).contains("performance"));
     assertTrue(Files.readString(result.csvPath()).contains("missing local public benchmark file"));
+  }
+
+  @Test
+  void expandedBenchmarkSuiteWritesGeneratedFamiliesAndMissingPublicInputRecords()
+      throws IOException {
+    Path manifest = missingPublicManifest(tempDir.resolve("missing-expanded-manifest.json"));
+    MlpBenchMain.BenchmarkSmokeResult result =
+        MlpBenchMain.runExpandedBenchmarkSuite(tempDir.resolve("expanded-reports"), manifest);
+
+    assertEquals(15, result.records().size());
+    assertTrue(
+        result.records().stream()
+            .allMatch(record -> "expanded-benchmark-suite".equals(record.runMode())));
+    assertTrue(
+        result.records().stream()
+            .anyMatch(record -> "benchmark-small-dense".equals(record.instanceId())));
+    assertTrue(
+        result.records().stream()
+            .anyMatch(record -> "network-flow-3-node-seed-19".equals(record.instanceId())));
+    assertTrue(Files.readString(result.markdownPath()).contains("expanded-benchmark-generated"));
+    assertTrue(Files.readString(result.csvPath()).contains("missing local public benchmark file"));
+  }
+
+  private static Path missingPublicManifest(final Path manifest) throws IOException {
+    Files.writeString(
+        manifest,
+        """
+                {
+                  "schemaVersion": 1,
+                  "sourceSet": "missing-test",
+                  "instances": [
+                    {
+                      "id": "netlib-afiro",
+                      "family": "Netlib LP",
+                      "upstreamUrl": "https://www.netlib.org/lp/data/afiro",
+                      "licenseOrTerms": "test",
+                      "downloadDate": "2026-06-06",
+                      "sha256": "test",
+                      "format": "MPS",
+                      "localPath": "missing/netlib/afiro.mps",
+                      "normalization": "test",
+                      "status": "approved-local"
+                    },
+                    {
+                      "id": "netlib-adlittle",
+                      "family": "Netlib LP",
+                      "upstreamUrl": "https://www.netlib.org/lp/data/adlittle",
+                      "licenseOrTerms": "test",
+                      "downloadDate": "2026-06-06",
+                      "sha256": "test",
+                      "format": "MPS",
+                      "localPath": "missing/netlib/adlittle.mps",
+                      "normalization": "test",
+                      "status": "approved-local"
+                    },
+                    {
+                      "id": "netlib-scorpion",
+                      "family": "Netlib LP",
+                      "upstreamUrl": "https://www.netlib.org/lp/data/scorpion",
+                      "licenseOrTerms": "test",
+                      "downloadDate": "2026-06-06",
+                      "sha256": "test",
+                      "format": "MPS",
+                      "localPath": "missing/netlib/scorpion.mps",
+                      "normalization": "test",
+                      "status": "approved-local"
+                    }
+                  ]
+                }
+                """);
+    return manifest;
   }
 
   @Test

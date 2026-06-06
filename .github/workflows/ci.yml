@@ -30,5 +30,7 @@ jobs:
           sudo install -m 0755 /tmp/bin/highs /usr/local/bin/highs
       - name: Verify solver comparison toolchain
         run: MLP_SOLVER_TOOLCHAIN_STRICT=true gradle verifySolverToolchain --console=plain
+      - name: Fetch public benchmark candidates
+        run: tools/fetch-public-benchmarks.sh --download
       - name: Quality gate
-        run: gradle qualityGate solverComparisonSmoke strictSolverComparison benchmarkSmoke nativeSmoke --console=plain
+        run: gradle qualityGate solverComparisonSmoke strictSolverComparison benchmarkSmoke expandedBenchmarkSuite nativeSmoke --console=plain

@@ -14,3 +14,11 @@ dependencies {
 application {
     mainClass = 'io.github.mundanej.mlp.harness.cli.MlpBenchMain'
 }
+
+tasks.register('expandedRun', JavaExec) {
+    group = 'verification'
+    description = 'Runs the expanded generated and public benchmark suite.'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = application.mainClass
+    args '--expanded', layout.buildDirectory.dir('reports/expanded-benchmark-suite').get().asFile.absolutePath
+}

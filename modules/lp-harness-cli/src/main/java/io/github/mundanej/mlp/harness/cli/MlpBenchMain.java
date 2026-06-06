@@ -1,5 +1,6 @@
 package io.github.mundanej.mlp.harness.cli;
 
+import io.github.mundanej.mlp.generators.BenchmarkFixtureGenerator;
 import io.github.mundanej.mlp.generators.ExpectedResultKind;
 import io.github.mundanej.mlp.generators.GeneratedLpInstance;
 import io.github.mundanej.mlp.generators.NetworkFlowGenerator;
@@ -53,16 +54,19 @@ public final class MlpBenchMain {
       return;
     }
     try {
-      Path outputDirectory =
-          args.length == 0 ? Path.of("build/reports/benchmark-smoke") : Path.of(args[0]);
-      runBenchmarkSmoke(outputDirectory);
+      CliArguments arguments = CliArguments.parse(args);
+      if (arguments.mode() == BenchmarkMode.EXPANDED) {
+        runExpandedBenchmarkSuite(arguments.outputDirectory(), arguments.publicManifest());
+      } else {
+        runBenchmarkSmoke(arguments.outputDirectory(), arguments.publicManifest());
+      }
     } catch (IOException exception) {
-      throw new IllegalStateException("could not run benchmark smoke", exception);
+      throw new IllegalStateException("could not run benchmark suite", exception);
     }
   }
 
   private static void printHelp() {
-    System.out.println("Usage: mlpbench [output-directory]");
+    System.out.println("Usage: mlpbench [--expanded] [output-directory] [public-manifest]");
     System.out.println("Runs the built-in benchmark smoke suite by default.");
   }
 
@@ -72,37 +76,34 @@ public final class MlpBenchMain {
 
   static BenchmarkSmokeResult runBenchmarkSmoke(
       final Path outputDirectory, final Path publicManifest) throws IOException {
+    return runBenchmark(outputDirectory, publicManifest, BenchmarkMode.SMOKE);
+  }
+
+  static BenchmarkSmokeResult runExpandedBenchmarkSuite(final Path outputDirectory)
+      throws IOException {
+    return runExpandedBenchmarkSuite(outputDirectory, PUBLIC_MANIFEST);
+  }
+
+  static BenchmarkSmokeResult runExpandedBenchmarkSuite(
+      final Path outputDirectory, final Path publicManifest) throws IOException {
+    return runBenchmark(outputDirectory, publicManifest, BenchmarkMode.EXPANDED);
+  }
+
+  private static BenchmarkSmokeResult runBenchmark(
+      final Path outputDirectory, final Path publicManifest, final BenchmarkMode mode)
+      throws IOException {
     Files.createDirectories(outputDirectory);
-    GeneratedLpInstance generated = new NetworkFlowGenerator().threeNode(7L);
-    BenchmarkInstance instance =
-        new BenchmarkInstance(
-            generated.id(),
-            generated.fixture().problem(),
-            generated.fixture().matrix(),
-            expected(generated));
-    List<RunRecord> records =
-        new HarnessRunner()
-            .run(
-                new BenchmarkSuite("benchmark-smoke-generated", List.of(instance)),
-                List.of(
-                    new PerformanceLpSolverAdapter(),
-                    new EvidenceAdapter(
-                        generated.fixture().evidence().objectiveValue().orElseThrow(),
-                        generated.fixture().evidence().primal())),
-                new HarnessRunConfig(
-                    outputDirectory.resolve("work"),
-                    SolverOptions.defaults(),
-                    ToleranceProfile.STANDARD));
+    List<RunRecord> records = generatedBenchmarkRecords(outputDirectory, mode);
     List<RunRecord> allRecords =
         new ArrayList<>(
             records.stream()
                 .map(
                     record ->
                         record.withReportMetadata(
-                            "benchmark-smoke", "not-measured", "not-measured"))
+                            mode.reportValue(), "not-measured", "not-measured"))
                 .toList());
     allRecords.addAll(
-        publicBenchmarkRecords(publicManifest, outputDirectory.resolve("public-work")));
+        publicBenchmarkRecords(publicManifest, outputDirectory.resolve("public-work"), mode));
     Path markdownPath = outputDirectory.resolve("report.md");
     Path jsonPath = outputDirectory.resolve("report.json");
     Path csvPath = outputDirectory.resolve("report.csv");
@@ -117,7 +118,8 @@ public final class MlpBenchMain {
                 record -> record.failureMessage().contains("missing local public benchmark file"))
             .count();
     MachineFingerprint fingerprint = MachineFingerprint.capture();
-    System.out.println("mlpbench benchmark smoke");
+    System.out.println(mode.title());
+    System.out.println("mode=" + mode.reportValue());
     System.out.println("java=" + fingerprint.javaVersion());
     System.out.println("records=" + allRecords.size());
     System.out.println("accepted=" + accepted);
@@ -128,8 +130,42 @@ public final class MlpBenchMain {
     return new BenchmarkSmokeResult(allRecords, markdownPath, jsonPath, csvPath);
   }
 
+  private static List<RunRecord> generatedBenchmarkRecords(
+      final Path outputDirectory, final BenchmarkMode mode) {
+    List<RunRecord> records = new ArrayList<>();
+    for (GeneratedLpInstance generated : generatedInstances(mode)) {
+      BenchmarkInstance instance =
+          new BenchmarkInstance(
+              generated.id(),
+              generated.fixture().problem(),
+              generated.fixture().matrix(),
+              expected(generated));
+      records.addAll(
+          new HarnessRunner()
+              .run(
+                  new BenchmarkSuite(mode.generatedSuiteId(), List.of(instance)),
+                  List.of(
+                      new PerformanceLpSolverAdapter(),
+                      new EvidenceAdapter(
+                          generated.fixture().evidence().objectiveValue().orElseThrow(),
+                          generated.fixture().evidence().primal())),
+                  new HarnessRunConfig(
+                      outputDirectory.resolve("work"),
+                      SolverOptions.defaults(),
+                      ToleranceProfile.STANDARD)));
+    }
+    return records;
+  }
+
+  private static List<GeneratedLpInstance> generatedInstances(final BenchmarkMode mode) {
+    return switch (mode) {
+      case SMOKE -> List.of(new NetworkFlowGenerator().threeNode(7L));
+      case EXPANDED -> new BenchmarkFixtureGenerator().suite();
+    };
+  }
+
   private static List<RunRecord> publicBenchmarkRecords(
-      final Path publicManifest, final Path workRoot) throws IOException {
+      final Path publicManifest, final Path workRoot, final BenchmarkMode mode) throws IOException {
     Path manifestPath = resolveInputPath(publicManifest);
     List<RunRecord> records = new ArrayList<>();
     for (PublicBenchmarkCandidate candidate : readPublicManifest(manifestPath)) {
@@ -138,7 +174,7 @@ public final class MlpBenchMain {
       }
       Path localPath = resolvePublicPath(manifestPath, candidate.localPath());
       if (!Files.exists(localPath)) {
-        records.add(missingPublicInputRecord(candidate, localPath));
+        records.add(missingPublicInputRecord(candidate, localPath, mode));
         continue;
       }
       try {
@@ -152,12 +188,12 @@ public final class MlpBenchMain {
         records.addAll(
             new HarnessRunner()
                 .run(
-                    new BenchmarkSuite("benchmark-smoke-public", List.of(instance)),
+                    new BenchmarkSuite(mode.publicSuiteId(), List.of(instance)),
                     List.of(new PublicMetadataAdapter()),
                     new HarnessRunConfig(
                         workRoot, SolverOptions.defaults(), ToleranceProfile.STANDARD)));
       } catch (RuntimeException | IOException exception) {
-        records.add(publicLoadFailureRecord(candidate, localPath, exception));
+        records.add(publicLoadFailureRecord(candidate, localPath, exception, mode));
       }
     }
     return records;
@@ -237,7 +273,7 @@ public final class MlpBenchMain {
   }
 
   private static RunRecord missingPublicInputRecord(
-      final PublicBenchmarkCandidate candidate, final Path localPath) {
+      final PublicBenchmarkCandidate candidate, final Path localPath, final BenchmarkMode mode) {
     SolverOptions options = SolverOptions.defaults();
     SolverRunResult result =
         new SolverRunResult(
@@ -256,13 +292,13 @@ public final class MlpBenchMain {
                     "public benchmark candidate is not downloaded locally",
                     1.0d)));
     return new RunRecord(
-        "benchmark-smoke-public",
+        mode.publicSuiteId(),
         candidate.id(),
         result,
         report,
         RunOutcome.SOLVER_UNAVAILABLE,
         result.message(),
-        "benchmark-smoke",
+        mode.reportValue(),
         "not-measured",
         "not-measured",
         options,
@@ -275,7 +311,10 @@ public final class MlpBenchMain {
   }
 
   private static RunRecord publicLoadFailureRecord(
-      final PublicBenchmarkCandidate candidate, final Path localPath, final Exception exception) {
+      final PublicBenchmarkCandidate candidate,
+      final Path localPath,
+      final Exception exception,
+      final BenchmarkMode mode) {
     SolverOptions options = SolverOptions.defaults();
     String message =
         "could not load public benchmark file " + localPath + ": " + exception.getMessage();
@@ -296,13 +335,13 @@ public final class MlpBenchMain {
                     "public benchmark candidate could not be loaded",
                     1.0d)));
     return new RunRecord(
-        "benchmark-smoke-public",
+        mode.publicSuiteId(),
         candidate.id(),
         result,
         report,
         RunOutcome.ADAPTER_ERROR,
         message,
-        "benchmark-smoke",
+        mode.reportValue(),
         "not-measured",
         "not-measured",
         options,
@@ -384,6 +423,75 @@ public final class MlpBenchMain {
           new double[0],
           0.0d,
           "public benchmark loaded; no benchmark solver configured");
+    }
+  }
+
+  private enum BenchmarkMode {
+    SMOKE(
+        "benchmark-smoke",
+        "mlpbench benchmark smoke",
+        Path.of("build/reports/benchmark-smoke"),
+        "benchmark-smoke-generated",
+        "benchmark-smoke-public"),
+    EXPANDED(
+        "expanded-benchmark-suite",
+        "mlpbench expanded benchmark suite",
+        Path.of("build/reports/expanded-benchmark-suite"),
+        "expanded-benchmark-generated",
+        "expanded-benchmark-public");
+
+    private final String reportValue;
+    private final String title;
+    private final Path defaultOutputDirectory;
+    private final String generatedSuiteId;
+    private final String publicSuiteId;
+
+    BenchmarkMode(
+        final String reportValue,
+        final String title,
+        final Path defaultOutputDirectory,
+        final String generatedSuiteId,
+        final String publicSuiteId) {
+      this.reportValue = reportValue;
+      this.title = title;
+      this.defaultOutputDirectory = defaultOutputDirectory;
+      this.generatedSuiteId = generatedSuiteId;
+      this.publicSuiteId = publicSuiteId;
+    }
+
+    String reportValue() {
+      return reportValue;
+    }
+
+    String title() {
+      return title;
+    }
+
+    Path defaultOutputDirectory() {
+      return defaultOutputDirectory;
+    }
+
+    String generatedSuiteId() {
+      return generatedSuiteId;
+    }
+
+    String publicSuiteId() {
+      return publicSuiteId;
+    }
+  }
+
+  private record CliArguments(BenchmarkMode mode, Path outputDirectory, Path publicManifest) {
+    static CliArguments parse(final String[] args) {
+      BenchmarkMode mode = BenchmarkMode.SMOKE;
+      int index = 0;
+      if (args.length > 0 && "--expanded".equals(args[0])) {
+        mode = BenchmarkMode.EXPANDED;
+        index = 1;
+      }
+      Path outputDirectory =
+          index < args.length ? Path.of(args[index++]) : mode.defaultOutputDirectory();
+      Path publicManifest = index < args.length ? Path.of(args[index]) : PUBLIC_MANIFEST;
+      return new CliArguments(mode, outputDirectory, publicManifest);
     }
   }
 }

@@ -2,19 +2,49 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-manifest="${1:-"$repo_root/instances/public/manifest.example.json"}"
+download=false
+manifest="$repo_root/instances/public/manifest.example.json"
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --download)
+      download=true
+      shift
+      ;;
+    --help)
+      cat <<'MSG'
+Usage: tools/fetch-public-benchmarks.sh [--download] [manifest]
+
+Validates the public benchmark manifest. With --download, downloads non-rejected
+MPS candidates to their ignored instances/public local paths and verifies
+SHA-256 checksums.
+MSG
+      exit 0
+      ;;
+    *)
+      manifest="$1"
+      shift
+      ;;
+  esac
+done
 
 if [[ ! -f "$manifest" ]]; then
   echo "manifest not found: $manifest" >&2
   exit 1
 fi
 
-python3 - "$manifest" <<'PY'
+python3 - "$repo_root" "$manifest" "$download" <<'PY'
+import hashlib
 import json
+from pathlib import Path
 import sys
+from urllib.request import urlopen
 
-manifest_path = sys.argv[1]
-with open(manifest_path, "r", encoding="utf-8") as handle:
+repo_root = Path(sys.argv[1])
+manifest_path = Path(sys.argv[2])
+download = sys.argv[3] == "true"
+
+with manifest_path.open("r", encoding="utf-8") as handle:
     data = json.load(handle)
 
 required_top = {"schemaVersion", "sourceSet", "instances"}
@@ -39,7 +69,9 @@ required_instance = {
     "status",
 }
 ids = set()
-for index, instance in enumerate(data["instances"]):
+
+
+def validate_instance(index, instance):
     missing = sorted(required_instance - set(instance))
     if missing:
         raise SystemExit(f"instance {index} missing keys: {', '.join(missing)}")
@@ -55,6 +87,46 @@ for index, instance in enumerate(data["instances"]):
         raise SystemExit(f"{instance_id} localPath must be under instances/public/")
     if instance["status"] not in {"candidate", "approved-local", "rejected"}:
         raise SystemExit(f"{instance_id} has unsupported status: {instance['status']}")
+    checksum = str(instance["sha256"])
+    if checksum != "pending-local-download" and len(checksum) != 64:
+        raise SystemExit(f"{instance_id} sha256 must be 64 hex characters or pending-local-download")
+
+
+def sha256(path):
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+for index, instance in enumerate(data["instances"]):
+    validate_instance(index, instance)
 
 print(f"validated {len(data['instances'])} public benchmark manifest entries")
+
+for instance in data["instances"]:
+    instance_id = instance["id"]
+    if instance["status"] == "rejected" or instance["format"] != "MPS":
+        print(f"{instance_id}: skipped status={instance['status']} format={instance['format']}")
+        continue
+
+    local_path = repo_root / instance["localPath"]
+    expected = instance["sha256"]
+    if download:
+        local_path.parent.mkdir(parents=True, exist_ok=True)
+        with urlopen(instance["upstreamUrl"], timeout=30) as response:
+            local_path.write_bytes(response.read())
+        print(f"{instance_id}: downloaded {instance['upstreamUrl']} -> {local_path}")
+
+    if not local_path.exists():
+        print(f"{instance_id}: missing {local_path}")
+        continue
+
+    actual = sha256(local_path)
+    if expected == "pending-local-download":
+        raise SystemExit(f"{instance_id}: manifest sha256 is pending; actual={actual}")
+    if actual != expected:
+        raise SystemExit(f"{instance_id}: checksum mismatch expected={expected} actual={actual}")
+    print(f"{instance_id}: verified sha256={actual}")
 PY

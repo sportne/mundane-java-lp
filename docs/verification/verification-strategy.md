@@ -49,11 +49,17 @@ external solver setup; local development can continue to use
 
 ```bash
 ./gradlew benchmarkSmoke --console=plain
+./gradlew expandedBenchmarkSuite --console=plain
 ```
 
 Benchmark smoke is advisory only. It does not support competitive claims.
 Its generated fixture path runs the in-project performance solver without
 requiring external solver binaries.
+
+`expandedBenchmarkSuite` is the fuller benchmark evidence lane. It runs the
+expanded generated family set and the curated public manifest. CI downloads and
+verifies public benchmark files before this lane; local runs without downloads
+record deterministic missing-input rows.
 
 The performance solver readiness review is recorded in
 `performance-readiness-review.md`. It treats benchmark smoke as release evidence
@@ -61,7 +67,6 @@ for wiring, validation, and reporting only.
 
 ## Manual future lanes
 
-- `publicBenchmarkSuite`
 - `generatedLargeSuite`
 - `numericalStressSuite`
 - `massiveSuite`

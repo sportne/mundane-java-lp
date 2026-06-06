@@ -47,6 +47,14 @@ canonical LP data and reported through the public benchmark suite without
 requiring an external solver. Unsupported or malformed local files are reported
 as deterministic load failures.
 
+`expandedBenchmarkSuite` keeps the local smoke lane bounded and adds the fuller
+evidence lane. It runs deterministic generated families for small dense, sparse,
+network-like, equality-heavy, degenerate, and scaled cases, then reads the same
+public manifest under the `expanded-benchmark-public` suite ID. Missing public
+files remain deterministic missing-input records. CI downloads the curated
+Netlib files into ignored `instances/public/` paths before running the expanded
+lane.
+
 The generated benchmark smoke path runs the in-project performance solver
 against the deterministic three-node network-flow fixture and keeps the
 generated evidence adapter as a fixture sanity record. The lane reports timing

@@ -85,6 +85,12 @@ tasks.register('benchmarkSmoke') {
     dependsOn ':modules:lp-harness-cli:run'
 }
 
+tasks.register('expandedBenchmarkSuite') {
+    group = 'verification'
+    description = 'Runs expanded generated and public benchmark checks for evidence collection.'
+    dependsOn ':modules:lp-harness-cli:expandedRun'
+}
+
 tasks.register('jacocoTestCoverageVerification') {
     group = 'verification'
     description = 'Runs coverage verification for all Java projects.'

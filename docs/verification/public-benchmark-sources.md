@@ -12,11 +12,12 @@ The initial public benchmark candidate set is a small Netlib LP subset:
 - `netlib-adlittle`
 - `netlib-scorpion`
 
-These are intentionally small enough for local smoke work. The benchmark smoke
-lane reads the manifest, checks each local path, and reports a deterministic
-missing-input record when a candidate has not been downloaded. When a local MPS
-file is present, the lane parses it through the supported MPS reader and records
-the instance as loaded without requiring an external benchmark solver.
+These are intentionally small enough for local smoke work and CI evidence
+collection. The benchmark lanes read the manifest, check each local path, and
+report a deterministic missing-input record when a candidate has not been
+downloaded. When a local MPS file is present, the lane parses it through the
+supported MPS reader and records the instance as loaded without requiring an
+external benchmark solver.
 
 ## Metadata Policy
 
@@ -26,16 +27,15 @@ Every public benchmark manifest entry records:
 - family or suite name;
 - upstream source URL;
 - license or redistribution terms;
-- download date, or `not-downloaded` for candidate-only entries;
-- SHA-256 checksum, or `pending-local-download` before download;
+- upstream content verification date;
+- SHA-256 checksum;
 - source format;
 - local path under `instances/public/`;
 - normalization notes;
 - curation status.
 
 Downloaded benchmark files stay out of git until a future ADR explicitly
-approves vendoring. Checksum values must be updated from local downloads before
-using the instances for any performance evidence.
+approves vendoring.
 
 ## Manifest Verification
 
@@ -46,6 +46,12 @@ shape. Run:
 tools/fetch-public-benchmarks.sh
 ```
 
-The script verifies manifest schema and local-path policy. It does not download
-benchmark files in 0.1.0. The benchmark smoke task also consumes the committed
-manifest, but local benchmark files remain untracked under `instances/public/`.
+The script verifies manifest schema, local-path policy, and checksums for any
+present local files. To acquire the curated files for CI or explicit evidence
+runs:
+
+```bash
+tools/fetch-public-benchmarks.sh --download
+```
+
+Downloaded benchmark files remain untracked under `instances/public/`.
