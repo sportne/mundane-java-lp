@@ -30,6 +30,8 @@ final class MlpBenchMainTest {
     MlpBenchMain.BenchmarkSmokeResult result = MlpBenchMain.runBenchmarkSmoke(tempDir);
 
     assertEquals(5, result.records().size());
+    assertTrue(
+        result.records().stream().allMatch(record -> "benchmark-smoke".equals(record.runMode())));
     assertEquals(RunOutcome.SUCCESS, result.records().getFirst().outcome());
     assertEquals("performance", result.records().getFirst().solverResult().solverId().name());
     assertEquals(RunOutcome.SUCCESS, result.records().get(1).outcome());

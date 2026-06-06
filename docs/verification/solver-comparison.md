@@ -84,3 +84,20 @@ The task prints each solver name, command path, version output when available,
 and a deterministic unavailable diagnostic when a command is absent. CI runs the
 same verifier with `MLP_SOLVER_TOOLCHAIN_STRICT=true` after installing the
 external binaries so missing required commands fail the evidence lane.
+
+## Strict Solver Comparison
+
+`solverComparisonSmoke` remains the local developer lane. It writes reports for
+HiGHS, CLP, GLPK, OR-Tools, ojAlgo, the simple solver, and the performance
+solver, but tolerates unavailable external CLI solvers as explicit
+`SOLVER_UNAVAILABLE` records. It still fails when an available solver errors,
+fails validation, or when an in-project solver is unavailable.
+
+`strictSolverComparison` runs the same tiny comparison suite in strict mode. The
+required solver set is HiGHS, CLP, GLPK, OR-Tools, ojAlgo, the simple solver,
+and the performance solver. Any unavailable required solver, adapter error, or
+validation failure fails the lane after writing Markdown, JSON, and CSV reports
+under `examples/solver-comparison-smoke/build/reports/strict-solver-comparison`.
+
+Every solver comparison report row includes the comparison mode, solver version,
+and solver binary path or deterministic in-process/unavailable diagnostic.

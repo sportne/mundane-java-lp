@@ -69,6 +69,9 @@ public final class HighsCliAdapter implements LpSolverAdapter {
       Files.createDirectories(workDirectory.path());
       Path modelPath = workDirectory.path().resolve("model.mps");
       Path solutionPath = workDirectory.path().resolve("solution.sol");
+      Path optionsPath = workDirectory.path().resolve("highs.options");
+      Files.writeString(
+          optionsPath, "threads = " + options.threads() + "\n", StandardCharsets.UTF_8);
       new MpsWriter()
           .write(
               new MpsLp(
@@ -78,7 +81,8 @@ public final class HighsCliAdapter implements LpSolverAdapter {
                   input.columnNames(),
                   input.objectiveRowName()),
               modelPath);
-      return runProcess(command(modelPath, solutionPath, options), options.timeLimit(), startNanos);
+      return runProcess(
+          command(modelPath, solutionPath, optionsPath, options), options.timeLimit(), startNanos);
     } catch (MpsFormatException exception) {
       return result(
           SolverStatus.UNSUPPORTED, OptionalDouble.empty(), startNanos, exception.getMessage());
@@ -87,14 +91,17 @@ public final class HighsCliAdapter implements LpSolverAdapter {
     }
   }
 
-  List<String> command(final Path modelPath, final Path solutionPath, final SolverOptions options) {
+  List<String> command(
+      final Path modelPath,
+      final Path solutionPath,
+      final Path optionsPath,
+      final SolverOptions options) {
     return List.of(
         binaryName,
         "--model_file=" + modelPath,
         "--solution_file=" + solutionPath,
-        "--write_solution_to_file=true",
-        "--time_limit=" + options.timeLimit().toSeconds(),
-        "--threads=" + options.threads());
+        "--options_file=" + optionsPath,
+        "--time_limit=" + options.timeLimit().toSeconds());
   }
 
   SolverStatus parseStatus(final String output, final int exitCode) {

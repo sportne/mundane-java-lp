@@ -140,7 +140,7 @@ order.
 ### G10: strict solver and benchmark evidence readiness
 
 - [G10-001 solver toolchain provisioning](tasks/g10-001-solver-toolchain-provisioning.md) - **Complete**
-- [G10-002 strict solver availability gate](tasks/g10-002-strict-solver-availability-gate.md) - **Proposed**
+- [G10-002 strict solver availability gate](tasks/g10-002-strict-solver-availability-gate.md) - **Complete**
 - [G10-003 expanded correctness comparison suite](tasks/g10-003-expanded-correctness-comparison-suite.md) - **Proposed**
 - [G10-004 expanded generated and public benchmarks](tasks/g10-004-expanded-generated-and-public-benchmarks.md) - **Proposed**
 - [G10-005 benchmark methodology and statistics](tasks/g10-005-benchmark-methodology-and-statistics.md) - **Proposed**

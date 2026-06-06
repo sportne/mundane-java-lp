@@ -93,7 +93,14 @@ public final class MlpBenchMain {
                     outputDirectory.resolve("work"),
                     SolverOptions.defaults(),
                     ToleranceProfile.STANDARD));
-    List<RunRecord> allRecords = new ArrayList<>(records);
+    List<RunRecord> allRecords =
+        new ArrayList<>(
+            records.stream()
+                .map(
+                    record ->
+                        record.withReportMetadata(
+                            "benchmark-smoke", "not-measured", "not-measured"))
+                .toList());
     allRecords.addAll(
         publicBenchmarkRecords(publicManifest, outputDirectory.resolve("public-work")));
     Path markdownPath = outputDirectory.resolve("report.md");
@@ -255,6 +262,8 @@ public final class MlpBenchMain {
         report,
         RunOutcome.SOLVER_UNAVAILABLE,
         result.message(),
+        "benchmark-smoke",
+        "not-measured",
         "not-measured",
         options,
         MachineFingerprint.capture(),
@@ -293,6 +302,8 @@ public final class MlpBenchMain {
         report,
         RunOutcome.ADAPTER_ERROR,
         message,
+        "benchmark-smoke",
+        "not-measured",
         "not-measured",
         options,
         MachineFingerprint.capture(),

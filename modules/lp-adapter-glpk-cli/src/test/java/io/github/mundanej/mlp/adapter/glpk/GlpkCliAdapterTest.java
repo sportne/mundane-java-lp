@@ -61,6 +61,7 @@ final class GlpkCliAdapterTest {
     GlpkCliAdapter adapter = new GlpkCliAdapter();
 
     assertEquals(SolverStatus.OPTIMAL, adapter.parseStatus("OPTIMAL LP SOLUTION FOUND", 0));
+    assertEquals(SolverStatus.OPTIMAL, adapter.parseStatus("OPTIMAL SOLUTION FOUND", 0));
     assertEquals(SolverStatus.OPTIMAL, adapter.parseStatus("Status:     OPTIMAL", 0));
     assertEquals(
         SolverStatus.INFEASIBLE_OR_UNBOUNDED, adapter.parseStatus("infeasible or unbounded", 0));
@@ -83,6 +84,7 @@ final class GlpkCliAdapterTest {
 
     assertEquals(12.5d, adapter.parseObjective("Objective:  OBJ = 12.5 (MINimum)").orElseThrow());
     assertEquals(2.0d, adapter.parseObjective("obj = 2.0").orElseThrow());
+    assertEquals(3.0d, adapter.parseObjective("~     0: obj = 3.0 infeas = 0").orElseThrow());
     assertTrue(adapter.parseObjective("Objective: OBJ = NaN").isEmpty());
     assertTrue(adapter.hasMalformedObjective("Objective: OBJ = NaN"));
     assertTrue(adapter.hasMalformedObjective("Objective: OBJ = 1e309"));

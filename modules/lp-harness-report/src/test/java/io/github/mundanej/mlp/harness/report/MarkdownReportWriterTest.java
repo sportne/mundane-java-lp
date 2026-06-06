@@ -37,7 +37,9 @@ final class MarkdownReportWriterTest {
                         new ValidationReport(ToleranceProfile.STANDARD, List.of()),
                         "")));
 
-    assertTrue(report.contains("|suite|instance|solver|1.0|OPTIMAL|1.0|SUCCESS|true|"));
+    assertTrue(
+        report.contains(
+            "|default|suite|instance|solver|1.0|not-measured|OPTIMAL|1.0|SUCCESS|true|"));
     assertTrue(
         report.contains(
             "|STANDARD|none|2|30|0.0|0.0|0.25|0.5|0.75|not-measured|Linux|amd64|21|8|"));
@@ -58,7 +60,7 @@ final class MarkdownReportWriterTest {
                             List.of(new ValidationFinding("X", "bad", 1.0d))),
                         "failed, badly")));
 
-    assertTrue(report.startsWith("suite,instance,solver,version,status,objective,outcome"));
+    assertTrue(report.startsWith("mode,suite,instance,solver,version,solver_binary_path,status"));
     assertTrue(report.contains("ERROR,,ADAPTER_ERROR,false,STRICT"));
     assertTrue(report.contains(",not-measured,"));
     assertTrue(report.contains("\"failed, badly\""));
@@ -105,10 +107,12 @@ final class MarkdownReportWriterTest {
     assertTrue(markdown.contains("Validation Seconds"));
     assertTrue(markdown.contains("Peak Memory Bytes"));
     assertTrue(markdown.contains("Processors"));
-    assertTrue(csv.startsWith("suite,instance,solver,version,status,objective,outcome"));
+    assertTrue(csv.startsWith("mode,suite,instance,solver,version,solver_binary_path,status"));
     assertTrue(csv.contains("parse_seconds,export_seconds,solve_seconds,validation_seconds"));
     assertTrue(csv.contains("peak_memory_bytes,residuals,os,arch,java,processors,termination"));
     assertTrue(json.contains("\"version\":\"1.0\""));
+    assertTrue(json.contains("\"mode\":\"default\""));
+    assertTrue(json.contains("\"solverBinaryPath\":\"not-measured\""));
     assertTrue(json.contains("\"tolerance\":\"STANDARD\""));
     assertTrue(json.contains("\"timeLimitSeconds\":30"));
     assertTrue(json.contains("\"parseSeconds\":0.0"));
@@ -123,9 +127,10 @@ final class MarkdownReportWriterTest {
   @Test
   void rendersEmptyCsvAndJsonDeterministically() {
     assertEquals(
-        "suite,instance,solver,version,status,objective,outcome,accepted,tolerance,threads,"
-            + "time_limit_seconds,parse_seconds,export_seconds,solve_seconds,validation_seconds,"
-            + "total_seconds,peak_memory_bytes,residuals,os,arch,java,processors,termination\n",
+        "mode,suite,instance,solver,version,solver_binary_path,status,objective,outcome,"
+            + "accepted,tolerance,threads,time_limit_seconds,parse_seconds,export_seconds,"
+            + "solve_seconds,validation_seconds,total_seconds,peak_memory_bytes,residuals,"
+            + "os,arch,java,processors,termination\n",
         new CsvReportWriter().render(List.of()));
     assertEquals("[\n]\n", new JsonReportWriter().render(List.of()));
   }
@@ -162,6 +167,28 @@ final class MarkdownReportWriterTest {
 
     assertTrue(report.contains("\"parseSeconds\":0.0"));
     assertTrue(report.contains("\"totalSeconds\":0.75"));
+  }
+
+  @Test
+  void rendersModeVersionAndSolverPathAcrossFormats() {
+    RunRecord record =
+        record(
+                SolverStatus.OPTIMAL,
+                OptionalDouble.of(1.0d),
+                RunOutcome.SUCCESS,
+                new ValidationReport(ToleranceProfile.STANDARD, List.of()),
+                "")
+            .withReportMetadata("strict", "HiGHS 1.14.0", "/usr/local/bin/highs");
+
+    String markdown = new MarkdownReportWriter().render(List.of(record));
+    String csv = new CsvReportWriter().render(List.of(record));
+    String json = new JsonReportWriter().render(List.of(record));
+
+    assertTrue(
+        markdown.contains("|strict|suite|instance|solver|HiGHS 1.14.0|/usr/local/bin/highs|"));
+    assertTrue(csv.contains("strict,suite,instance,solver,HiGHS 1.14.0,/usr/local/bin/highs,"));
+    assertTrue(json.contains("\"mode\":\"strict\""));
+    assertTrue(json.contains("\"solverBinaryPath\":\"/usr/local/bin/highs\""));
   }
 
   private static RunRecord record(

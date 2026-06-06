@@ -42,13 +42,15 @@ final class HighsCliAdapterTest {
             .command(
                 tempDir.resolve("model.mps"),
                 tempDir.resolve("solution.sol"),
+                tempDir.resolve("highs.options"),
                 SolverOptions.defaults());
 
     assertEquals("highs", command.get(0));
     assertTrue(command.contains("--model_file=" + tempDir.resolve("model.mps")));
     assertTrue(command.contains("--solution_file=" + tempDir.resolve("solution.sol")));
+    assertTrue(command.contains("--options_file=" + tempDir.resolve("highs.options")));
     assertTrue(command.contains("--time_limit=60"));
-    assertTrue(command.contains("--threads=1"));
+    assertTrue(!command.contains("--threads=1"));
   }
 
   @Test

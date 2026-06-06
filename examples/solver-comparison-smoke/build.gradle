@@ -24,3 +24,11 @@ dependencies {
 application {
     mainClass = 'io.github.mundanej.mlp.examples.solvercomparison.SolverComparisonSmokeMain'
 }
+
+tasks.register('strictRun', JavaExec) {
+    group = 'verification'
+    description = 'Runs the strict solver comparison lane requiring every baseline solver.'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = application.mainClass
+    args '--strict', '--output-dir', layout.buildDirectory.dir('reports/strict-solver-comparison').get().asFile.toString()
+}

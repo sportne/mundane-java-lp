@@ -29,7 +29,7 @@ public final class GlpkCliAdapter implements LpSolverAdapter {
   private static final int MAX_LOG_BYTES = 16 * 1024;
   private static final Pattern OBJECTIVE_LINE_PATTERN =
       Pattern.compile(
-          "(?i)^\\s*(?:objective\\s*[:=].*?=|obj\\s*=)\\s*(\\S+).*$", Pattern.MULTILINE);
+          "(?i)^.*(?:objective\\s*[:=].*?=|\\bobj\\s*=)\\s*(\\S+).*$", Pattern.MULTILINE);
   private final String binaryName;
 
   /** Creates an adapter that invokes {@code glpsol}. */
@@ -119,6 +119,7 @@ public final class GlpkCliAdapter implements LpSolverAdapter {
       return SolverStatus.NUMERICAL_FAILURE;
     }
     if (normalized.contains("optimal lp solution found")
+        || normalized.contains("optimal solution found")
         || normalized.contains("status:     optimal")
         || normalized.contains("status: optimal")) {
       return SolverStatus.OPTIMAL;

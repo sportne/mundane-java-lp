@@ -31,4 +31,4 @@ jobs:
       - name: Verify solver comparison toolchain
         run: MLP_SOLVER_TOOLCHAIN_STRICT=true gradle verifySolverToolchain --console=plain
       - name: Quality gate
-        run: gradle qualityGate solverComparisonSmoke benchmarkSmoke nativeSmoke --console=plain
+        run: gradle qualityGate solverComparisonSmoke strictSolverComparison benchmarkSmoke nativeSmoke --console=plain

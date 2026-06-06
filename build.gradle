@@ -67,6 +67,12 @@ tasks.register('solverComparisonSmoke') {
     dependsOn ':examples:solver-comparison-smoke:run'
 }
 
+tasks.register('strictSolverComparison') {
+    group = 'verification'
+    description = 'Runs strict solver comparison checks requiring all baseline solvers.'
+    dependsOn ':examples:solver-comparison-smoke:strictRun'
+}
+
 tasks.register('verifySolverToolchain', Exec) {
     group = 'verification'
     description = 'Reports external and in-project solver toolchain availability.'

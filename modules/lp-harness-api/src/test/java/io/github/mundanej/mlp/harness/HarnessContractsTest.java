@@ -115,9 +115,36 @@ final class HarnessContractsTest {
             " ");
 
     assertEquals("", record.failureMessage());
+    assertEquals("default", record.runMode());
     assertEquals("not-measured", record.solverVersion());
+    assertEquals("not-measured", record.solverBinaryPath());
     assertEquals("not-measured", record.peakMemoryBytes());
     assertEquals(0.4d, record.totalSeconds());
+  }
+
+  @Test
+  void runRecordCopiesReportMetadata() {
+    RunRecord record =
+        new RunRecord(
+                "suite",
+                "instance",
+                result(SolverStatus.OPTIMAL, 0.25d),
+                acceptedReport(),
+                RunOutcome.SUCCESS,
+                "",
+                "version",
+                SolverOptions.defaults(),
+                MachineFingerprint.capture(),
+                0.1d,
+                0.2d,
+                0.3d,
+                0.4d,
+                "not-measured")
+            .withReportMetadata("strict", "solver 1.0", "/usr/local/bin/solver");
+
+    assertEquals("strict", record.runMode());
+    assertEquals("solver 1.0", record.solverVersion());
+    assertEquals("/usr/local/bin/solver", record.solverBinaryPath());
   }
 
   @Test

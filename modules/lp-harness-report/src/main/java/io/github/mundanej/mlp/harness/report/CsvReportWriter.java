@@ -12,14 +12,17 @@ public final class CsvReportWriter {
    */
   public String render(final List<RunRecord> records) {
     StringBuilder out = new StringBuilder();
-    out.append("suite,instance,solver,version,status,objective,outcome,accepted,tolerance,threads,")
-        .append("time_limit_seconds,parse_seconds,export_seconds,solve_seconds,validation_seconds,")
-        .append("total_seconds,peak_memory_bytes,residuals,os,arch,java,processors,termination\n");
+    out.append("mode,suite,instance,solver,version,solver_binary_path,status,objective,outcome,")
+        .append("accepted,tolerance,threads,time_limit_seconds,parse_seconds,export_seconds,")
+        .append("solve_seconds,validation_seconds,total_seconds,peak_memory_bytes,residuals,")
+        .append("os,arch,java,processors,termination\n");
     for (RunRecord record : records) {
+      append(out, record.runMode());
       append(out, record.suiteId());
       append(out, record.instanceId());
       append(out, record.solverResult().solverId().name());
       append(out, record.solverVersion());
+      append(out, record.solverBinaryPath());
       append(out, record.solverResult().status().name());
       append(out, ReportFields.objective(record));
       append(out, record.outcome().name());

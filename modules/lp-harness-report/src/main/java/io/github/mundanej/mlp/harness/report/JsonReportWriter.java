@@ -16,10 +16,12 @@ public final class JsonReportWriter {
     for (int index = 0; index < records.size(); index++) {
       RunRecord record = records.get(index);
       out.append("  {");
+      field(out, "mode", record.runMode()).append(',');
       field(out, "suite", record.suiteId()).append(',');
       field(out, "instance", record.instanceId()).append(',');
       field(out, "solver", record.solverResult().solverId().name()).append(',');
       field(out, "version", record.solverVersion()).append(',');
+      field(out, "solverBinaryPath", record.solverBinaryPath()).append(',');
       field(out, "status", record.solverResult().status().name()).append(',');
       numericField(out, "objective", ReportFields.objective(record)).append(',');
       field(out, "outcome", record.outcome().name()).append(',');

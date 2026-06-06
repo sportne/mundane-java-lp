@@ -14,14 +14,17 @@ public final class MarkdownReportWriter {
     StringBuilder builder = new StringBuilder();
     builder.append("# LP benchmark report\n\n");
     builder.append(
-        "| Suite | Instance | Solver | Version | Status | Objective | Outcome | Accepted | "
-            + "Tolerance | Residuals | Threads | Time Limit | Parse Seconds | Export Seconds | "
-            + "Solve Seconds | Validation Seconds | Total Seconds | Peak Memory Bytes | OS | Arch | "
-            + "Java | Processors | Termination |\n");
+        "| Mode | Suite | Instance | Solver | Version | Solver Binary Path | Status | Objective | "
+            + "Outcome | Accepted | Tolerance | Residuals | Threads | Time Limit | Parse Seconds | "
+            + "Export Seconds | Solve Seconds | Validation Seconds | Total Seconds | "
+            + "Peak Memory Bytes | OS | Arch | Java | Processors | Termination |\n");
     builder.append(
-        "|---|---|---|---|---:|---:|---|---:|---|---|---:|---:|---:|---:|---:|---:|---:|---|---|---|---|---:|---|\n");
+        "|---|---|---|---|---|---|---:|---:|---|---:|---|---|---:|---:|"
+            + "---:|---:|---:|---:|---:|---|---|---|---|---:|---|\n");
     for (RunRecord record : records) {
       builder
+          .append('|')
+          .append(escape(record.runMode()))
           .append('|')
           .append(escape(record.suiteId()))
           .append('|')
@@ -30,6 +33,8 @@ public final class MarkdownReportWriter {
           .append(escape(record.solverResult().solverId().name()))
           .append('|')
           .append(escape(record.solverVersion()))
+          .append('|')
+          .append(escape(record.solverBinaryPath()))
           .append('|')
           .append(record.solverResult().status())
           .append('|')

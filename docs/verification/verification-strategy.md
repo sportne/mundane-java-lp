@@ -33,6 +33,18 @@ unavailable solver outcomes. The lane still passes when optional third-party
 solvers are unavailable, but it fails when an available solver returns an
 adapter error or fails validation.
 
+## Strict solver comparison lane
+
+```bash
+./gradlew strictSolverComparison --console=plain
+```
+
+This lane requires the provisioned solver toolchain and fails when any required
+solver is unavailable. The required set is HiGHS, CLP, GLPK, OR-Tools, ojAlgo,
+the simple solver, and the performance solver. It is the CI evidence lane after
+external solver setup; local development can continue to use
+`solverComparisonSmoke` when external binaries are not installed.
+
 ## Benchmark lane
 
 ```bash
