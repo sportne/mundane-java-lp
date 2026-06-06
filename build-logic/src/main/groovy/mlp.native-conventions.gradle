@@ -44,6 +44,7 @@ def nativeSmokeExtension = extensions.create('mlpNativeSmoke', MlpNativeSmokeExt
 nativeSmokeExtension.executableSmoke.convention(false)
 def executableSmokeProvider = nativeSmokeExtension.executableSmoke
 def hasApplicationProject = false
+def nativeImagePresent = nativeImageAvailable()
 def nativeSmokeRequested = gradle.startParameter.taskNames.any {
     it == 'nativeSmoke' || it.endsWith(':nativeSmoke')
 }
@@ -53,7 +54,7 @@ tasks.register('nativeSmoke') {
     description = 'Runs the GraalVM Native Build Tools smoke when native-image is available.'
     dependsOn tasks.matching { it.name == 'classes' }
     doLast {
-        if (!nativeImageAvailable()) {
+        if (!nativeImagePresent) {
             println "${projectPathValue}: native-image unavailable; skipping native executable smoke."
             return
         }
@@ -87,16 +88,16 @@ afterEvaluate {
     tasks.named('nativeCompile') {
         notCompatibleWithConfigurationCache('GraalVM Native Build Tools 1.1.1 metadata service is not serializable on Gradle 9.5.1.')
         onlyIf {
-            !nativeSmokeRequested || (nativeImageAvailable() && executableSmokeProvider.get())
+            !nativeSmokeRequested || (nativeImagePresent && executableSmokeProvider.get())
         }
     }
     tasks.named('nativeRun') {
         notCompatibleWithConfigurationCache('GraalVM Native Build Tools 1.1.1 metadata service is not serializable on Gradle 9.5.1.')
         onlyIf {
-            !nativeSmokeRequested || (nativeImageAvailable() && executableSmokeProvider.get())
+            !nativeSmokeRequested || (nativeImagePresent && executableSmokeProvider.get())
         }
     }
-    if (executableSmokeProvider.get()) {
+    if (executableSmokeProvider.get() && nativeImagePresent) {
         tasks.named('nativeSmoke') {
             dependsOn tasks.named('nativeRun')
         }
