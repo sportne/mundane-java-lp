@@ -65,6 +65,18 @@ The performance solver readiness review is recorded in
 `performance-readiness-review.md`. It treats benchmark smoke as release evidence
 for wiring, validation, and reporting only.
 
+## Profiling lane
+
+```bash
+./gradlew profileExpandedBenchmarkSuite --console=plain
+```
+
+This lane runs the expanded benchmark suite with Java Flight Recorder enabled
+and writes the profile artifact next to the benchmark reports. Native optimized
+and PGO build experiments are selected with `mlp.native.profile` on the
+plugin-backed `nativeCompile`/`nativeRun` tasks. Profiling is optional and is not
+part of the default quality gate.
+
 ## Manual future lanes
 
 - `generatedLargeSuite`

@@ -14,6 +14,12 @@ The plugin's reachability metadata repository is disabled for 0.1.0. Native
 support must come from code shape and documented architecture decisions rather
 than downloaded metadata workarounds.
 
+Native performance experiments are also plugin-owned. The build convention
+accepts `mlp.native.profile=optimized`, `pgo-instrument`, or `pgo-optimized` to
+add documented Native Build Tools arguments to `nativeCompile`; it does not
+shell out to `native-image` directly. Profile metadata can be inspected with
+`nativeProfileMetadata` before a GraalVM toolchain is available.
+
 Native shared-library and C ABI checks remain future work.
 
 ## Native-targeted constraints

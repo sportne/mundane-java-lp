@@ -91,6 +91,12 @@ tasks.register('expandedBenchmarkSuite') {
     dependsOn ':modules:lp-harness-cli:expandedRun'
 }
 
+tasks.register('profileExpandedBenchmarkSuite') {
+    group = 'verification'
+    description = 'Runs the expanded benchmark suite with JVM profiling enabled.'
+    dependsOn ':modules:lp-harness-cli:profileExpandedRun'
+}
+
 tasks.register('jacocoTestCoverageVerification') {
     group = 'verification'
     description = 'Runs coverage verification for all Java projects.'

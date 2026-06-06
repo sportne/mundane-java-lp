@@ -45,6 +45,35 @@ nativeSmokeExtension.executableSmoke.convention(false)
 def executableSmokeProvider = nativeSmokeExtension.executableSmoke
 def hasApplicationProject = false
 def nativeImagePresent = nativeImageAvailable()
+def nativeProfileProvider = providers.gradleProperty('mlp.native.profile').orElse('smoke')
+def pgoProfileProvider = providers.gradleProperty('mlp.native.pgoProfile')
+        .orElse(layout.buildDirectory.file('native/pgo/mlp-training.iprof').map { it.asFile.absolutePath })
+def nativeProfileArgs = { String profile, String pgoProfile ->
+    switch (profile) {
+        case 'smoke':
+            return []
+        case 'optimized':
+            return ['-O3']
+        case 'pgo-instrument':
+            return ['-O3', '--pgo-instrument']
+        case 'pgo-optimized':
+            return ['-O3', "--pgo=${pgoProfile}"]
+        default:
+            throw new GradleException("unsupported mlp.native.profile '${profile}'")
+    }
+}
+def nativeRuntimeProfileArgs = { String profile, String pgoProfile ->
+    switch (profile) {
+        case 'pgo-instrument':
+            return ["-XX:ProfilesDumpFile=${pgoProfile}"]
+        case 'smoke':
+        case 'optimized':
+        case 'pgo-optimized':
+            return []
+        default:
+            throw new GradleException("unsupported mlp.native.profile '${profile}'")
+    }
+}
 def nativeSmokeRequested = gradle.startParameter.taskNames.any {
     it == 'nativeSmoke' || it.endsWith(':nativeSmoke')
 }
@@ -60,6 +89,27 @@ tasks.register('nativeSmoke') {
         }
         if (!hasApplicationProject || !executableSmokeProvider.get()) {
             println "${projectPathValue}: native-image available; no application smoke target."
+        }
+    }
+}
+
+tasks.register('nativeProfileMetadata') {
+    group = 'verification'
+    description = 'Prints native-image profiling mode metadata and GraalVM Native Build Tools arguments.'
+    doLast {
+        def profile = nativeProfileProvider.get()
+        def pgoProfile = pgoProfileProvider.get()
+        def args = nativeProfileArgs(profile, pgoProfile)
+        def runtimeArgs = nativeRuntimeProfileArgs(profile, pgoProfile)
+        println "${projectPathValue}: nativeProfile=${profile}"
+        println "${projectPathValue}: nativeProfileArgs=${args.isEmpty() ? 'none' : args.join(' ')}"
+        println "${projectPathValue}: nativeRuntimeProfileArgs=${runtimeArgs.isEmpty() ? 'none' : runtimeArgs.join(' ')}"
+        println "${projectPathValue}: pgoProfile=${pgoProfile}"
+        if (!nativeImagePresent) {
+            println "${projectPathValue}: native-image unavailable; profile build would skip until GraalVM is available."
+        }
+        if (!hasApplicationProject) {
+            println "${projectPathValue}: no application plugin; no native profile binary."
         }
     }
 }
@@ -81,6 +131,7 @@ afterEvaluate {
                 imageName.set(executableName(project.name))
                 mainClass.set(applicationExtension.mainClass)
                 fallback.set(false)
+                buildArgs.addAll(nativeProfileArgs(nativeProfileProvider.get(), pgoProfileProvider.get()))
             }
         }
     }
@@ -93,6 +144,7 @@ afterEvaluate {
     }
     tasks.named('nativeRun') {
         notCompatibleWithConfigurationCache('GraalVM Native Build Tools 1.1.1 metadata service is not serializable on Gradle 9.5.1.')
+        runtimeArgs.addAll(nativeRuntimeProfileArgs(nativeProfileProvider.get(), pgoProfileProvider.get()))
         onlyIf {
             !nativeSmokeRequested || (nativeImagePresent && executableSmokeProvider.get())
         }

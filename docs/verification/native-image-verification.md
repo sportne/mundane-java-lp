@@ -18,6 +18,11 @@ The native build convention disables the plugin reachability metadata
 repository. A native smoke failure should therefore be addressed in code shape
 or documented explicitly before adding metadata workarounds.
 
+Native performance experiments use the same plugin-owned build path. The
+available profiles are documented in `docs/verification/profiling-workflow.md`;
+`nativeProfileMetadata` prints the selected optimized or PGO arguments without
+requiring a native-image binary.
+
 Still deferred:
 
 - tiny MPS validation from the native executable;

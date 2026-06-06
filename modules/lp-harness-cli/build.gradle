@@ -22,3 +22,28 @@ tasks.register('expandedRun', JavaExec) {
     mainClass = application.mainClass
     args '--expanded', layout.buildDirectory.dir('reports/expanded-benchmark-suite').get().asFile.absolutePath
 }
+
+tasks.register('profileExpandedRun', JavaExec) {
+    group = 'verification'
+    description = 'Runs the expanded benchmark suite with Java Flight Recorder profiling.'
+    def reportDirectory = layout.buildDirectory.dir('reports/expanded-benchmark-profile')
+    def profileFile = reportDirectory.map { it.file('mlp-expanded-benchmark.jfr') }
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = application.mainClass
+    args '--expanded', reportDirectory.get().asFile.absolutePath
+    doFirst {
+        reportDirectory.get().asFile.mkdirs()
+        def profilingArgs = [
+            '-XX:StartFlightRecording=name=mlp-expanded-benchmark,settings=profile,dumponexit=true,filename=' + profileFile.get().asFile.absolutePath,
+            '-XX:FlightRecorderOptions=stackdepth=128',
+        ]
+        jvmArgs profilingArgs
+        println 'mlp profiler workflow'
+        println 'profiler=jfr'
+        println 'mode=expanded-benchmark-suite'
+        println 'warmupCount=0'
+        println 'repetitionCount=1'
+        println 'profileArtifact=' + profileFile.get().asFile.absolutePath
+        println 'jvmArgs=' + profilingArgs.join(' ')
+    }
+}

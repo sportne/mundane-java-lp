@@ -33,6 +33,16 @@ visible as report records. They are counted in failure or unavailable summary
 fields, but their elapsed time does not contribute to min/median/max timing
 evidence.
 
+## Profiling Evidence
+
+Optimization tasks should be selected from profiler evidence, not from one-off
+wall-clock impressions. The project workflow uses Java Flight Recorder for JVM
+expanded benchmark profiling and GraalVM Native Build Tools properties for
+optimized native-image and PGO experiments. A profiling note should identify the
+benchmark suite, solver set, profiler command, JVM or native-image flags,
+artifact path, observed CPU or allocation hot spot, and validation status of the
+measured records.
+
 ## Roadmap references
 
 - `g7-002-public-benchmark-curation`
@@ -40,6 +50,7 @@ evidence.
 - `g7-004-performance-benchmark-suite-baseline`
 - `g9-017-performance-evidence-report`
 - `g10-005-benchmark-methodology-and-statistics`
+- `g10-006-profiler-tooling-and-hotspot-workflow`
 
 ## References
 

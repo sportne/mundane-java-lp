@@ -50,6 +50,60 @@ final class NativeConventionsPluginTest {
         assertTrue(Files.exists(projectDir.resolve("build/native/nativeCompile/native-test")));
     }
 
+    @Test
+    void nativeProfileMetadataReportsOptimizedArgs() throws IOException {
+        writeApplicationProject(true);
+
+        BuildResult result = runner(
+                        "nativeProfileMetadata",
+                        "-Pmlp.native.profile=optimized",
+                        "--console=plain",
+                        "--configuration-cache")
+                .withEnvironment(environmentWithPath(projectDir.resolve("empty-bin")))
+                .build();
+
+        assertTrue(result.getOutput().contains("nativeProfile=optimized"));
+        assertTrue(result.getOutput().contains("nativeProfileArgs=-O3"));
+        assertTrue(result.getOutput().contains("native-image unavailable; profile build would skip"));
+    }
+
+    @Test
+    void nativeProfileMetadataReportsPgoInstrumentArgs() throws IOException {
+        writeApplicationProject(true);
+        String profile = projectDir.resolve("build/native/pgo/train.iprof").toString();
+
+        BuildResult result = runner(
+                        "nativeProfileMetadata",
+                        "-Pmlp.native.profile=pgo-instrument",
+                        "-Pmlp.native.pgoProfile=" + profile,
+                        "--console=plain",
+                        "--configuration-cache")
+                .withEnvironment(environmentWithPath(projectDir.resolve("empty-bin")))
+                .build();
+
+        assertTrue(result.getOutput().contains("nativeProfile=pgo-instrument"));
+        assertTrue(result.getOutput().contains("--pgo-instrument"));
+        assertTrue(result.getOutput().contains("nativeRuntimeProfileArgs=-XX:ProfilesDumpFile=" + profile));
+    }
+
+    @Test
+    void nativeProfileMetadataReportsPgoOptimizedArgs() throws IOException {
+        writeApplicationProject(true);
+        String profile = projectDir.resolve("build/native/pgo/train.iprof").toString();
+
+        BuildResult result = runner(
+                        "nativeProfileMetadata",
+                        "-Pmlp.native.profile=pgo-optimized",
+                        "-Pmlp.native.pgoProfile=" + profile,
+                        "--console=plain",
+                        "--configuration-cache")
+                .withEnvironment(environmentWithPath(projectDir.resolve("empty-bin")))
+                .build();
+
+        assertTrue(result.getOutput().contains("nativeProfile=pgo-optimized"));
+        assertTrue(result.getOutput().contains("--pgo=" + profile));
+    }
+
     private GradleRunner runner() {
         return runner("nativeSmoke", "--console=plain", "--configuration-cache");
     }
