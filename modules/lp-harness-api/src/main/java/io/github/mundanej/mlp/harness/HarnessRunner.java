@@ -150,12 +150,23 @@ public final class HarnessRunner {
 
   private static RunOutcome outcome(final SolverRunResult result, final ValidationReport report) {
     if (result.status() == SolverStatus.UNSUPPORTED) {
-      return RunOutcome.SOLVER_UNAVAILABLE;
+      return unavailableDiagnostic(result.message())
+          ? RunOutcome.SOLVER_UNAVAILABLE
+          : RunOutcome.UNSUPPORTED;
     }
     if (result.status() == SolverStatus.ERROR) {
       return RunOutcome.ADAPTER_ERROR;
     }
     return report.accepted() ? RunOutcome.SUCCESS : RunOutcome.VALIDATION_FAILED;
+  }
+
+  private static boolean unavailableDiagnostic(final String message) {
+    String normalized = message == null ? "" : message.toLowerCase(java.util.Locale.ROOT);
+    return normalized.contains("unavailable")
+        || normalized.contains("command not found")
+        || normalized.contains("no benchmark solver configured")
+        || normalized.contains("no solver configured")
+        || normalized.contains("not configured");
   }
 
   private static String failureMessage(final RunOutcome outcome, final String message) {

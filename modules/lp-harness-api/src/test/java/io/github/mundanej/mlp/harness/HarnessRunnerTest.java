@@ -80,9 +80,29 @@ final class HarnessRunnerTest {
 
   @Test
   void recordsUnavailableSolver() {
-    RunRecord record = run(new FixedAdapter(SolverStatus.UNSUPPORTED, Double.NaN)).get(0);
+    RunRecord record =
+        run(new MessageAdapter(SolverStatus.UNSUPPORTED, Double.NaN, "binary unavailable")).get(0);
 
     assertEquals(RunOutcome.SOLVER_UNAVAILABLE, record.outcome());
+  }
+
+  @Test
+  void recordsUnconfiguredSolverAsUnavailable() {
+    RunRecord record =
+        run(new MessageAdapter(
+                SolverStatus.UNSUPPORTED, Double.NaN, "no benchmark solver configured"))
+            .get(0);
+
+    assertEquals(RunOutcome.SOLVER_UNAVAILABLE, record.outcome());
+  }
+
+  @Test
+  void recordsUnsupportedModelShape() {
+    RunRecord record =
+        run(new MessageAdapter(SolverStatus.UNSUPPORTED, Double.NaN, "unsupported model shape"))
+            .get(0);
+
+    assertEquals(RunOutcome.UNSUPPORTED, record.outcome());
   }
 
   @Test
@@ -140,6 +160,24 @@ final class HarnessRunnerTest {
       OptionalDouble objectiveValue =
           Double.isNaN(objective) ? OptionalDouble.of(Double.NaN) : OptionalDouble.of(objective);
       return new SolverRunResult(id(), status, objectiveValue, new double[0], 0.0d, "");
+    }
+  }
+
+  private record MessageAdapter(SolverStatus status, double objective, String message)
+      implements LpSolverAdapter {
+    @Override
+    public SolverId id() {
+      return new SolverId("test", "message");
+    }
+
+    @Override
+    public SolverRunResult solve(
+        final SolverInput input,
+        final SolverOptions options,
+        final SolverWorkDirectory workDirectory) {
+      OptionalDouble objectiveValue =
+          Double.isNaN(objective) ? OptionalDouble.empty() : OptionalDouble.of(objective);
+      return new SolverRunResult(id(), status, objectiveValue, new double[0], 0.0d, message);
     }
   }
 

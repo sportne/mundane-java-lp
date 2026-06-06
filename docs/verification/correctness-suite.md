@@ -44,6 +44,12 @@ canonical ranged rows. Maximization and ranged-row fixtures remain canonical
 model fixtures, but they are outside the 0.1.0 MPS subset until objective-sense
 and ranged-row encoding are designed.
 
+`strictSolverComparison` is the expanded cross-solver correctness lane. It runs
+all Tier 1 canonical fixtures plus the supported MPS round-trip subset through
+the required solver list. Solved records must validate independently; solver
+capability gaps are retained as deterministic `UNSUPPORTED` records rather than
+accepted solves.
+
 `examples/tiny-lp` exercises one supported MPS fixture through the simple solver
 and harness path. It is a smoke path for integration wiring, not a replacement
 for the full Tier 1 simple-solver validation tests.

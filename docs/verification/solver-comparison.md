@@ -93,11 +93,38 @@ solver, but tolerates unavailable external CLI solvers as explicit
 `SOLVER_UNAVAILABLE` records. It still fails when an available solver errors,
 fails validation, or when an in-project solver is unavailable.
 
-`strictSolverComparison` runs the same tiny comparison suite in strict mode. The
-required solver set is HiGHS, CLP, GLPK, OR-Tools, ojAlgo, the simple solver,
-and the performance solver. Any unavailable required solver, adapter error, or
-validation failure fails the lane after writing Markdown, JSON, and CSV reports
-under `examples/solver-comparison-smoke/build/reports/strict-solver-comparison`.
+`strictSolverComparison` runs the expanded correctness comparison suite in
+strict mode. The required solver set is HiGHS, CLP, GLPK, OR-Tools, ojAlgo, the
+simple solver, and the performance solver. Any unavailable required solver,
+adapter error, or validation failure fails the lane after writing Markdown,
+JSON, and CSV reports under
+`examples/solver-comparison-smoke/build/reports/strict-solver-comparison`.
 
 Every solver comparison report row includes the comparison mode, solver version,
 and solver binary path or deterministic in-process/unavailable diagnostic.
+
+## Expanded Correctness Matrix
+
+The strict suite contains 16 deterministic instances:
+
+- all 10 Tier 1 canonical fixtures;
+- 6 MPS round-trip fixtures from the supported 0.1.0 MPS subset.
+
+All solved records are validated through `lp-validation` against independent
+expected status and objective evidence. Optimal records with primal evidence
+also validate variable bounds and row activity. Unsupported solver/fixture
+combinations remain in the reports as `UNSUPPORTED` records and do not count as
+accepted solves.
+
+0.1.0 comparison capability exclusions:
+
+- HiGHS, CLP, and GLPK use the MPS path, so canonical maximization and ranged
+  row fixtures are reported as unsupported until the MPS subset grows.
+- CLP reports ambiguous infeasible-or-unbounded terminal evidence for the
+  `infeasible-rows` fixture, so that fixture is unsupported for CLP comparison
+  evidence.
+- OR-Tools GLOP reports insufficient terminal-status evidence for the zero-row
+  `unbounded-nonnegative-ray` fixture, so that fixture is unsupported for
+  OR-Tools comparison evidence.
+- The performance solver reports unsupported for Tier 1 shapes outside its
+  documented 0.1.0 normalization subset.

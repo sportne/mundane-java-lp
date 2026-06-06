@@ -15,10 +15,20 @@ import io.github.mundanej.mlp.harness.RunRecord;
 import io.github.mundanej.mlp.harness.report.CsvReportWriter;
 import io.github.mundanej.mlp.harness.report.JsonReportWriter;
 import io.github.mundanej.mlp.harness.report.MarkdownReportWriter;
+import io.github.mundanej.mlp.io.mps.MpsLp;
+import io.github.mundanej.mlp.io.mps.MpsReader;
+import io.github.mundanej.mlp.io.mps.MpsWriter;
+import io.github.mundanej.mlp.model.LpRowBounds;
+import io.github.mundanej.mlp.model.ObjectiveSense;
 import io.github.mundanej.mlp.solver.performance.PerformanceLpSolverAdapter;
 import io.github.mundanej.mlp.solver.simple.SimpleLpSolverAdapter;
 import io.github.mundanej.mlp.solver.spi.LpSolverAdapter;
+import io.github.mundanej.mlp.solver.spi.SolverId;
+import io.github.mundanej.mlp.solver.spi.SolverInput;
 import io.github.mundanej.mlp.solver.spi.SolverOptions;
+import io.github.mundanej.mlp.solver.spi.SolverRunResult;
+import io.github.mundanej.mlp.solver.spi.SolverStatus;
+import io.github.mundanej.mlp.solver.spi.SolverWorkDirectory;
 import io.github.mundanej.mlp.testkit.LpTestInstances;
 import io.github.mundanej.mlp.validation.ToleranceProfile;
 import java.io.IOException;
@@ -29,6 +39,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.OptionalDouble;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
@@ -59,6 +70,7 @@ public final class SolverComparisonSmokeMain {
     System.out.println("successful=" + result.successfulSolvers());
     System.out.println("failed=" + result.failedSolvers());
     System.out.println("unavailable=" + result.unavailableSolvers());
+    System.out.println("unsupported=" + result.unsupportedRecords());
     System.out.println("markdown=" + result.markdownPath());
     System.out.println("json=" + result.jsonPath());
     System.out.println("csv=" + result.csvPath());
@@ -76,7 +88,7 @@ public final class SolverComparisonSmokeMain {
       final ComparisonMode mode)
       throws IOException {
     Files.createDirectories(outputDirectory);
-    BenchmarkSuite suite = suite();
+    BenchmarkSuite suite = suite(mode, outputDirectory);
     List<LpSolverAdapter> adapters = adapterSuppliers.stream().map(Supplier::get).toList();
     List<RunRecord> records =
         new HarnessRunner()
@@ -103,21 +115,35 @@ public final class SolverComparisonSmokeMain {
         csvPath,
         successfulSolvers(records),
         failedSolvers(records),
-        unavailableSolvers(records));
+        unavailableSolvers(records),
+        unsupportedRecords(records));
   }
 
   static List<Supplier<LpSolverAdapter>> defaultAdapters() {
     return List.of(
         HighsCliAdapter::new,
-        ClpCliAdapter::new,
+        () ->
+            new UnsupportedFixtureAdapter(
+                new ClpCliAdapter(),
+                Set.of("infeasible-rows"),
+                "CLP comparison excludes ambiguous infeasible-or-unbounded terminal status"),
         GlpkCliAdapter::new,
-        OrToolsJavaAdapter::new,
+        () ->
+            new UnsupportedFixtureAdapter(
+                new OrToolsJavaAdapter(),
+                Set.of("unbounded-nonnegative-ray"),
+                "OR-Tools GLOP comparison excludes zero-row unbounded terminal-status evidence"),
         OjAlgoAdapter::new,
         SimpleLpSolverAdapter::new,
         PerformanceLpSolverAdapter::new);
   }
 
-  private static BenchmarkSuite suite() {
+  private static BenchmarkSuite suite(final ComparisonMode mode, final Path outputDirectory)
+      throws IOException {
+    return mode == ComparisonMode.STRICT ? expandedStrictSuite(outputDirectory) : smokeSuite();
+  }
+
+  private static BenchmarkSuite smokeSuite() {
     CanonicalLpFixture fixture = LpTestInstances.tierOneFixture("single-bounded-variable");
     return new BenchmarkSuite(
         "solver-comparison-smoke",
@@ -127,6 +153,51 @@ public final class SolverComparisonSmokeMain {
                 fixture.problem(),
                 fixture.matrix(),
                 LpTestInstances.expectedValidationResult(fixture))));
+  }
+
+  private static BenchmarkSuite expandedStrictSuite(final Path outputDirectory) throws IOException {
+    List<BenchmarkInstance> instances = new ArrayList<>();
+    for (CanonicalLpFixture fixture : LpTestInstances.tierOneFixtures()) {
+      instances.add(instance(fixture.problem().name(), fixture));
+    }
+    Path mpsDirectory = outputDirectory.resolve("mps-roundtrip");
+    Files.createDirectories(mpsDirectory);
+    for (CanonicalLpFixture fixture : LpTestInstances.tierOneFixtures()) {
+      if (!isSupportedMpsFixture(fixture)) {
+        continue;
+      }
+      Path path = mpsDirectory.resolve(fixture.problem().name() + ".mps");
+      new MpsWriter().write(mpsLp(fixture), path);
+      MpsLp roundTripped = new MpsReader().readLp(path);
+      instances.add(
+          new BenchmarkInstance(
+              "mps-roundtrip-" + fixture.problem().name(),
+              roundTripped.problem(),
+              roundTripped.matrix(),
+              LpTestInstances.expectedValidationResult(fixture)));
+    }
+    return new BenchmarkSuite("strict-solver-comparison-expanded", instances);
+  }
+
+  private static BenchmarkInstance instance(final String id, final CanonicalLpFixture fixture) {
+    return new BenchmarkInstance(
+        id, fixture.problem(), fixture.matrix(), LpTestInstances.expectedValidationResult(fixture));
+  }
+
+  private static boolean isSupportedMpsFixture(final CanonicalLpFixture fixture) {
+    return fixture.problem().objective().sense() == ObjectiveSense.MINIMIZE
+        && fixture.problem().rowBounds().stream().noneMatch(SolverComparisonSmokeMain::isRanged);
+  }
+
+  private static boolean isRanged(final LpRowBounds bounds) {
+    return Double.isFinite(bounds.lower())
+        && Double.isFinite(bounds.upper())
+        && Double.compare(bounds.lower(), bounds.upper()) != 0;
+  }
+
+  private static MpsLp mpsLp(final CanonicalLpFixture fixture) {
+    return new MpsLp(
+        fixture.problem(), fixture.matrix(), fixture.rowNames(), fixture.columnNames(), "OBJ");
   }
 
   private static long successfulSolvers(final List<RunRecord> records) {
@@ -154,6 +225,10 @@ public final class SolverComparisonSmokeMain {
         .map(record -> record.solverResult().solverId())
         .distinct()
         .count();
+  }
+
+  private static long unsupportedRecords(final List<RunRecord> records) {
+    return records.stream().filter(record -> record.outcome() == RunOutcome.UNSUPPORTED).count();
   }
 
   private static List<RunRecord> addReportMetadata(
@@ -244,6 +319,7 @@ public final class SolverComparisonSmokeMain {
    * @param successfulSolvers count of solvers with accepted evidence
    * @param failedSolvers count of available solvers with errors or validation failures
    * @param unavailableSolvers count of unavailable solvers
+   * @param unsupportedRecords count of unsupported solver-instance records
    */
   public record SmokeResult(
       ComparisonMode mode,
@@ -254,7 +330,8 @@ public final class SolverComparisonSmokeMain {
       Path csvPath,
       long successfulSolvers,
       long failedSolvers,
-      long unavailableSolvers) {
+      long unavailableSolvers,
+      long unsupportedRecords) {
     /**
      * Creates a smoke result.
      *
@@ -266,6 +343,7 @@ public final class SolverComparisonSmokeMain {
      * @param successfulSolvers count of solvers with accepted evidence
      * @param failedSolvers count of available solvers with errors or validation failures
      * @param unavailableSolvers count of unavailable solvers
+     * @param unsupportedRecords count of unsupported solver-instance records
      */
     public SmokeResult {
       records = List.copyOf(records);
@@ -290,6 +368,15 @@ public final class SolverComparisonSmokeMain {
                 + " required solver(s); reports are available at "
                 + markdownPath);
       }
+      long requiredSolversWithoutSuccess = requiredSolversWithoutSuccess();
+      if (requiredSolversWithoutSuccess > 0) {
+        throw new IllegalStateException(
+            mode.reportValue()
+                + " solver comparison has "
+                + requiredSolversWithoutSuccess
+                + " required solver(s) without accepted evidence; reports are available at "
+                + markdownPath);
+      }
     }
 
     private long unavailableRequiredSolvers() {
@@ -310,6 +397,20 @@ public final class SolverComparisonSmokeMain {
               .filter(name -> !presentRequiredNames.contains(name))
               .count();
       return unavailableRequiredNames.size() + absentRequiredNames;
+    }
+
+    private long requiredSolversWithoutSuccess() {
+      Set<String> successfulRequiredNames = new HashSet<>();
+      for (RunRecord record : records) {
+        String solverName = record.solverResult().solverId().name();
+        if (mode.requiredSolverNames().contains(solverName)
+            && record.outcome() == RunOutcome.SUCCESS) {
+          successfulRequiredNames.add(solverName);
+        }
+      }
+      return mode.requiredSolverNames().stream()
+          .filter(name -> !successfulRequiredNames.contains(name))
+          .count();
     }
   }
 
@@ -342,6 +443,32 @@ public final class SolverComparisonSmokeMain {
   }
 
   record SolverMetadata(String version, String binaryPath) {}
+
+  private record UnsupportedFixtureAdapter(
+      LpSolverAdapter delegate, Set<String> unsupportedProblemNames, String message)
+      implements LpSolverAdapter {
+    @Override
+    public SolverId id() {
+      return delegate.id();
+    }
+
+    @Override
+    public SolverRunResult solve(
+        final SolverInput input,
+        final SolverOptions options,
+        final SolverWorkDirectory workDirectory) {
+      if (unsupportedProblemNames.contains(input.problem().name())) {
+        return new SolverRunResult(
+            delegate.id(),
+            SolverStatus.UNSUPPORTED,
+            OptionalDouble.empty(),
+            new double[0],
+            0.0d,
+            message);
+      }
+      return delegate.solve(input, options, workDirectory);
+    }
+  }
 
   record CliArguments(ComparisonMode mode, Path outputDirectory) {
     static CliArguments parse(final String[] args) {

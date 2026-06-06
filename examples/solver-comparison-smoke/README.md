@@ -13,3 +13,9 @@ The Gradle lane writes reports under `build/reports/solver-comparison-smoke`:
 - `report.md`
 - `report.json`
 - `report.csv`
+
+The root `strictSolverComparison` lane runs the expanded correctness suite. It
+requires every baseline solver to be available, covers all Tier 1 canonical
+fixtures plus supported MPS round-trip fixtures, and fails on adapter errors or
+validation failures after writing reports under
+`build/reports/strict-solver-comparison`.
