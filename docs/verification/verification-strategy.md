@@ -62,8 +62,10 @@ verifies public benchmark files before this lane; local runs without downloads
 record deterministic missing-input rows.
 
 The performance solver readiness review is recorded in
-`performance-readiness-review.md`. It treats benchmark smoke as release evidence
-for wiring, validation, and reporting only.
+`performance-readiness-review.md`. It now separates implementation readiness
+from benchmark-evidence readiness: release hardening may proceed, but public
+benchmark or solver-speed claims remain blocked until all listed readiness
+blockers are resolved and rerun through the evidence lanes.
 
 ## Profiling lane
 

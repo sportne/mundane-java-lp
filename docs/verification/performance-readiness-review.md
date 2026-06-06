@@ -103,9 +103,38 @@ under the 0.1.0 reader. That does not invalidate generated benchmark or strict
 solver-comparison evidence, but it blocks treating the benchmark evidence as
 release-complete.
 
+## G10 Evidence Readiness Decision
+
+The project can enter release hardening for 0.1.0 implementation readiness, but
+not for public benchmark-evidence readiness.
+
+Release hardening can start because:
+
+- all required comparison solvers are available in the strict evidence
+  environment;
+- `strictSolverComparison` passes with no unavailable solvers, adapter errors,
+  or validation failures;
+- unsupported solver/fixture combinations are deterministic records rather than
+  skipped evidence;
+- generated expanded benchmark families validate through the harness;
+- JVM profiling and native optimized/PGO workflows are documented and wired.
+
+Benchmark-evidence readiness remains blocked because:
+
+- curated public Netlib files are present and checksum-verified but cannot be
+  parsed by the 0.1.0 MPS subset;
+- public benchmark rows are `ADAPTER_ERROR`, so they cannot support runtime
+  comparisons;
+- benchmark groups currently have warmup count `0` and repetition count `1`;
+- peak memory, parse/load, and export/canonicalization timing are still
+  `not-measured` for generated benchmark evidence;
+- no native profiling artifact was produced because local `native-image` is
+  unavailable.
+
 ## Release posture
 
-For 0.1.0, the performance solver is release-ready as an experimental,
-evidence-producing adapter. It should be described as useful for internal
-validation, instrumentation, and future optimization work. It should not be
-described as a production LP solver or as competitive with established solvers.
+For 0.1.0, the performance solver remains release-ready as an experimental,
+evidence-producing adapter. The project may proceed to release-hardening tasks
+that verify public API, documentation, quality gates, and packaging. It should
+not make public benchmark or solver-speed claims until the public benchmark
+blockers above are resolved and rerun through the evidence lanes.

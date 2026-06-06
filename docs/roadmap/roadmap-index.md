@@ -25,10 +25,12 @@ consolidation unless a task explicitly allows task-file maintenance.
 
 ## Current status
 
-G0 through G9 are complete. The next open gate is G10 strict evidence
-readiness, followed by release hardening. Native executable smoke is already
-owned by the official GraalVM Native Build Tools Gradle plugin through the
-project `nativeSmoke` wrapper.
+G0 through G10 implementation-readiness work is complete. The next open gate is
+release hardening. Public benchmark-evidence readiness remains blocked for
+solver-speed claims until the readiness blockers in
+`docs/verification/performance-readiness-review.md` are resolved. Native
+executable smoke is already owned by the official GraalVM Native Build Tools
+Gradle plugin through the project `nativeSmoke` wrapper.
 
 Task status labels in this index:
 
@@ -146,7 +148,7 @@ order.
 - [G10-005 benchmark methodology and statistics](tasks/g10-005-benchmark-methodology-and-statistics.md) - **Complete**
 - [G10-006 profiler tooling and hotspot workflow](tasks/g10-006-profiler-tooling-and-hotspot-workflow.md) - **Complete**
 - [G10-007 real performance evidence report](tasks/g10-007-real-performance-evidence-report.md) - **Complete**
-- [G10-008 evidence readiness review](tasks/g10-008-evidence-readiness-review.md) - **Proposed**
+- [G10-008 evidence readiness review](tasks/g10-008-evidence-readiness-review.md) - **Complete**
 
 ### Release hardening
 
