@@ -95,6 +95,23 @@ carry deterministic expected evidence. Public benchmark entries require checksum
 and local download provenance before they can support any comparative runtime
 statement.
 
+## Methodology And Statistics
+
+0.1.0 benchmark lanes use deterministic suite order, deterministic solver order,
+and one measured run per solver-instance pair. Warmup count is therefore `0`
+and repetition count is `1` unless an explicit developer or future CI lane emits
+multiple records for the same mode, suite, instance, and solver. Timeouts come
+from `SolverOptions.timeLimit`; timeout or adapter failure records remain in the
+report instead of being retried silently.
+
+Report renderers compute timing summaries per `(mode, suite, instance, solver)`
+group. Only records with accepted validation and `SUCCESS` outcomes contribute
+to comparative solve-time summaries. Adapter errors, validation failures,
+unavailable solvers, unsupported solver/instance combinations, and missing
+public inputs are still rendered as records and counted in failure or
+unavailable aggregate fields, but they do not contribute min/median/max timing
+samples. Missing metrics render as `not-measured`.
+
 ## Required Run Outcomes
 
 Every solver-instance pair yields a run record:

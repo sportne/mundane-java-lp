@@ -2,6 +2,7 @@ package io.github.mundanej.mlp.harness.report;
 
 import io.github.mundanej.mlp.harness.RunRecord;
 import java.util.List;
+import java.util.Map;
 
 /** Writes a small Markdown report for run records. */
 public final class MarkdownReportWriter {
@@ -11,17 +12,23 @@ public final class MarkdownReportWriter {
    * @param records run records to render
    */
   public String render(final List<RunRecord> records) {
+    Map<ReportStatistics.Key, ReportStatistics.Summary> summaries =
+        ReportStatistics.summarize(records);
     StringBuilder builder = new StringBuilder();
     builder.append("# LP benchmark report\n\n");
     builder.append(
         "| Mode | Suite | Instance | Solver | Version | Solver Binary Path | Status | Objective | "
             + "Outcome | Accepted | Tolerance | Residuals | Threads | Time Limit | Parse Seconds | "
             + "Export Seconds | Solve Seconds | Validation Seconds | Total Seconds | "
+            + "Warmup Count | Repetition Count | Solve Min Seconds | Solve Median Seconds | "
+            + "Solve Max Seconds | Failure Count | Unavailable Count | "
             + "Peak Memory Bytes | OS | Arch | Java | Processors | Termination |\n");
     builder.append(
         "|---|---|---|---|---|---|---:|---:|---|---:|---|---|---:|---:|"
-            + "---:|---:|---:|---:|---:|---|---|---|---|---:|---|\n");
+            + "---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|"
+            + "---|---|---|---|---:|---|\n");
     for (RunRecord record : records) {
+      ReportStatistics.Summary summary = summaries.get(ReportStatistics.Key.from(record));
       builder
           .append('|')
           .append(escape(record.runMode()))
@@ -61,6 +68,20 @@ public final class MarkdownReportWriter {
           .append(escape(record.validationSecondsReportValue()))
           .append('|')
           .append(escape(record.totalSecondsReportValue()))
+          .append('|')
+          .append(summary.warmupCount())
+          .append('|')
+          .append(summary.repetitionCount())
+          .append('|')
+          .append(escape(summary.solveMinSeconds()))
+          .append('|')
+          .append(escape(summary.solveMedianSeconds()))
+          .append('|')
+          .append(escape(summary.solveMaxSeconds()))
+          .append('|')
+          .append(summary.failureCount())
+          .append('|')
+          .append(summary.unavailableCount())
           .append('|')
           .append(escape(record.peakMemoryBytes()))
           .append('|')

@@ -2,6 +2,7 @@ package io.github.mundanej.mlp.harness.report;
 
 import io.github.mundanej.mlp.harness.RunRecord;
 import java.util.List;
+import java.util.Map;
 
 /** Writes deterministic JSON reports for run records. */
 public final class JsonReportWriter {
@@ -11,10 +12,13 @@ public final class JsonReportWriter {
    * @param records run records in report order
    */
   public String render(final List<RunRecord> records) {
+    Map<ReportStatistics.Key, ReportStatistics.Summary> summaries =
+        ReportStatistics.summarize(records);
     StringBuilder out = new StringBuilder();
     out.append("[\n");
     for (int index = 0; index < records.size(); index++) {
       RunRecord record = records.get(index);
+      ReportStatistics.Summary summary = summaries.get(ReportStatistics.Key.from(record));
       out.append("  {");
       field(out, "mode", record.runMode()).append(',');
       field(out, "suite", record.suiteId()).append(',');
@@ -37,6 +41,13 @@ public final class JsonReportWriter {
       out.append("\"solveSeconds\":").append(record.solverResult().elapsedSeconds()).append(',');
       measurementField(out, "validationSeconds", record.validationSecondsReportValue()).append(',');
       measurementField(out, "totalSeconds", record.totalSecondsReportValue()).append(',');
+      out.append("\"warmupCount\":").append(summary.warmupCount()).append(',');
+      out.append("\"repetitionCount\":").append(summary.repetitionCount()).append(',');
+      measurementField(out, "solveMinSeconds", summary.solveMinSeconds()).append(',');
+      measurementField(out, "solveMedianSeconds", summary.solveMedianSeconds()).append(',');
+      measurementField(out, "solveMaxSeconds", summary.solveMaxSeconds()).append(',');
+      out.append("\"failureCount\":").append(summary.failureCount()).append(',');
+      out.append("\"unavailableCount\":").append(summary.unavailableCount()).append(',');
       field(out, "peakMemoryBytes", record.peakMemoryBytes()).append(',');
       field(out, "os", record.machineFingerprint().osName()).append(',');
       field(out, "arch", record.machineFingerprint().osArch()).append(',');

@@ -41,8 +41,7 @@ final class MarkdownReportWriterTest {
         report.contains(
             "|default|suite|instance|solver|1.0|not-measured|OPTIMAL|1.0|SUCCESS|true|"));
     assertTrue(
-        report.contains(
-            "|STANDARD|none|2|30|0.0|0.0|0.25|0.5|0.75|not-measured|Linux|amd64|21|8|"));
+        report.contains("|STANDARD|none|2|30|0.0|0.0|0.25|0.5|0.75|0|1|0.25|0.25|0.25|0|0|"));
   }
 
   @Test
@@ -109,6 +108,7 @@ final class MarkdownReportWriterTest {
     assertTrue(markdown.contains("Processors"));
     assertTrue(csv.startsWith("mode,suite,instance,solver,version,solver_binary_path,status"));
     assertTrue(csv.contains("parse_seconds,export_seconds,solve_seconds,validation_seconds"));
+    assertTrue(csv.contains("warmup_count,repetition_count,solve_min_seconds"));
     assertTrue(csv.contains("peak_memory_bytes,residuals,os,arch,java,processors,termination"));
     assertTrue(json.contains("\"version\":\"1.0\""));
     assertTrue(json.contains("\"mode\":\"default\""));
@@ -120,6 +120,9 @@ final class MarkdownReportWriterTest {
     assertTrue(json.contains("\"solveSeconds\":0.25"));
     assertTrue(json.contains("\"validationSeconds\":0.5"));
     assertTrue(json.contains("\"totalSeconds\":0.75"));
+    assertTrue(json.contains("\"warmupCount\":0"));
+    assertTrue(json.contains("\"repetitionCount\":1"));
+    assertTrue(json.contains("\"solveMedianSeconds\":0.25"));
     assertTrue(json.contains("\"peakMemoryBytes\":\"not-measured\""));
     assertTrue(json.contains("\"termination\":\"message\""));
   }
@@ -129,8 +132,10 @@ final class MarkdownReportWriterTest {
     assertEquals(
         "mode,suite,instance,solver,version,solver_binary_path,status,objective,outcome,"
             + "accepted,tolerance,threads,time_limit_seconds,parse_seconds,export_seconds,"
-            + "solve_seconds,validation_seconds,total_seconds,peak_memory_bytes,residuals,"
-            + "os,arch,java,processors,termination\n",
+            + "solve_seconds,validation_seconds,total_seconds,warmup_count,repetition_count,"
+            + "solve_min_seconds,solve_median_seconds,solve_max_seconds,failure_count,"
+            + "unavailable_count,peak_memory_bytes,residuals,os,arch,java,processors,"
+            + "termination\n",
         new CsvReportWriter().render(List.of()));
     assertEquals("[\n]\n", new JsonReportWriter().render(List.of()));
   }
@@ -191,17 +196,109 @@ final class MarkdownReportWriterTest {
     assertTrue(json.contains("\"solverBinaryPath\":\"/usr/local/bin/highs\""));
   }
 
+  @Test
+  void summarizesRepeatedAcceptedTimingSamplesAndExcludesRejectedRuns() {
+    RunRecord first =
+        record(
+            SolverStatus.OPTIMAL,
+            OptionalDouble.of(1.0d),
+            RunOutcome.SUCCESS,
+            new ValidationReport(ToleranceProfile.STANDARD, List.of()),
+            "",
+            0.10d);
+    RunRecord second =
+        record(
+            SolverStatus.OPTIMAL,
+            OptionalDouble.of(1.0d),
+            RunOutcome.SUCCESS,
+            new ValidationReport(ToleranceProfile.STANDARD, List.of()),
+            "",
+            0.30d);
+    RunRecord rejected =
+        record(
+            SolverStatus.OPTIMAL,
+            OptionalDouble.of(2.0d),
+            RunOutcome.VALIDATION_FAILED,
+            new ValidationReport(
+                ToleranceProfile.STANDARD,
+                List.of(new ValidationFinding("OBJECTIVE_MISMATCH", "bad objective", 1.0d))),
+            "",
+            5.00d);
+
+    String json = new JsonReportWriter().render(List.of(first, second, rejected));
+    String csv = new CsvReportWriter().render(List.of(first, second, rejected));
+    String markdown = new MarkdownReportWriter().render(List.of(first, second, rejected));
+
+    assertTrue(json.contains("\"repetitionCount\":3"));
+    assertTrue(json.contains("\"solveMinSeconds\":0.1"));
+    assertTrue(json.contains("\"solveMedianSeconds\":0.2"));
+    assertTrue(json.contains("\"solveMaxSeconds\":0.3"));
+    assertTrue(json.contains("\"failureCount\":1"));
+    assertTrue(csv.contains(",0,3,0.1,0.2,0.3,1,0,"));
+    assertTrue(markdown.contains("|0|3|0.1|0.2|0.3|1|0|"));
+  }
+
+  @Test
+  void excludesLimitStatusesFromTimingAndCountsUnavailableRecords() {
+    RunRecord timeout =
+        record(
+            SolverStatus.TIME_LIMIT,
+            OptionalDouble.empty(),
+            RunOutcome.SUCCESS,
+            new ValidationReport(ToleranceProfile.STANDARD, List.of()),
+            "",
+            5.00d);
+    RunRecord unsupported =
+        record(
+            SolverStatus.UNSUPPORTED,
+            OptionalDouble.empty(),
+            RunOutcome.UNSUPPORTED,
+            new ValidationReport(
+                ToleranceProfile.STANDARD,
+                List.of(new ValidationFinding("UNSUPPORTED", "unsupported subset", 1.0d))),
+            "unsupported subset",
+            0.00d);
+
+    String json = new JsonReportWriter().render(List.of(timeout, unsupported));
+    String csv = new CsvReportWriter().render(List.of(timeout, unsupported));
+    String markdown = new MarkdownReportWriter().render(List.of(timeout, unsupported));
+
+    assertTrue(json.contains("\"repetitionCount\":2"));
+    assertTrue(json.contains("\"solveMinSeconds\":\"not-measured\""));
+    assertTrue(json.contains("\"solveMedianSeconds\":\"not-measured\""));
+    assertTrue(json.contains("\"solveMaxSeconds\":\"not-measured\""));
+    assertTrue(json.contains("\"failureCount\":1"));
+    assertTrue(json.contains("\"unavailableCount\":1"));
+    assertTrue(csv.contains(",0,2,not-measured,not-measured,not-measured,1,1,"));
+    assertTrue(markdown.contains("|0|2|not-measured|not-measured|not-measured|1|1|"));
+  }
+
   private static RunRecord record(
       final SolverStatus status,
       final OptionalDouble objective,
       final RunOutcome outcome,
       final ValidationReport validationReport,
       final String failureMessage) {
+    return record(status, objective, outcome, validationReport, failureMessage, 0.25d);
+  }
+
+  private static RunRecord record(
+      final SolverStatus status,
+      final OptionalDouble objective,
+      final RunOutcome outcome,
+      final ValidationReport validationReport,
+      final String failureMessage,
+      final double solveSeconds) {
     return new RunRecord(
         "suite",
         "instance",
         new SolverRunResult(
-            new SolverId("solver", "test"), status, objective, new double[0], 0.25d, "message"),
+            new SolverId("solver", "test"),
+            status,
+            objective,
+            new double[0],
+            solveSeconds,
+            "message"),
         validationReport,
         outcome,
         failureMessage,

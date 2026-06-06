@@ -94,6 +94,8 @@ claim can be evaluated:
 - solver options, including thread count and time limit;
 - parse/load, export/canonicalization, solve, validation, and total timing
   buckets, with `not-measured` where a bucket is unavailable;
+- warmup count, repetition count, min/median/max solve-time summaries, failure
+  count, and unavailable count for each mode/suite/instance/solver group;
 - peak memory evidence, currently `not-measured` in smoke lanes;
 - machine metadata: operating system, architecture, Java version, and available
   processor count;
@@ -107,8 +109,10 @@ This evidence is intentionally small:
 - the benchmark lane uses one generated fixture plus manifest checks;
 - external CLI solvers may be unavailable;
 - peak memory is not measured;
-- no warm-up, repetition, statistical summary, or public benchmark runtime
-  comparison is recorded.
+- no warm-up or repeated benchmark measurement is recorded in the G9 evidence;
+  G10 report renderers add statistical summary fields, but this old snapshot
+  remains smoke-scale evidence rather than a public benchmark runtime
+  comparison.
 
 The evidence supports smoke-level correctness and reporting confidence only. It
 does not support claims that one solver is faster, more robust, or more scalable

@@ -143,7 +143,7 @@ order.
 - [G10-002 strict solver availability gate](tasks/g10-002-strict-solver-availability-gate.md) - **Complete**
 - [G10-003 expanded correctness comparison suite](tasks/g10-003-expanded-correctness-comparison-suite.md) - **Complete**
 - [G10-004 expanded generated and public benchmarks](tasks/g10-004-expanded-generated-and-public-benchmarks.md) - **Complete**
-- [G10-005 benchmark methodology and statistics](tasks/g10-005-benchmark-methodology-and-statistics.md) - **Proposed**
+- [G10-005 benchmark methodology and statistics](tasks/g10-005-benchmark-methodology-and-statistics.md) - **Complete**
 - [G10-006 profiler tooling and hotspot workflow](tasks/g10-006-profiler-tooling-and-hotspot-workflow.md) - **Proposed**
 - [G10-007 real performance evidence report](tasks/g10-007-real-performance-evidence-report.md) - **Proposed**
 - [G10-008 evidence readiness review](tasks/g10-008-evidence-readiness-review.md) - **Proposed**

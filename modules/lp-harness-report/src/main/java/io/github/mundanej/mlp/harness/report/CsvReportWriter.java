@@ -2,6 +2,7 @@ package io.github.mundanej.mlp.harness.report;
 
 import io.github.mundanej.mlp.harness.RunRecord;
 import java.util.List;
+import java.util.Map;
 
 /** Writes deterministic CSV reports for run records. */
 public final class CsvReportWriter {
@@ -11,12 +12,17 @@ public final class CsvReportWriter {
    * @param records run records in report order
    */
   public String render(final List<RunRecord> records) {
+    Map<ReportStatistics.Key, ReportStatistics.Summary> summaries =
+        ReportStatistics.summarize(records);
     StringBuilder out = new StringBuilder();
     out.append("mode,suite,instance,solver,version,solver_binary_path,status,objective,outcome,")
         .append("accepted,tolerance,threads,time_limit_seconds,parse_seconds,export_seconds,")
-        .append("solve_seconds,validation_seconds,total_seconds,peak_memory_bytes,residuals,")
-        .append("os,arch,java,processors,termination\n");
+        .append("solve_seconds,validation_seconds,total_seconds,warmup_count,repetition_count,")
+        .append("solve_min_seconds,solve_median_seconds,solve_max_seconds,failure_count,")
+        .append(
+            "unavailable_count,peak_memory_bytes,residuals,os,arch,java,processors,termination\n");
     for (RunRecord record : records) {
+      ReportStatistics.Summary summary = summaries.get(ReportStatistics.Key.from(record));
       append(out, record.runMode());
       append(out, record.suiteId());
       append(out, record.instanceId());
@@ -35,6 +41,13 @@ public final class CsvReportWriter {
       append(out, Double.toString(record.solverResult().elapsedSeconds()));
       append(out, record.validationSecondsReportValue());
       append(out, record.totalSecondsReportValue());
+      append(out, Integer.toString(summary.warmupCount()));
+      append(out, Integer.toString(summary.repetitionCount()));
+      append(out, summary.solveMinSeconds());
+      append(out, summary.solveMedianSeconds());
+      append(out, summary.solveMaxSeconds());
+      append(out, Integer.toString(summary.failureCount()));
+      append(out, Integer.toString(summary.unavailableCount()));
       append(out, record.peakMemoryBytes());
       append(out, ReportFields.residualSummary(record));
       append(out, record.machineFingerprint().osName());
