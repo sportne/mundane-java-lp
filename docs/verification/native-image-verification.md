@@ -23,7 +23,7 @@ available profiles are documented in `docs/verification/profiling-workflow.md`;
 `nativeProfileMetadata` prints the selected optimized or PGO arguments without
 requiring a native-image binary.
 
-Still deferred:
+Outside the 0.1.0 native smoke surface:
 
 - tiny MPS validation from the native executable;
 - shared-library load checks from C;

@@ -20,7 +20,8 @@ add documented Native Build Tools arguments to `nativeCompile`; it does not
 shell out to `native-image` directly. Profile metadata can be inspected with
 `nativeProfileMetadata` before a GraalVM toolchain is available.
 
-Native shared-library and C ABI checks remain future work.
+Native shared-library and C ABI checks are outside the 0.1.0 native smoke
+surface.
 
 ## Native-targeted constraints
 
@@ -41,11 +42,11 @@ Architecture tests enforce these constraints for native-targeted main code:
 also must not ship `META-INF/native-image` reachability metadata workaround
 files without a documented architecture decision.
 
-## Planned targets
+## Target posture
 
 - JVM jars.
 - Native command-line executable smoke through the GraalVM Gradle plugin.
-- Native shared library with a small C ABI.
+- Native shared library with a small C ABI after a dedicated design task.
 
 The C ABI should expose opaque handles and primitive arrays, not Java object
 references.

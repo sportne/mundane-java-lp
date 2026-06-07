@@ -23,7 +23,7 @@ simple and performance solvers to the explicit smoke list.
 - Validate solver outputs independently.
 - Record versions and machine metadata.
 - Record timeout/thread options and timing buckets with `not-measured` where a
-  bucket is not implemented yet.
+  bucket has no current instrumentation.
 - Keep validation failures in the report instead of filtering them from
   comparison summaries.
 - Do not hide unfavorable results.

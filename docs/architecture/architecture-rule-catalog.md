@@ -15,8 +15,8 @@ documented here or in an ADR in the same change.
 | In-project solver modules must not execute external processes. | In-project solvers are library code, not binary wrappers. | Solver modules under `modules/lp-solver-*`, excluding `lp-solver-spi`. | None. | `ProjectArchitectureTest`. |
 | In-project solver modules depend only on `lp-solver-spi` in production. | Solver modules receive model and matrix data through the SPI envelope and should not grow direct foundation or adapter dependencies. | `modules/lp-solver-simple` and `modules/lp-solver-performance` build files. | Test dependencies may use fixtures and foundation modules. | `ProjectArchitectureTest`. |
 | Only CLI entrypoints may call `System.exit`. | Libraries must return diagnostics instead of terminating hosts. | All main source. | Documented CLI main classes. | `ProjectArchitectureTest`. |
-| Adapters must return normalized `SolverRunResult`. | Benchmark and validation behavior must be comparable. | Adapter modules. | None. | Future adapter tests. |
-| Benchmark reports must record solver ID, version, options, tolerance profile, timing, and machine metadata. | Benchmark claims need context. | Harness/report modules. | None. | Future report tests. |
+| Adapters must return normalized `SolverRunResult`. | Benchmark and validation behavior must be comparable. | Adapter modules. | None. | Adapter unit tests and solver comparison smoke. |
+| Benchmark reports must record solver ID, version, options, tolerance profile, timing, and machine metadata. | Benchmark claims need context. | Harness/report modules. | None. | Harness/report tests and benchmark smoke. |
 
 ## GraalVM Native Image rules
 
@@ -32,6 +32,6 @@ documented here or in an ADR in the same change.
 | Rule | Rationale | Enforced scope | Allowed exceptions | Test evidence |
 |---|---|---|---|---|
 | No finalizers. | Finalization is deprecated and nondeterministic. | All production modules. | None. | `ProjectArchitectureTest`. |
-| No public static mutable fields. | Global mutable state makes behavior order-dependent. | All production modules. | Constants only. | Future source-shape tests. |
-| No global JVM mutation. | Libraries must not mutate process-wide properties, streams, locale, or timezone. | All production modules. | CLI entrypoints may configure logging later with ADR. | Future tests. |
+| No public static mutable fields. | Global mutable state makes behavior order-dependent. | All production modules. | Constants only. | Source-shape enforcement candidate. |
+| No global JVM mutation. | Libraries must not mutate process-wide properties, streams, locale, or timezone. | All production modules. | CLI entrypoints may configure logging with an ADR. | Source-shape enforcement candidate. |
 | Public API declarations need Javadoc. | Public classes, records, interfaces, enums, methods, fields, constructors, parameters, and enum constants must be understandable without reading implementation code. | Main Java source in modules and examples. | `main` methods may rely on the enclosing class summary; overrides may use `{@inheritDoc}`. | Source-shape test for declaration, enum-constant, method parameter, constructor parameter, and record component Javadocs. |

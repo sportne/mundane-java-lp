@@ -12,7 +12,7 @@ The expanded benchmark lane passed as a reporting lane, but the three curated
 Netlib public benchmark candidates currently produce deterministic
 `ADAPTER_ERROR` records because the 0.1.0 MPS reader cannot load those full
 Netlib files. Generated benchmark evidence is valid; public benchmark runtime
-evidence is not yet valid.
+evidence is outside the accepted 0.1.0 evidence set.
 
 ## Commands
 
@@ -95,11 +95,11 @@ Expanded benchmark public failures:
 
 Generated benchmark timing evidence is valid for instrumentation and regression
 tracking. It is not enough for public comparative claims because the public
-benchmark lane is not yet producing validated runtime records.
+benchmark lane has no validated runtime records in the accepted evidence set.
 
 ## Required Evidence Fields
 
-The report formats include these fields before any future performance claim is
+The report formats include these fields before any public performance claim is
 evaluated:
 
 - mode, suite, instance, and solver identity;

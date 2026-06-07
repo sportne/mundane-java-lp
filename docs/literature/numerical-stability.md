@@ -8,7 +8,7 @@
 - Floating-point LP results can be useful and still fail strict checks. Reports
   should distinguish accepted, rejected, unsupported, and numerically uncertain
   outcomes without collapsing them into pass/fail text.
-- Iterative refinement is a later design option for high-accuracy paths, but the
+- Iterative refinement is a separate design option for high-accuracy paths, but the
   early project should first make residual computation and tolerance profiles
   boring and reproducible.
 - Java/GraalVM code should avoid hidden global numeric state and should make

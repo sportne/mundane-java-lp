@@ -1,7 +1,8 @@
 # Standards and compatibility baseline
 
-This project has no standards conformance claim in G0. The baseline is an
-engineering contract for files, mathematical forms, statuses, and benchmarks.
+This project has no broad standards conformance claim in 0.1.0. The baseline is
+an engineering contract for files, mathematical forms, statuses, and
+benchmarks.
 
 ## Initial LP form
 
@@ -30,7 +31,7 @@ into valid fixture catalogs.
 ## File-format baseline
 
 - MPS support is the first interchange target.
-- LP text format is deferred until after MPS round-trip behavior is tested.
+- LP text format support is outside the 0.1.0 MPS-first interchange surface.
 - Parser diagnostics must be bounded and deterministic.
 
 The 0.1.0 MPS subset supports deterministic free-field-style records for
@@ -46,8 +47,8 @@ continuous LP fixtures:
 Supported row types are `N` for the single objective row, `E` for equality rows,
 `L` for less-than-or-equal rows, and `G` for greater-than-or-equal rows. The
 0.1.0 parser does not support the MPS `RANGES` section. Canonical ranged rows
-are therefore outside the MPS round-trip fixture subset until a later task adds
-deterministic ranged-row encoding.
+are therefore outside the MPS round-trip fixture subset unless a separate task
+adds deterministic ranged-row encoding.
 
 MPS files in the 0.1.0 subset are interpreted as minimization problems. Writing
 a maximization canonical fixture to MPS is unsupported unless the fixture has

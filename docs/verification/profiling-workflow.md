@@ -73,7 +73,7 @@ Collect and use PGO data with an explicit profile path:
 ```
 
 PGO profile data is a local build artifact and must stay out of source control
-unless a later task defines a committed fixture policy.
+unless a separate task defines a committed fixture policy.
 
 ## Optimization Target Selection
 

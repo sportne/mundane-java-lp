@@ -6,7 +6,8 @@
 - `lp-sparse`: primitive sparse matrix containers and kernels.
 - `lp-validation`: solution and status validation.
 - `lp-io-mps`: MPS reading and writing.
-- `lp-io-lp`: LP-format reading and writing placeholder.
+- `lp-io-lp`: LP text-format status boundary; full LP text I/O is outside the
+  0.1.0 MPS-first surface.
 
 ## Harness modules
 
@@ -31,7 +32,8 @@
 
 ## Native modules
 
-- `lp-native-api` is the planned GraalVM C ABI boundary.
+- `lp-native-api` is the GraalVM native API boundary for smoke-status checks;
+  a C ABI is outside the 0.1.0 surface.
 - `lp-native-tests` contains native smoke tests and fixtures.
 
 ## Forbidden dependency directions

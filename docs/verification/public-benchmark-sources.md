@@ -34,8 +34,8 @@ Every public benchmark manifest entry records:
 - normalization notes;
 - curation status.
 
-Downloaded benchmark files stay out of git until a future ADR explicitly
-approves vendoring.
+Downloaded benchmark files stay out of git unless an ADR explicitly approves
+vendoring.
 
 ## Manifest Verification
 

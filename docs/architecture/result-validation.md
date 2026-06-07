@@ -50,13 +50,13 @@ The 0.1.0 implementation validates these dimensions:
 - objective gap: absolute and relative gap against expected objective evidence.
 
 Dual residuals, complementarity, and certificate validation are named dimensions
-but remain future evidence types until dual/certificate fixtures exist. They must
+but remain reserved evidence types until dual/certificate fixtures exist. They must
 not be reported as accepted merely because no evidence was supplied.
 
 ## Reserved Evidence Types
 
 Dual residual evidence, complementarity evidence, infeasibility certificates,
-and unbounded ray certificates are reserved for a later fixture generation pass.
+and unbounded ray certificates are reserved for a separate fixture generation pass.
 The 0.1.0 Java API does not need public input fields or finding codes for these
 reserved evidence types. Until fixtures carry that evidence, validators must
 exclude those dimensions instead of emitting accepted or rejected findings.

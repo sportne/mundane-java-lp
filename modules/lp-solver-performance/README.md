@@ -46,7 +46,7 @@ allocation pressure before tableau construction; it does not change the
 remaining tableau copy or make a runtime performance claim.
 
 G9-013 reran the performance solver correctness suite after the sparse hot-path
-change and removed stale stub-era comments and repeated test setup. No
+change and removed obsolete stub-era comments and repeated test setup. No
 correctness fixtures changed status.
 
 G9-014 removed the solve-path constraint-record staging step. Supported

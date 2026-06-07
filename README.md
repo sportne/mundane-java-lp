@@ -3,9 +3,9 @@
 `mundane-java-lp` is a design-first Java 21 / GraalVM Native Image project for
 studying massive sparse linear programming behavior.
 
-The initial product is a reproducible LP correctness and benchmark harness.
-Java-native LP solver implementations are roadmap work and will be evaluated
-through the same harness as established open-source solvers.
+The 0.1.0 product is a reproducible LP correctness and benchmark harness with
+external solver adapters, Java-library solver adapters, and two in-project
+experimental solver adapters evaluated through the same validation path.
 
 ## Development model
 
@@ -18,24 +18,28 @@ Contributor-facing documentation is part of the product, not an afterthought.
 
 ## Current repository phase
 
-G0 design-control scaffold work is complete. The next product work starts with
-G1 canonical LP model and tiny fixture tasks.
+G0 through G10 implementation-readiness work is complete. The repository is in
+0.1.0 release hardening: public API documentation has been reviewed, release
+documentation is being reconciled, and quality-gate/release-readiness work
+remains tracked in `docs/roadmap/roadmap-index.md`.
 
-Implemented in the G0 scaffold:
+Implemented for the 0.1.0 readiness baseline:
 
-- Gradle Groovy DSL multi-module structure under `modules/` and `examples/`.
-- Local `build-logic/` convention plugins.
-- Core module boundaries for model, sparse matrix, validation, I/O, harness,
-  solver adapters, native API boundaries, and architecture tests.
-- Lightweight Java source skeletons that compile once dependencies are
-  resolved by Gradle.
-- Documentation baseline for scope, architecture, verification, literature,
-  and roadmap gates.
-- Root verification task names matching the mundane project style:
-  `checkAll`, `qualityGate`, `nativeSmoke`, `benchmarkSmoke`,
-  `solverComparisonSmoke`, and `printPublishedArtifacts`.
+- Gradle Groovy DSL multi-module structure under `modules/` and `examples`.
+- Local `build-logic` convention plugins and architecture tests.
+- Canonical LP model, primitive sparse storage, MPS read/write support,
+  validation, harness orchestration, and deterministic JSON/CSV/Markdown
+  reports.
+- CLI adapters for HiGHS, CLP, and GLPK; Java-library adapters for OR-Tools
+  and ojAlgo.
+- In-project simple and performance-oriented experimental solver adapters.
+- Generated fixtures, curated public benchmark manifests, solver-comparison
+  smoke, strict comparison, expanded benchmark, profiling, and native smoke
+  lanes.
 
-No production LP solver is implemented in G0.
+The in-project solvers are release-ready only as narrow experimental adapters.
+Correctness claims require `lp-validation` acceptance, and benchmark output is
+evidence collection rather than a solver-speed claim.
 
 ## Goals
 
@@ -57,19 +61,23 @@ No production LP solver is implemented in G0.
 - Runtime reflection, classpath scanning, dynamic plugin discovery, or hidden
   dependency discovery in native-targeted core modules.
 
-## Baseline solver comparison targets
+## Solver comparison targets
 
-Initial comparison targets:
+Comparison targets:
 
 - HiGHS CLI adapter.
 - COIN-OR CLP CLI adapter.
 - GLPK CLI adapter.
 - OR-Tools Java adapter.
 - ojAlgo adapter.
+- In-project simple solver adapter.
+- In-project performance-oriented solver adapter.
 
 Adapters are intentionally isolated in separate modules. External solvers are
 optional and must be reported as unavailable rather than failing unrelated
-quality gates. Current adapter status is tracked in
+quality gates. Strict evidence lanes require the provisioned solver toolchain.
+Current adapter status, supported exclusions, and comparison evidence are
+tracked in
 `docs/verification/solver-comparison.md`.
 
 ## Common project checks
@@ -89,7 +97,13 @@ Native and benchmark lanes are intentionally explicit:
 ./gradlew nativeSmoke --console=plain
 ./gradlew solverComparisonSmoke --console=plain
 ./gradlew benchmarkSmoke --console=plain
+./gradlew strictSolverComparison --console=plain
+./gradlew expandedBenchmarkSuite --console=plain
 ```
+
+Public benchmark and solver-speed claims remain limited by the recorded
+evidence in `docs/verification/performance-evidence-report.md` and
+`docs/verification/performance-readiness-review.md`.
 
 ## Build layout
 

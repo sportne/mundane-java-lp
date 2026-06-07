@@ -83,7 +83,7 @@ vectors without the extra normalization clone.
 The change removes the full `rows x columns` dense matrix allocation from solver
 setup. Constraint objects still own defensive coefficient arrays, and tableau
 assembly still copies coefficients into tableau storage. Those remaining copies
-are intentional until a later iteration can prove a narrower tableau input
+are intentional until another iteration can prove a narrower tableau input
 contract.
 
 Focused validation after the change used:
@@ -109,7 +109,7 @@ allocation change and preserves the no-public-performance-claim policy.
 G9-014 removed the solve-path `LinearConstraint` list as an intermediate
 tableau input. The solver now counts supported constraints once, allocates the
 tableau directly, and writes variable-bound and CSR-row constraints into tableau
-storage through a small builder. G9-018 later removed the remaining test-only
+storage through a small builder. G9-018 removed the remaining test-only
 `LinearConstraint` path, so focused tableau unit tests now use that builder
 directly.
 

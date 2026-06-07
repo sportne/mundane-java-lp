@@ -12,9 +12,9 @@
   solvers.
 - G9 separates the simple correctness-first solver from revised-simplex work.
   The simple solver uses low-dimensional enumeration for Tier 1 evidence
-  clarity; revised-simplex concepts move to the later performance-solver
-  decision.
-- Hyper-sparse behavior matters for the later performance solver. The sparse
+  clarity; ADR-0007 applies revised-simplex concepts to the performance-solver
+  experiment.
+- Hyper-sparse behavior matters for performance-solver work. The sparse
   matrix layer should preserve row/column access patterns and avoid hidden dense
   expansion so G9 can experiment with sparse pivot paths.
 - Parallel revised simplex is not a G9 starting point. It is useful as a

@@ -77,8 +77,8 @@ In-project solver adapters use the same solver input and result evidence
 contract as third-party adapters. They must not invoke external processes or
 depend on third-party solver libraries.
 
-The G9 simple solver is the first in-project solver. G9-002 wires only a small
-SPI smoke path; broad algorithm behavior belongs to the later correctness task.
+The G9 simple solver is the first in-project solver. G9-002 wired the initial
+SPI smoke path, and G9-003 expanded the correctness behavior through fixtures.
 
 ## MPS Export
 

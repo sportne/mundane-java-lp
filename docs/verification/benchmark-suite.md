@@ -85,7 +85,7 @@ reason that the evidence is unavailable:
   expected status, expected objective when known, reported objective, and primal
   evidence availability;
 - timing buckets: parse/load, canonicalization or export, solve, validation, and
-  total wall time, using `not-measured` where a bucket is not implemented yet;
+  total wall time, using `not-measured` where instrumentation is absent;
 - memory evidence: peak memory bytes when measured, or `not-measured` while
   lightweight smoke lanes avoid heap profiling;
 - machine metadata: operating system, architecture, Java version, and available
@@ -102,7 +102,7 @@ statement.
 
 0.1.0 benchmark lanes use deterministic suite order, deterministic solver order,
 and one measured run per solver-instance pair. Warmup count is therefore `0`
-and repetition count is `1` unless an explicit developer or future CI lane emits
+and repetition count is `1` unless an explicit developer or CI evidence lane emits
 multiple records for the same mode, suite, instance, and solver. Timeouts come
 from `SolverOptions.timeLimit`; timeout or adapter failure records remain in the
 report instead of being retried silently.

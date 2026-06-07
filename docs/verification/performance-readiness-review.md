@@ -17,7 +17,7 @@ The performance solver is ready for the 0.1.0 release under these conditions:
 - solver output is trusted only after `lp-validation` accepts the evidence;
 - unsupported model shapes return deterministic `UNSUPPORTED` results;
 - benchmark output is treated as evidence collection, not comparative proof;
-- future broadening must happen through later roadmap work instead of expanding
+- any broadening must happen through a separate roadmap task instead of expanding
   the 0.1.0 release scope.
 
 ## Supported cases

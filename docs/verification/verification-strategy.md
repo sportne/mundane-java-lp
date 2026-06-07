@@ -79,7 +79,7 @@ and PGO build experiments are selected with `mlp.native.profile` on the
 plugin-backed `nativeCompile`/`nativeRun` tasks. Profiling is optional and is not
 part of the default quality gate.
 
-## Manual future lanes
+## Manual reserve lanes
 
 - `generatedLargeSuite`
 - `numericalStressSuite`
