@@ -25,9 +25,9 @@ consolidation unless a task explicitly allows task-file maintenance.
 
 ## Current status
 
-G0 through G10 implementation-readiness work is complete. The next open gate is
-release hardening. Public benchmark-evidence readiness remains blocked for
-solver-speed claims until the readiness blockers in
+G0 through G10 implementation-readiness work and 0.1.0 release hardening are
+complete. Public benchmark-evidence readiness remains blocked for solver-speed
+claims until the readiness blockers in
 `docs/verification/performance-readiness-review.md` are resolved. Native
 executable smoke is already owned by the official GraalVM Native Build Tools
 Gradle plugin through the project `nativeSmoke` wrapper.
@@ -153,6 +153,6 @@ order.
 ### Release hardening
 
 - [release-001 public API Javadoc review](tasks/release-001-public-api-javadoc-review.md) - **Complete**
-- [release-002 doc final cleanup](tasks/release-002-doc-final-cleanup.md) - **Proposed**
-- [release-003 quality gate hardening](tasks/release-003-quality-gate-hardening.md) - **Proposed**
-- [release-004 0.1.0 release readiness](tasks/release-004-0-1-0-release-readiness.md) - **Proposed**
+- [release-002 doc final cleanup](tasks/release-002-doc-final-cleanup.md) - **Complete**
+- [release-003 quality gate hardening](tasks/release-003-quality-gate-hardening.md) - **Complete**
+- [release-004 0.1.0 release readiness](tasks/release-004-0-1-0-release-readiness.md) - **Complete**

@@ -134,7 +134,8 @@ Benchmark-evidence readiness remains blocked because:
 ## Release posture
 
 For 0.1.0, the performance solver remains release-ready as an experimental,
-evidence-producing adapter. The project may proceed to release-hardening tasks
-that verify public API, documentation, quality gates, and packaging. It should
-not make public benchmark or solver-speed claims until the public benchmark
-blockers above are resolved and rerun through the evidence lanes.
+evidence-producing adapter. Release hardening verifies public API
+documentation, release documentation, quality gates, and packaging metadata
+around that limited claim. The project should not make public benchmark or
+solver-speed claims until the public benchmark blockers above are resolved and
+rerun through the evidence lanes.

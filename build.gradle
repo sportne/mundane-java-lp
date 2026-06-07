@@ -5,7 +5,38 @@ plugins {
 }
 
 group = 'io.github.mundanej'
-version = providers.gradleProperty('mlp.version').getOrElse('0.1.0-SNAPSHOT')
+version = providers.gradleProperty('mlp.version').getOrElse('0.1.0')
+
+def publishedProjects = [
+    ':modules:lp-bom',
+    ':modules:lp-model',
+    ':modules:lp-sparse',
+    ':modules:lp-io-mps',
+    ':modules:lp-io-lp',
+    ':modules:lp-validation',
+    ':modules:lp-generators',
+    ':modules:lp-solver-spi',
+    ':modules:lp-solver-simple',
+    ':modules:lp-solver-performance',
+    ':modules:lp-harness-api',
+    ':modules:lp-harness-cli',
+    ':modules:lp-harness-report',
+    ':modules:lp-adapter-highs-cli',
+    ':modules:lp-adapter-clp-cli',
+    ':modules:lp-adapter-glpk-cli',
+    ':modules:lp-adapter-ortools-java',
+    ':modules:lp-adapter-ojalgo',
+    ':modules:lp-native-api',
+    ':modules:lp-testkit',
+]
+
+def publishedArtifactCoordinates = objects.listProperty(String)
+gradle.projectsEvaluated {
+    publishedArtifactCoordinates.set(publishedProjects.collect { projectPath ->
+        def publishedProject = project(projectPath)
+        "${projectPath} -> ${publishedProject.group}:${publishedProject.name}:${publishedProject.version}"
+    })
+}
 
 def checkedProjects = [
     ':modules:lp-model',
@@ -106,23 +137,8 @@ tasks.register('jacocoTestCoverageVerification') {
 tasks.register('printPublishedArtifacts') {
     group = 'help'
     description = 'Prints planned artifact coordinates.'
-    def releaseVersion = project.version
+    inputs.property('publishedArtifactCoordinates', publishedArtifactCoordinates)
     doLast {
-        println """
-:modules:lp-bom -> io.github.mundanej:mlp-bom:${releaseVersion}
-:modules:lp-model -> io.github.mundanej:mlp-model:${releaseVersion}
-:modules:lp-sparse -> io.github.mundanej:mlp-sparse:${releaseVersion}
-:modules:lp-io-mps -> io.github.mundanej:mlp-io-mps:${releaseVersion}
-:modules:lp-io-lp -> io.github.mundanej:mlp-io-lp:${releaseVersion}
-:modules:lp-validation -> io.github.mundanej:mlp-validation:${releaseVersion}
-:modules:lp-generators -> io.github.mundanej:mlp-generators:${releaseVersion}
-:modules:lp-solver-spi -> io.github.mundanej:mlp-solver-spi:${releaseVersion}
-:modules:lp-solver-simple -> io.github.mundanej:mlp-solver-simple:${releaseVersion}
-:modules:lp-solver-performance -> io.github.mundanej:mlp-solver-performance:${releaseVersion}
-:modules:lp-harness-api -> io.github.mundanej:mlp-harness-api:${releaseVersion}
-:modules:lp-harness-cli -> io.github.mundanej:mlp-harness-cli:${releaseVersion}
-:modules:lp-harness-report -> io.github.mundanej:mlp-harness-report:${releaseVersion}
-:modules:lp-native-api -> io.github.mundanej:mlp-native-api:${releaseVersion}
-""".stripIndent().trim()
+        publishedArtifactCoordinates.get().each { println it }
     }
 }

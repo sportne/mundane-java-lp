@@ -84,6 +84,17 @@ It tolerates unavailable third-party solver binaries through explicit
 skip diagnostics. It still fails on adapter errors, validation failures, or
 native smoke failures when the required local tooling is present.
 
+## Release readiness lane
+
+```bash
+./gradlew validateDesignControlPack qualityGate solverComparisonSmoke benchmarkSmoke nativeSmoke printPublishedArtifacts --console=plain
+```
+
+This lane is the final 0.1.0 local release check. It verifies the release
+hardening lane and prints the published artifact coordinates for the configured
+`mlp.version`. It does not add strict solver or expanded public benchmark
+requirements to local release readiness; those remain CI/evidence-lane checks.
+
 ## CI evidence lane
 
 CI installs the required external CLI solvers, verifies the solver toolchain in

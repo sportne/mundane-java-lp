@@ -18,10 +18,10 @@ Contributor-facing documentation is part of the product, not an afterthought.
 
 ## Current repository phase
 
-G0 through G10 implementation-readiness work is complete. The repository is in
-0.1.0 release hardening: public API documentation has been reviewed, release
-documentation is being reconciled, and quality-gate/release-readiness work
-remains tracked in `docs/roadmap/roadmap-index.md`.
+G0 through G10 implementation-readiness work and release hardening are complete
+for 0.1.0. The release includes a validated harness, solver adapters,
+experimental in-project solvers, explicit verification lanes, and release
+metadata tracked in `docs/roadmap/roadmap-index.md`.
 
 Implemented for the 0.1.0 readiness baseline:
 
@@ -113,6 +113,26 @@ running strict comparison and expanded benchmark checks:
 Public benchmark and solver-speed claims remain limited by the recorded
 evidence in `docs/verification/performance-evidence-report.md` and
 `docs/verification/performance-readiness-review.md`.
+
+## 0.1.0 release limits
+
+0.1.0 supports continuous LP correctness and benchmark evidence for the
+documented canonical model, the supported MPS subset, explicit solver adapter
+lists, and deterministic report formats. Supported comparison solvers are
+HiGHS, CLP, GLPK, OR-Tools, ojAlgo, the in-project simple solver, and the
+in-project performance-oriented solver.
+
+Known limits are part of the release contract:
+
+- LP text I/O remains outside the MPS-first interchange surface.
+- The native lane covers executable smoke behavior, not a shared-library C ABI.
+- Public Netlib benchmark candidates are curated and checksum-verified, but
+  they do not support 0.1.0 runtime comparisons because the current MPS reader
+  cannot load those full files.
+- Benchmark reports are evidence collection only; the release makes no claim
+  that one solver is faster, more robust, or more scalable than another.
+
+Release notes are in `CHANGELOG.md`.
 
 ## Build layout
 
