@@ -31,6 +31,6 @@ jobs:
       - name: Verify solver comparison toolchain
         run: MLP_SOLVER_TOOLCHAIN_STRICT=true gradle verifySolverToolchain --console=plain
       - name: Fetch public benchmark candidates
-        run: tools/fetch-public-benchmarks.sh --download
+        run: bash tools/fetch-public-benchmarks.sh --download
       - name: Quality gate
         run: gradle qualityGate solverComparisonSmoke strictSolverComparison benchmarkSmoke expandedBenchmarkSuite nativeSmoke --console=plain
