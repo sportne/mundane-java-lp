@@ -33,20 +33,35 @@ Every implementation task must include:
 
 ## Default acceptance command
 
-For design and scaffold changes:
+For design, documentation, and default local quality changes:
 
 ```bash
 ./gradlew validateDesignControlPack qualityGate --console=plain
 ```
 
-For Native Image changes:
+For Native Image changes, keep the lane explicit. It must pass when GraalVM
+`native-image` is available and skip cleanly when it is absent:
 
 ```bash
 ./gradlew nativeSmoke --console=plain
 ```
 
-For benchmark-harness changes:
+For solver comparison and benchmark-harness changes, keep optional external
+tooling outside the default lane:
 
 ```bash
 ./gradlew solverComparisonSmoke benchmarkSmoke --console=plain
+```
+
+For release verification lane hardening:
+
+```bash
+./gradlew validateDesignControlPack qualityGate solverComparisonSmoke benchmarkSmoke nativeSmoke --console=plain
+```
+
+For CI evidence or release-readiness checks after solver toolchain
+provisioning:
+
+```bash
+./gradlew strictSolverComparison expandedBenchmarkSuite printPublishedArtifacts --console=plain
 ```

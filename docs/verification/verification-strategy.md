@@ -10,7 +10,8 @@ claims into explicit lanes.
 ```
 
 This lane should remain suitable for normal development and must not require
-external solver binaries.
+external solver binaries, downloaded public benchmark files, or GraalVM
+`native-image`. Slow or toolchain-dependent checks stay in explicit lanes.
 
 ## Native lane
 
@@ -19,6 +20,10 @@ external solver binaries.
 ```
 
 Native checks are explicit because they require GraalVM/native-image.
+When `native-image` is absent, `nativeSmoke` reports a deterministic skip
+instead of failing the local release-hardening lane. When it is present,
+executable smoke projects delegate build and run work to the GraalVM Native
+Build Tools Gradle plugin.
 
 ## Solver comparison lane
 
@@ -66,6 +71,31 @@ The performance solver readiness review is recorded in
 from benchmark-evidence readiness: release hardening may proceed, but public
 benchmark or solver-speed claims remain blocked until all listed readiness
 blockers are resolved and rerun through the evidence lanes.
+
+## Release hardening lane
+
+```bash
+./gradlew validateDesignControlPack qualityGate solverComparisonSmoke benchmarkSmoke nativeSmoke --console=plain
+```
+
+This lane verifies the default quality gate plus the optional local smoke lanes.
+It tolerates unavailable third-party solver binaries through explicit
+`SOLVER_UNAVAILABLE` records and tolerates unavailable GraalVM through native
+skip diagnostics. It still fails on adapter errors, validation failures, or
+native smoke failures when the required local tooling is present.
+
+## CI evidence lane
+
+CI installs the required external CLI solvers, verifies the solver toolchain in
+strict mode, downloads public benchmark candidates into ignored local paths, and
+runs:
+
+```bash
+./gradlew qualityGate solverComparisonSmoke strictSolverComparison benchmarkSmoke expandedBenchmarkSuite nativeSmoke --console=plain
+```
+
+This is stronger than the default local lane and is allowed to depend on CI
+toolchain setup. It must not be folded into `qualityGate`.
 
 ## Profiling lane
 

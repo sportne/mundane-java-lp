@@ -82,7 +82,9 @@ tracked in
 
 ## Common project checks
 
-After adding a Gradle wrapper or using a local Gradle installation, run:
+The default local lane is intentionally limited to design-control validation,
+static checks, tests, coverage verification, and Javadocs. It does not require
+external solver binaries or GraalVM `native-image`:
 
 ```bash
 ./gradlew projects --console=plain
@@ -91,12 +93,19 @@ After adding a Gradle wrapper or using a local Gradle installation, run:
 ./gradlew printPublishedArtifacts --console=plain
 ```
 
-Native and benchmark lanes are intentionally explicit:
+Solver, benchmark, and native lanes are intentionally explicit so optional
+tooling does not slow or block normal development:
 
 ```bash
-./gradlew nativeSmoke --console=plain
 ./gradlew solverComparisonSmoke --console=plain
 ./gradlew benchmarkSmoke --console=plain
+./gradlew nativeSmoke --console=plain
+```
+
+Evidence lanes are stricter. CI provisions external solver binaries before
+running strict comparison and expanded benchmark checks:
+
+```bash
 ./gradlew strictSolverComparison --console=plain
 ./gradlew expandedBenchmarkSuite --console=plain
 ```
