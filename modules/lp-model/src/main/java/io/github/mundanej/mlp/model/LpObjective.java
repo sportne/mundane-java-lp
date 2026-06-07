@@ -3,7 +3,7 @@ package io.github.mundanej.mlp.model;
 import java.util.Arrays;
 import java.util.Objects;
 
-/** Dense objective vector used by the initial canonical LP scaffold. */
+/** Dense linear objective with an optimization sense, constant, and coefficients. */
 public final class LpObjective {
   private final ObjectiveSense sense;
   private final double constant;
@@ -13,8 +13,8 @@ public final class LpObjective {
    * Creates an objective.
    *
    * @param sense optimization direction
-   * @param constant objective constant
-   * @param coefficients dense objective coefficients
+   * @param constant objective constant added during evaluation
+   * @param coefficients dense objective coefficients in variable order; defensively copied
    */
   public LpObjective(
       final ObjectiveSense sense, final double constant, final double[] coefficients) {
@@ -46,7 +46,8 @@ public final class LpObjective {
   /**
    * Evaluates the objective for a primal vector.
    *
-   * @param primal primal vector
+   * @param primal primal vector in variable order
+   * @return objective constant plus the coefficient dot product
    */
   public double evaluate(final double[] primal) {
     Objects.requireNonNull(primal, "primal");

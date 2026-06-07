@@ -3,7 +3,7 @@ package io.github.mundanej.mlp.sparse;
 import java.util.Arrays;
 import java.util.Objects;
 
-/** Compressed sparse row matrix backed by primitive arrays. */
+/** Compressed sparse row matrix backed by copied primitive arrays. */
 public final class CsrMatrix {
   private final int rows;
   private final int columns;
@@ -16,9 +16,9 @@ public final class CsrMatrix {
    *
    * @param rows row count
    * @param columns column count
-   * @param values nonzero values
-   * @param columnIndices column index for each nonzero
-   * @param rowPointers start offset for each row
+   * @param values nonzero values in row-major CSR order; defensively copied
+   * @param columnIndices column index for each nonzero; defensively copied
+   * @param rowPointers row start offsets with length {@code rows + 1}; defensively copied
    */
   public CsrMatrix(
       final int rows,
@@ -70,7 +70,8 @@ public final class CsrMatrix {
   /**
    * Computes y = A x.
    *
-   * @param x dense input vector
+   * @param x dense input vector whose length equals the matrix column count
+   * @return newly allocated dense row-activity vector
    */
   public double[] multiply(final double[] x) {
     Objects.requireNonNull(x, "x");
@@ -83,8 +84,8 @@ public final class CsrMatrix {
   /**
    * Computes y = A x into a caller-owned output buffer.
    *
-   * @param x dense input vector
-   * @param y dense output vector overwritten with row activities
+   * @param x dense input vector whose length equals the matrix column count
+   * @param y dense output vector overwritten with row activities; must differ from {@code x}
    */
   public void multiplyInto(final double[] x, final double[] y) {
     Objects.requireNonNull(x, "x");

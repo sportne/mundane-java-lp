@@ -4,12 +4,13 @@ import io.github.mundanej.mlp.harness.RunRecord;
 import java.util.List;
 import java.util.Map;
 
-/** Writes a small Markdown report for run records. */
+/** Writes deterministic Markdown reports for run records. */
 public final class MarkdownReportWriter {
   /**
    * Renders run records as Markdown.
    *
-   * @param records run records to render
+   * @param records run records to render in their existing order
+   * @return Markdown table including validation, timing, solver, and machine evidence
    */
   public String render(final List<RunRecord> records) {
     Map<ReportStatistics.Key, ReportStatistics.Summary> summaries =

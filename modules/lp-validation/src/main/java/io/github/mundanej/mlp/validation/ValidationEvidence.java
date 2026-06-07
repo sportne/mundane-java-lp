@@ -9,7 +9,7 @@ import java.util.OptionalDouble;
  *
  * @param status normalized solver status claim
  * @param objectiveValue reported objective value when available
- * @param primal primal vector in column order; empty means unavailable
+ * @param primal primal vector in column order; empty means unavailable; defensively copied
  */
 public record ValidationEvidence(
     Optional<ValidationStatus> status, OptionalDouble objectiveValue, double[] primal) {
@@ -30,6 +30,7 @@ public record ValidationEvidence(
    * Returns evidence with only a status claim.
    *
    * @param status normalized solver status claim
+   * @return evidence with no objective or primal data
    */
   public static ValidationEvidence statusOnly(final ValidationStatus status) {
     return new ValidationEvidence(Optional.of(status), OptionalDouble.empty(), new double[0]);
@@ -40,6 +41,7 @@ public record ValidationEvidence(
    *
    * @param objectiveValue reported objective value
    * @param primal primal vector in column order
+   * @return optimal evidence with copied primal values
    */
   public static ValidationEvidence optimal(final double objectiveValue, final double... primal) {
     return new ValidationEvidence(

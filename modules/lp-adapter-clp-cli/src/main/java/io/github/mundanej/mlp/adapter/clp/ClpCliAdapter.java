@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/** CLI adapter for COIN-OR CLP. */
+/** CLI adapter for COIN-OR CLP using MPS export and bounded process logs. */
 public final class ClpCliAdapter implements LpSolverAdapter {
   private static final SolverId ID = new SolverId("clp", "cli");
   private static final int MAX_LOG_BYTES = 16 * 1024;

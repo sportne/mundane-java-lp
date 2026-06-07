@@ -3,7 +3,7 @@ package io.github.mundanej.mlp.model;
 import java.util.List;
 import java.util.Objects;
 
-/** Canonical LP problem descriptor for the G0/G1 scaffold. */
+/** Canonical LP problem metadata: objective, bounds, and matrix shape. */
 public final class LpProblem {
   private final String name;
   private final LpObjective objective;
@@ -14,11 +14,11 @@ public final class LpProblem {
   /**
    * Creates a problem descriptor.
    *
-   * @param name problem name
-   * @param objective objective function
-   * @param variableBounds variable bounds
-   * @param rowBounds row bounds
-   * @param stats problem shape statistics
+   * @param name nonblank problem name used in diagnostics and file formats
+   * @param objective objective function whose coefficient count equals the variable count
+   * @param variableBounds variable bounds in column order; copied into an immutable list
+   * @param rowBounds row activity bounds in row order; copied into an immutable list
+   * @param stats problem shape statistics matching the bounds and coefficient matrix
    */
   public LpProblem(
       final String name,
@@ -52,17 +52,17 @@ public final class LpProblem {
     return objective;
   }
 
-  /** Returns immutable variable bounds. */
+  /** Returns immutable variable bounds in column order. */
   public List<LpVariableBounds> variableBounds() {
     return variableBounds;
   }
 
-  /** Returns immutable row bounds. */
+  /** Returns immutable row activity bounds in row order. */
   public List<LpRowBounds> rowBounds() {
     return rowBounds;
   }
 
-  /** Returns shape stats. */
+  /** Returns the declared row, column, and nonzero counts. */
   public LpProblemStats stats() {
     return stats;
   }

@@ -2,7 +2,7 @@ package io.github.mundanej.mlp.sparse;
 
 import java.util.Objects;
 
-/** Compressed sparse column matrix backed by primitive arrays. */
+/** Compressed sparse column matrix backed by copied primitive arrays. */
 public final class CscMatrix {
   private final int rows;
   private final int columns;
@@ -15,9 +15,9 @@ public final class CscMatrix {
    *
    * @param rows row count
    * @param columns column count
-   * @param values nonzero values
-   * @param rowIndices row index for each nonzero
-   * @param columnPointers start offset for each column
+   * @param values nonzero values in column-major CSC order; defensively copied
+   * @param rowIndices row index for each nonzero; defensively copied
+   * @param columnPointers column start offsets with length {@code columns + 1}; defensively copied
    */
   public CscMatrix(
       final int rows,
@@ -69,7 +69,8 @@ public final class CscMatrix {
   /**
    * Computes y = A x.
    *
-   * @param x dense input vector
+   * @param x dense input vector whose length equals the matrix column count
+   * @return newly allocated dense row-activity vector
    */
   public double[] multiply(final double[] x) {
     Objects.requireNonNull(x, "x");

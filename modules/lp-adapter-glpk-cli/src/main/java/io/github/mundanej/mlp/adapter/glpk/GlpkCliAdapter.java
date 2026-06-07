@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/** CLI adapter for GLPK. */
+/** CLI adapter for GLPK using MPS export and bounded process logs. */
 public final class GlpkCliAdapter implements LpSolverAdapter {
   private static final SolverId ID = new SolverId("glpk", "cli");
   private static final int MAX_LOG_BYTES = 16 * 1024;

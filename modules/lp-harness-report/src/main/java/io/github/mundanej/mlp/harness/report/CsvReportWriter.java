@@ -10,6 +10,7 @@ public final class CsvReportWriter {
    * Renders run records as CSV.
    *
    * @param records run records in report order
+   * @return CSV table including validation, timing, solver, and machine evidence
    */
   public String render(final List<RunRecord> records) {
     Map<ReportStatistics.Key, ReportStatistics.Summary> summaries =

@@ -8,7 +8,7 @@ import java.util.OptionalDouble;
  * Independent expected evidence for result validation.
  *
  * @param status expected terminal status when known
- * @param objectiveValue expected objective value when known
+ * @param objectiveValue expected objective value when known; compared with validation tolerances
  */
 public record ExpectedValidationResult(
     Optional<ValidationStatus> status, OptionalDouble objectiveValue) {
@@ -26,7 +26,8 @@ public record ExpectedValidationResult(
   /**
    * Returns expected evidence for an optimal result.
    *
-   * @param objectiveValue expected objective value
+   * @param objectiveValue expected optimal objective value
+   * @return expected evidence requiring an optimal status and matching objective value
    */
   public static ExpectedValidationResult optimal(final double objectiveValue) {
     return new ExpectedValidationResult(
@@ -37,6 +38,7 @@ public record ExpectedValidationResult(
    * Returns expected evidence for a terminal status without objective evidence.
    *
    * @param status expected terminal status
+   * @return expected evidence that validates status only
    */
   public static ExpectedValidationResult statusOnly(final ValidationStatus status) {
     return new ExpectedValidationResult(Optional.of(status), OptionalDouble.empty());

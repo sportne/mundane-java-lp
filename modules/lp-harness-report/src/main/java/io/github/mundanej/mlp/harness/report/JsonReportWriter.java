@@ -10,6 +10,7 @@ public final class JsonReportWriter {
    * Renders run records as a JSON array.
    *
    * @param records run records in report order
+   * @return JSON array including validation, timing, solver, and machine evidence
    */
   public String render(final List<RunRecord> records) {
     Map<ReportStatistics.Key, ReportStatistics.Summary> summaries =

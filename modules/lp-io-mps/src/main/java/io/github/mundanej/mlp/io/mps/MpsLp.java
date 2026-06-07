@@ -12,9 +12,10 @@ import java.util.Set;
  *
  * @param problem canonical LP problem metadata
  * @param matrix row-by-column coefficient matrix
- * @param rowNames diagnostic row names
- * @param columnNames diagnostic column names
- * @param objectiveRowName objective row name
+ * @param rowNames distinct nonblank row names in matrix row order; copied into an immutable list
+ * @param columnNames distinct nonblank column names in variable order; copied into an immutable
+ *     list
+ * @param objectiveRowName nonblank objective row name
  */
 public record MpsLp(
     LpProblem problem,
@@ -27,9 +28,9 @@ public record MpsLp(
    *
    * @param problem canonical LP problem metadata
    * @param matrix row-by-column coefficient matrix
-   * @param rowNames diagnostic row names
-   * @param columnNames diagnostic column names
-   * @param objectiveRowName objective row name
+   * @param rowNames distinct nonblank row names in matrix row order
+   * @param columnNames distinct nonblank column names in variable order
+   * @param objectiveRowName nonblank objective row name
    */
   public MpsLp {
     Objects.requireNonNull(problem, "problem");

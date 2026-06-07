@@ -3,8 +3,8 @@ package io.github.mundanej.mlp.model;
 /**
  * Lower and upper bounds for a single LP variable.
  *
- * @param lower lower variable bound
- * @param upper upper variable bound
+ * @param lower finite or infinite lower variable bound
+ * @param upper finite or infinite upper variable bound
  */
 public record LpVariableBounds(double lower, double upper) {
   /** A free variable bound. */

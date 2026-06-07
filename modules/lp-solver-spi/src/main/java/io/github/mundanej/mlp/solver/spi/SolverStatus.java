@@ -20,7 +20,7 @@ public enum SolverStatus {
   NUMERICAL_FAILURE,
   /** Adapter or solver error. */
   ERROR,
-  /** Unsupported problem or feature. */
+  /** Unsupported problem shape, file-format feature, or adapter capability. */
   UNSUPPORTED,
   /** Unknown status. */
   UNKNOWN

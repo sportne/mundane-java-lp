@@ -12,10 +12,11 @@ import java.util.stream.IntStream;
  * Solver-facing LP input envelope.
  *
  * @param problem canonical LP problem metadata
- * @param matrix row-by-column coefficient matrix
- * @param rowNames row names in matrix row order
- * @param columnNames column names in variable order
- * @param objectiveRowName objective row name for file formats
+ * @param matrix row-by-column coefficient matrix matching the problem statistics
+ * @param rowNames distinct nonblank row names in matrix row order; copied into an immutable list
+ * @param columnNames distinct nonblank column names in variable order; copied into an immutable
+ *     list
+ * @param objectiveRowName nonblank objective row name for file formats
  */
 public record SolverInput(
     LpProblem problem,
@@ -27,10 +28,10 @@ public record SolverInput(
    * Creates a solver input envelope.
    *
    * @param problem canonical LP problem metadata
-   * @param matrix row-by-column coefficient matrix
-   * @param rowNames row names in matrix row order
-   * @param columnNames column names in variable order
-   * @param objectiveRowName objective row name for file formats
+   * @param matrix row-by-column coefficient matrix matching the problem statistics
+   * @param rowNames distinct nonblank row names in matrix row order
+   * @param columnNames distinct nonblank column names in variable order
+   * @param objectiveRowName nonblank objective row name for file formats
    */
   public SolverInput {
     Objects.requireNonNull(problem, "problem");
@@ -61,7 +62,9 @@ public record SolverInput(
    * Creates a solver input with generated row and column names.
    *
    * @param problem canonical LP problem metadata
-   * @param matrix row-by-column coefficient matrix
+   * @param matrix row-by-column coefficient matrix matching the problem statistics
+   * @return solver input whose row names are {@code R0..Rn}, column names are {@code X0..Xn}, and
+   *     objective row name is {@code OBJ}
    */
   public static SolverInput withGeneratedNames(final LpProblem problem, final CsrMatrix matrix) {
     Objects.requireNonNull(problem, "problem");

@@ -8,7 +8,7 @@ import java.util.OptionalDouble;
  *
  * @param resultKind expected result kind
  * @param objectiveValue expected objective value when known
- * @param primal expected primal vector when known
+ * @param primal expected primal vector when known; defensively copied
  */
 public record LpFixtureEvidence(
     ExpectedResultKind resultKind, OptionalDouble objectiveValue, double[] primal) {

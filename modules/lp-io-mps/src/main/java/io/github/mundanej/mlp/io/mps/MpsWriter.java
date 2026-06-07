@@ -14,10 +14,10 @@ import java.util.Objects;
 /** Writer for the supported 0.1.0 MPS LP subset. */
 public final class MpsWriter {
   /**
-   * Writes an LP problem shell for compatibility with G0 smoke callers.
+   * Writes zero-nonzero problem metadata using generated row and column names.
    *
-   * @param problem LP problem to describe
-   * @param path output path
+   * @param problem LP problem to describe; its declared nonzero count must be zero
+   * @param path output path to overwrite or create
    */
   public void write(final LpProblem problem, final Path path) throws IOException {
     Objects.requireNonNull(problem, "problem");
@@ -39,10 +39,10 @@ public final class MpsWriter {
   }
 
   /**
-   * Writes an MPS LP envelope.
+   * Writes a supported MPS LP envelope.
    *
    * @param lp LP envelope
-   * @param path output path
+   * @param path output path to overwrite or create
    */
   public void write(final MpsLp lp, final Path path) throws IOException {
     Objects.requireNonNull(lp, "lp");

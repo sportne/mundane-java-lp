@@ -6,7 +6,7 @@ import java.util.List;
  * Validation result for a solver output.
  *
  * @param toleranceProfile tolerance profile used for validation
- * @param findings validation findings
+ * @param findings validation findings; copied into an immutable list
  */
 public record ValidationReport(
     ToleranceProfile toleranceProfile, List<ValidationFinding> findings) {
@@ -23,7 +23,7 @@ public record ValidationReport(
     findings = List.copyOf(findings);
   }
 
-  /** Returns true when no findings were recorded. */
+  /** Returns true when no validation findings were recorded. */
   public boolean accepted() {
     return findings.isEmpty();
   }

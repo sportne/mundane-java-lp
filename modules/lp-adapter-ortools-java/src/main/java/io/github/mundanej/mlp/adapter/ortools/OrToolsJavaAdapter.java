@@ -19,7 +19,7 @@ import io.github.mundanej.mlp.solver.spi.SolverWorkDirectory;
 import java.util.Objects;
 import java.util.OptionalDouble;
 
-/** Java library adapter for OR-Tools GLOP. */
+/** Java library adapter for OR-Tools GLOP continuous linear optimization. */
 public final class OrToolsJavaAdapter implements LpSolverAdapter {
   private static final SolverId ID = new SolverId("ortools", "java");
   private final NativeRuntimeLoader nativeRuntimeLoader;

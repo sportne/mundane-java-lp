@@ -15,7 +15,7 @@ public enum ToleranceProfile {
     this.feasibilityTolerance = feasibilityTolerance;
   }
 
-  /** Returns the feasibility tolerance. */
+  /** Returns the absolute feasibility tolerance used by validation checks. */
   public double feasibilityTolerance() {
     return feasibilityTolerance;
   }

@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.OptionalDouble;
 
-/** Minimal in-project simple solver adapter. */
+/** Correctness-first in-project solver for tiny zero-, one-, and two-variable LPs. */
 public final class SimpleLpSolverAdapter implements LpSolverAdapter {
   private static final SolverId ID = new SolverId("simple", "java");
   private static final double EPSILON = 1.0e-9d;

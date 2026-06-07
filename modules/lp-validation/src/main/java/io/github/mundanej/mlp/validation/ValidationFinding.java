@@ -5,7 +5,7 @@ package io.github.mundanej.mlp.validation;
  *
  * @param code stable finding code
  * @param message human-readable finding message
- * @param magnitude violation magnitude
+ * @param magnitude violation magnitude; interpretation depends on the finding code
  */
 public record ValidationFinding(String code, String message, double magnitude) {
   /**

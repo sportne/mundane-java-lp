@@ -9,7 +9,7 @@ import java.util.Objects;
  * @param id stable instance identifier
  * @param generatorName generator name
  * @param seed deterministic seed
- * @param sizeParameters deterministic size parameters
+ * @param sizeParameters deterministic size parameters; copied into an immutable map
  * @param fixture canonical LP fixture
  */
 public record GeneratedLpInstance(

@@ -12,7 +12,7 @@ import java.util.OptionalDouble;
  * @param id instance identifier
  * @param problem LP problem
  * @param matrix row-by-column coefficient matrix
- * @param expectedResult expected validation evidence
+ * @param expectedResult expected validation evidence used after solver execution
  */
 public record BenchmarkInstance(
     String id, LpProblem problem, CsrMatrix matrix, ExpectedValidationResult expectedResult) {
@@ -22,7 +22,7 @@ public record BenchmarkInstance(
    * @param id instance identifier
    * @param problem LP problem
    * @param matrix row-by-column coefficient matrix
-   * @param expectedResult expected validation evidence
+   * @param expectedResult expected validation evidence used after solver execution
    */
   public BenchmarkInstance {
     if (id == null || id.isBlank()) {

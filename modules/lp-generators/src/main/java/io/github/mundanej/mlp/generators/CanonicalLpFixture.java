@@ -14,8 +14,9 @@ import java.util.Set;
  *
  * @param problem LP problem metadata
  * @param matrix row-by-column coefficient matrix
- * @param rowNames diagnostic row names
- * @param columnNames diagnostic column names
+ * @param rowNames distinct nonblank row names in matrix row order; copied into an immutable list
+ * @param columnNames distinct nonblank column names in variable order; copied into an immutable
+ *     list
  * @param evidence hand-checked expected evidence
  */
 public record CanonicalLpFixture(
@@ -31,8 +32,8 @@ public record CanonicalLpFixture(
    *
    * @param problem LP problem metadata
    * @param matrix row-by-column coefficient matrix
-   * @param rowNames diagnostic row names
-   * @param columnNames diagnostic column names
+   * @param rowNames distinct nonblank row names in matrix row order
+   * @param columnNames distinct nonblank column names in variable order
    * @param evidence hand-checked expected evidence
    */
   public CanonicalLpFixture {

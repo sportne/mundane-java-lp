@@ -30,6 +30,7 @@ public final class HarnessRunner {
    * @param suite benchmark suite
    * @param adapters explicit solver adapter list
    * @param config harness run configuration
+   * @return immutable run records for every solver/instance attempt
    */
   public List<RunRecord> run(
       final BenchmarkSuite suite,

@@ -14,15 +14,17 @@ import io.github.mundanej.mlp.validation.ValidationReport;
  * @param outcome deterministic harness outcome
  * @param failureMessage failure diagnostic; blank when not applicable
  * @param runMode comparison or benchmark lane mode
- * @param solverVersion solver version or not-measured
+ * @param solverVersion solver version or {@code not-measured}
  * @param solverBinaryPath solver binary path or deterministic diagnostic
  * @param solverOptions solver options
  * @param machineFingerprint machine metadata
- * @param parseSeconds parse time in seconds
- * @param exportSeconds export/canonicalization time in seconds
- * @param validationSeconds validation time in seconds
- * @param totalSeconds total wall time in seconds
- * @param peakMemoryBytes peak memory in bytes or not-measured
+ * @param parseSeconds parse time in seconds, or {@link Double#NaN} for {@code not-measured}
+ * @param exportSeconds export/canonicalization time in seconds, or {@link Double#NaN} for {@code
+ *     not-measured}
+ * @param validationSeconds validation time in seconds, or {@link Double#NaN} for {@code
+ *     not-measured}
+ * @param totalSeconds total wall time in seconds, or {@link Double#NaN} for {@code not-measured}
+ * @param peakMemoryBytes peak memory in bytes or {@code not-measured}
  */
 public record RunRecord(
     String suiteId,
@@ -51,15 +53,17 @@ public record RunRecord(
    * @param outcome deterministic harness outcome
    * @param failureMessage failure diagnostic; blank when not applicable
    * @param runMode comparison or benchmark lane mode
-   * @param solverVersion solver version or not-measured
+   * @param solverVersion solver version or {@code not-measured}
    * @param solverBinaryPath solver binary path or deterministic diagnostic
    * @param solverOptions solver options
    * @param machineFingerprint machine metadata
-   * @param parseSeconds parse time in seconds
-   * @param exportSeconds export/canonicalization time in seconds
-   * @param validationSeconds validation time in seconds
-   * @param totalSeconds total wall time in seconds
-   * @param peakMemoryBytes peak memory in bytes or not-measured
+   * @param parseSeconds parse time in seconds, or {@link Double#NaN} for {@code not-measured}
+   * @param exportSeconds export/canonicalization time in seconds, or {@link Double#NaN} for {@code
+   *     not-measured}
+   * @param validationSeconds validation time in seconds, or {@link Double#NaN} for {@code
+   *     not-measured}
+   * @param totalSeconds total wall time in seconds, or {@link Double#NaN} for {@code not-measured}
+   * @param peakMemoryBytes peak memory in bytes or {@code not-measured}
    */
   public RunRecord {
     if (suiteId == null || suiteId.isBlank()) {
@@ -113,14 +117,16 @@ public record RunRecord(
    * @param validationReport validation report
    * @param outcome deterministic harness outcome
    * @param failureMessage failure diagnostic; blank when not applicable
-   * @param solverVersion solver version or not-measured
+   * @param solverVersion solver version or {@code not-measured}
    * @param solverOptions solver options
    * @param machineFingerprint machine metadata
-   * @param parseSeconds parse time in seconds
-   * @param exportSeconds export/canonicalization time in seconds
-   * @param validationSeconds validation time in seconds
-   * @param totalSeconds total wall time in seconds
-   * @param peakMemoryBytes peak memory in bytes or not-measured
+   * @param parseSeconds parse time in seconds, or {@link Double#NaN} for {@code not-measured}
+   * @param exportSeconds export/canonicalization time in seconds, or {@link Double#NaN} for {@code
+   *     not-measured}
+   * @param validationSeconds validation time in seconds, or {@link Double#NaN} for {@code
+   *     not-measured}
+   * @param totalSeconds total wall time in seconds, or {@link Double#NaN} for {@code not-measured}
+   * @param peakMemoryBytes peak memory in bytes or {@code not-measured}
    */
   public RunRecord(
       final String suiteId,

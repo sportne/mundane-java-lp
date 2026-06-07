@@ -152,7 +152,7 @@ order.
 
 ### Release hardening
 
-- [release-001 public API Javadoc review](tasks/release-001-public-api-javadoc-review.md) - **Proposed**
+- [release-001 public API Javadoc review](tasks/release-001-public-api-javadoc-review.md) - **Complete**
 - [release-002 doc final cleanup](tasks/release-002-doc-final-cleanup.md) - **Proposed**
 - [release-003 quality gate hardening](tasks/release-003-quality-gate-hardening.md) - **Proposed**
 - [release-004 0.1.0 release readiness](tasks/release-004-0-1-0-release-readiness.md) - **Proposed**

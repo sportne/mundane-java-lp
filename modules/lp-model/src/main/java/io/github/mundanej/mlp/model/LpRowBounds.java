@@ -3,8 +3,8 @@ package io.github.mundanej.mlp.model;
 /**
  * Lower and upper bounds for a row activity.
  *
- * @param lower lower activity bound
- * @param upper upper activity bound
+ * @param lower finite or infinite lower row-activity bound
+ * @param upper finite or infinite upper row-activity bound
  */
 public record LpRowBounds(double lower, double upper) {
   /** A free row. */

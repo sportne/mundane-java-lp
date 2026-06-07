@@ -311,6 +311,7 @@ public final class SolverComparisonSmokeMain {
   /**
    * Solver comparison smoke result paths and counters.
    *
+   * @param mode solver comparison lane mode
    * @param suiteId suite identifier
    * @param records run records in report order
    * @param markdownPath Markdown report path
@@ -335,6 +336,7 @@ public final class SolverComparisonSmokeMain {
     /**
      * Creates a smoke result.
      *
+     * @param mode solver comparison lane mode
      * @param suiteId suite identifier
      * @param records run records in report order
      * @param markdownPath Markdown report path

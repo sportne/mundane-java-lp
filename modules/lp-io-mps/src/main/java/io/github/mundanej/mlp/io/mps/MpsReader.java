@@ -19,9 +19,10 @@ import java.util.Objects;
 /** Reader for the supported 0.1.0 MPS LP subset. */
 public final class MpsReader {
   /**
-   * Reads an MPS file and returns the canonical problem metadata.
+   * Reads an MPS file and returns only canonical problem metadata.
    *
    * @param path MPS file path
+   * @return canonical problem metadata parsed from the supported subset
    */
   public LpProblem read(final Path path) throws IOException {
     return readLp(path).problem();
@@ -31,6 +32,7 @@ public final class MpsReader {
    * Reads an MPS file and returns metadata, matrix coefficients, and names.
    *
    * @param path MPS file path
+   * @return full MPS LP envelope for solver round trips
    */
   public MpsLp readLp(final Path path) throws IOException {
     Objects.requireNonNull(path, "path");

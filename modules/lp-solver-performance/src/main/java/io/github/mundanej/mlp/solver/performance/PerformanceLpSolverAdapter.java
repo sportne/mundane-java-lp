@@ -10,7 +10,7 @@ import io.github.mundanej.mlp.solver.spi.SolverWorkDirectory;
 import java.util.Objects;
 import java.util.OptionalDouble;
 
-/** Minimal in-project performance solver adapter. */
+/** Performance-oriented in-project solver for the documented restricted LP subset. */
 public final class PerformanceLpSolverAdapter implements LpSolverAdapter {
   private static final SolverId ID = new SolverId("performance", "java");
   private final RevisedSimplexCore core = new RevisedSimplexCore();

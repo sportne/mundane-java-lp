@@ -18,7 +18,7 @@ import org.ojalgo.optimisation.ExpressionsBasedModel;
 import org.ojalgo.optimisation.Optimisation;
 import org.ojalgo.optimisation.Variable;
 
-/** Java library adapter for ojAlgo. */
+/** Java library adapter for ojAlgo continuous linear optimization. */
 public final class OjAlgoAdapter implements LpSolverAdapter {
   private static final SolverId ID = new SolverId("ojalgo", "java");
 

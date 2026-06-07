@@ -8,9 +8,9 @@ import java.util.OptionalDouble;
  * @param solverId solver identifier
  * @param status normalized solver status
  * @param objectiveValue optional objective value
- * @param primalValues primal variable values when available
- * @param elapsedSeconds elapsed solve time in seconds
- * @param message adapter diagnostic message
+ * @param primalValues primal variable values in column order when available; defensively copied
+ * @param elapsedSeconds reported solve time in seconds
+ * @param message adapter diagnostic message; null is normalized to blank
  */
 public record SolverRunResult(
     SolverId solverId,
@@ -25,9 +25,9 @@ public record SolverRunResult(
    * @param solverId solver identifier
    * @param status normalized solver status
    * @param objectiveValue optional objective value
-   * @param primalValues primal variable values when available
-   * @param elapsedSeconds elapsed solve time in seconds
-   * @param message adapter diagnostic message
+   * @param primalValues primal variable values in column order when available
+   * @param elapsedSeconds reported solve time in seconds
+   * @param message adapter diagnostic message; null is normalized to blank
    */
   public SolverRunResult {
     if (solverId == null) {
@@ -56,7 +56,7 @@ public record SolverRunResult(
     }
   }
 
-  /** Returns defensive-copy primal evidence. */
+  /** Returns a defensive copy of primal evidence in column order. */
   @Override
   public double[] primalValues() {
     return primalValues.clone();
