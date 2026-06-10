@@ -38,6 +38,8 @@ import hashlib
 import json
 from pathlib import Path
 import sys
+import time
+from urllib.error import URLError
 from urllib.request import urlopen
 
 repo_root = Path(sys.argv[1])
@@ -69,6 +71,8 @@ required_instance = {
     "status",
 }
 ids = set()
+download_attempts = 3
+download_timeout_seconds = 30
 
 
 def validate_instance(index, instance):
@@ -100,6 +104,26 @@ def sha256(path):
     return digest.hexdigest()
 
 
+def download_bytes(instance):
+    instance_id = instance["id"]
+    url = instance["upstreamUrl"]
+    for attempt in range(1, download_attempts + 1):
+        try:
+            with urlopen(url, timeout=download_timeout_seconds) as response:
+                return response.read()
+        except (TimeoutError, URLError) as error:
+            if attempt == download_attempts:
+                raise SystemExit(
+                    f"{instance_id}: download failed after "
+                    f"{download_attempts} attempts: {error}"
+                ) from error
+            print(
+                f"{instance_id}: download attempt {attempt} failed: {error}; retrying",
+                file=sys.stderr,
+            )
+            time.sleep(min(2 ** attempt, 10))
+
+
 for index, instance in enumerate(data["instances"]):
     validate_instance(index, instance)
 
@@ -115,8 +139,7 @@ for instance in data["instances"]:
     expected = instance["sha256"]
     if download:
         local_path.parent.mkdir(parents=True, exist_ok=True)
-        with urlopen(instance["upstreamUrl"], timeout=30) as response:
-            local_path.write_bytes(response.read())
+        local_path.write_bytes(download_bytes(instance))
         print(f"{instance_id}: downloaded {instance['upstreamUrl']} -> {local_path}")
 
     if not local_path.exists():
