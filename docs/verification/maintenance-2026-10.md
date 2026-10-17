@@ -18,7 +18,7 @@ Owner-authorized maintenance in progress; verification results are recorded in t
 
 ## Allowed files
 
-- `.github/workflows/ci.yml`, `build-logic/build.gradle`, and these verification documents.
+- `.github/workflows/ci.yml`, `build-logic/build.gradle`, the `gradlew` executable bit, and these verification documents.
 
 ## Forbidden files
 
@@ -29,6 +29,7 @@ Owner-authorized maintenance in progress; verification results are recorded in t
 - Run the existing default quality gate independently of network-dependent solver evidence.
 - Keep the strict solver/benchmark job failing on unavailable prerequisites.
 - Refresh compatible build-plugin and test-runner patches.
+- Preserve the executable wrapper entry point used by CI and documented acceptance commands.
 
 ## Required tests and documentation
 
