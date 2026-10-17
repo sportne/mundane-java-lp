@@ -97,12 +97,17 @@ requirements to local release readiness; those remain CI/evidence-lane checks.
 
 ## CI evidence lane
 
+The independent `quality-gate` CI job runs the default gate without solver
+provisioning or network benchmark downloads. The separate `solver-evidence` job
+retains strict failures when provisioning or public benchmark acquisition fails;
+those failures no longer prevent the local quality gate from running.
+
 CI installs the required external CLI solvers, verifies the solver toolchain in
 strict mode, downloads public benchmark candidates into ignored local paths, and
 runs:
 
 ```bash
-./gradlew qualityGate solverComparisonSmoke strictSolverComparison benchmarkSmoke expandedBenchmarkSuite nativeSmoke --console=plain
+./gradlew solverComparisonSmoke strictSolverComparison benchmarkSmoke expandedBenchmarkSuite nativeSmoke --console=plain
 ```
 
 This is stronger than the default local lane and is allowed to depend on CI

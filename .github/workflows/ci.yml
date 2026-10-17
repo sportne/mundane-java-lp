@@ -9,12 +9,24 @@ jobs:
   quality-gate:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v6.0.2
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '21'
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v5.0.2
+      - name: Run independent local quality gate
+        run: ./gradlew validateDesignControlPack qualityGate --console=plain
+
+  solver-evidence:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6.0.2
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v5.0.2
         with:
           gradle-version: '9.5.1'
       - name: Install solver comparison toolchain
@@ -32,5 +44,5 @@ jobs:
         run: MLP_SOLVER_TOOLCHAIN_STRICT=true gradle verifySolverToolchain --console=plain
       - name: Fetch public benchmark candidates
         run: bash tools/fetch-public-benchmarks.sh --download
-      - name: Quality gate
-        run: gradle qualityGate solverComparisonSmoke strictSolverComparison benchmarkSmoke expandedBenchmarkSuite nativeSmoke --console=plain
+      - name: Solver and benchmark evidence
+        run: ./gradlew solverComparisonSmoke strictSolverComparison benchmarkSmoke expandedBenchmarkSuite nativeSmoke --console=plain
